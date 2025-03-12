@@ -26,7 +26,11 @@ export default function Simulator() {
   const [scale, setScale] = useState(0.8);
   const audioContextRef = useRef<AudioContext>();
   const ref = useRef(null);
-  const isInView = useInView(ref, { amount: 0.5 });
+  // Increase threshold to detect visibility earlier
+  const isInView = useInView(ref, { 
+    amount: 0.3, // Lower threshold means it will trigger when less of the component is visible
+    once: false  // Allow retriggering when scrolling back
+  });
 
   const addOrbit = () => {
     if (periods.length < 10) {
