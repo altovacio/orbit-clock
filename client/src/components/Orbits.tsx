@@ -10,12 +10,12 @@ interface OrbitProps {
   onTopReached?: (orbitIndex: number) => void;
 }
 
-export default function Orbits({ 
-  type, 
-  numOrbits = 2, 
-  scale = 1, 
+export default function Orbits({
+  type,
+  numOrbits = 2,
+  scale = 1,
   periods = [3, 5],
-  onTopReached 
+  onTopReached
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -37,36 +37,7 @@ export default function Orbits({
     // Add definitions for gradients and filters
     const defs = svg.append('defs');
 
-    // Create enhanced neon glow filter
-    const filter = defs.append('filter')
-      .attr('id', 'neon-glow')
-      .attr('x', '-50%')
-      .attr('y', '-50%')
-      .attr('width', '200%')
-      .attr('height', '200%');
-
-    // Create multiple blur layers for more intense glow
-    filter.append('feGaussianBlur')
-      .attr('in', 'SourceGraphic')
-      .attr('stdDeviation', '1')
-      .attr('result', 'blur1');
-
-    filter.append('feGaussianBlur')
-      .attr('in', 'SourceGraphic')
-      .attr('stdDeviation', '2')
-      .attr('result', 'blur2');
-
-    filter.append('feGaussianBlur')
-      .attr('in', 'SourceGraphic')
-      .attr('stdDeviation', '4')
-      .attr('result', 'blur3');
-
-    filter.append('feMerge')
-      .selectAll('feMergeNode')
-      .data(['blur1', 'blur2', 'blur3', 'SourceGraphic'])
-      .enter()
-      .append('feMergeNode')
-      .attr('in', d => d);
+    // Create enhanced neon glow filter (original removed)
 
     // Setup SVG
     const width = 400;
@@ -104,19 +75,24 @@ export default function Orbits({
         .attr('cy', '0.5')
         .attr('r', '0.5');
 
-      // White hot core
+      // White hot core (larger)
       ballGradient.append('stop')
         .attr('offset', '0%')
         .attr('stop-color', '#ffffff');
 
-      // Yellow-orange middle
+      // Expanded white area
       ballGradient.append('stop')
-        .attr('offset', '30%')
+        .attr('offset', '40%')
+        .attr('stop-color', '#ffffff');
+
+      // Yellow-orange transition
+      ballGradient.append('stop')
+        .attr('offset', '60%')
         .attr('stop-color', '#ffd700');
 
       // Orange glow
       ballGradient.append('stop')
-        .attr('offset', '70%')
+        .attr('offset', '85%')
         .attr('stop-color', '#ff8c00')
         .attr('stop-opacity', '0.6');
 
@@ -125,6 +101,37 @@ export default function Orbits({
         .attr('offset', '100%')
         .attr('stop-color', '#ff8c00')
         .attr('stop-opacity', '0.1');
+
+      // Enhanced glow filter with more intense core
+      const filterGlow = defs.append('filter')
+        .attr('id', `neon-glow-${i}`)
+        .attr('x', '-100%')
+        .attr('y', '-100%')
+        .attr('width', '300%')
+        .attr('height', '300%');
+
+      filterGlow.append('feGaussianBlur')
+        .attr('in', 'SourceGraphic')
+        .attr('stdDeviation', '2')
+        .attr('result', 'blur1');
+
+      filterGlow.append('feGaussianBlur')
+        .attr('in', 'SourceGraphic')
+        .attr('stdDeviation', '4')
+        .attr('result', 'blur2');
+
+      filterGlow.append('feGaussianBlur')
+        .attr('in', 'SourceGraphic')
+        .attr('stdDeviation', '8')
+        .attr('result', 'blur3');
+
+      filterGlow.append('feMerge')
+        .selectAll('feMergeNode')
+        .data(['blur3', 'blur2', 'blur1', 'SourceGraphic'])
+        .enter()
+        .append('feMergeNode')
+        .attr('in', d => d);
+
 
       // Draw orbit path with dash pattern
       svg.append('circle')

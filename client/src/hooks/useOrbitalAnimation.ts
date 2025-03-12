@@ -10,13 +10,13 @@ interface UseOrbitalAnimationProps {
   onTopReached?: (orbitIndex: number) => void;
 }
 
-export function useOrbitalAnimation({ 
-  svgRef, 
-  type, 
+export function useOrbitalAnimation({
+  svgRef,
+  type,
   numOrbits = 2,
   scale = 1,
   periods = [3, 5],
-  onTopReached 
+  onTopReached
 }: UseOrbitalAnimationProps) {
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
@@ -55,13 +55,6 @@ export function useOrbitalAnimation({
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
 
-      // Check if ball is at the top (within a small threshold)
-      const isAtTop = Math.abs(Math.sin(angle)) < 0.1 && Math.cos(angle) < 0;
-      if (isAtTop && !lastTopRef.current[i] && onTopReached) {
-        onTopReached(i);
-      }
-      lastTopRef.current[i] = isAtTop;
-
       // Create or update the ball with neon fire effect
       svg.selectAll(`.orbit${i + 1}`)
         .data([null])
@@ -76,18 +69,25 @@ export function useOrbitalAnimation({
             .attr('class', 'ball-core')
             .attr('r', 8)
             .attr('fill', `url(#ballGradient${i})`)
-            .attr('filter', 'url(#neon-glow)');
+            .attr('filter', `url(#neon-glow-${i})`);
 
           // Center highlight
           g.selectAll('circle.ball-highlight')
             .data([null])
             .join('circle')
             .attr('class', 'ball-highlight')
-            .attr('r', 3)
+            .attr('r', 4)
             .attr('cx', -1)
             .attr('cy', -1)
-            .attr('fill', 'rgba(255, 255, 255, 0.8)');
+            .attr('fill', 'rgba(255, 255, 255, 0.9)');
         });
+
+      // Check if ball is at the north position (top)
+      const isAtTop = Math.abs(Math.sin(angle)) < 0.1 && Math.cos(angle) < 0;
+      if (isAtTop && !lastTopRef.current[i] && onTopReached) {
+        onTopReached(i);
+      }
+      lastTopRef.current[i] = isAtTop;
     }
 
     frameRef.current = requestAnimationFrame(animate);
