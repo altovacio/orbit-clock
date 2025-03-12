@@ -5,10 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Plus, Minus } from 'lucide-react';
 import Orbits from './Orbits';
+import { useAudioContext } from '@/hooks/useAudioContext';
 
 export default function Simulator() {
   const [periods, setPeriods] = useState<number[]>([3, 5]);
-  const [scale, setScale] = useState(0.8); // Reduced scale to fit screen better
+  const [scale, setScale] = useState(0.8);
+  const { playSound } = useAudioContext();
 
   const addOrbit = () => {
     if (periods.length < 10) {
@@ -20,6 +22,10 @@ export default function Simulator() {
     if (periods.length > 2) {
       setPeriods(periods.slice(0, -1));
     }
+  };
+
+  const handleTopReached = (orbitIndex: number) => {
+    playSound(orbitIndex);
   };
 
   return (
@@ -37,6 +43,7 @@ export default function Simulator() {
                 numOrbits={periods.length}
                 scale={scale}
                 periods={periods}
+                onTopReached={handleTopReached}
               />
             </div>
           </Card>

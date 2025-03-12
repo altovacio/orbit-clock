@@ -1,18 +1,23 @@
 import { useEffect, useRef } from 'react';
 import { select } from 'd3-selection';
 import { useOrbitalAnimation } from '@/hooks/useOrbitalAnimation';
-import { useAudioContext } from '@/hooks/useAudioContext';
 
 interface OrbitProps {
   type: string;
   numOrbits?: number;
   scale?: number;
   periods?: number[];
+  onTopReached?: (orbitIndex: number) => void;
 }
 
-export default function Orbits({ type, numOrbits = 2, scale = 1, periods = [3, 5] }: OrbitProps) {
+export default function Orbits({ 
+  type, 
+  numOrbits = 2, 
+  scale = 1, 
+  periods = [3, 5],
+  onTopReached 
+}: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const { playSound } = useAudioContext();
 
   const { startAnimation, stopAnimation } = useOrbitalAnimation({
     svgRef,
@@ -20,7 +25,7 @@ export default function Orbits({ type, numOrbits = 2, scale = 1, periods = [3, 5
     numOrbits,
     scale,
     periods,
-    onTopReached: (orbitIndex) => playSound(orbitIndex)
+    onTopReached
   });
 
   useEffect(() => {
@@ -40,20 +45,25 @@ export default function Orbits({ type, numOrbits = 2, scale = 1, periods = [3, 5
       .attr('width', '200%')
       .attr('height', '200%');
 
-    // Create a more intense glow effect
+    // Create multiple blur layers for more intense glow
     filter.append('feGaussianBlur')
       .attr('in', 'SourceGraphic')
-      .attr('stdDeviation', '3')
+      .attr('stdDeviation', '1')
       .attr('result', 'blur1');
 
     filter.append('feGaussianBlur')
       .attr('in', 'SourceGraphic')
-      .attr('stdDeviation', '6')
+      .attr('stdDeviation', '2')
       .attr('result', 'blur2');
+
+    filter.append('feGaussianBlur')
+      .attr('in', 'SourceGraphic')
+      .attr('stdDeviation', '4')
+      .attr('result', 'blur3');
 
     filter.append('feMerge')
       .selectAll('feMergeNode')
-      .data(['blur1', 'blur2', 'SourceGraphic'])
+      .data(['blur1', 'blur2', 'blur3', 'SourceGraphic'])
       .enter()
       .append('feMergeNode')
       .attr('in', d => d);
@@ -101,13 +111,18 @@ export default function Orbits({ type, numOrbits = 2, scale = 1, periods = [3, 5
         .attr('stop-color', 'white');
 
       ballGradient.append('stop')
-        .attr('offset', '50%')
+        .attr('offset', '30%')
         .attr('stop-color', baseColor);
+
+      ballGradient.append('stop')
+        .attr('offset', '70%')
+        .attr('stop-color', baseColor)
+        .attr('stop-opacity', '0.6');
 
       ballGradient.append('stop')
         .attr('offset', '100%')
         .attr('stop-color', baseColor)
-        .attr('stop-opacity', '0.3');
+        .attr('stop-opacity', '0.1');
 
       // Draw orbit path with dash pattern
       svg.append('circle')
