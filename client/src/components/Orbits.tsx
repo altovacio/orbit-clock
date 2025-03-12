@@ -37,7 +37,7 @@ export default function Orbits({
     // Add definitions for gradients and filters
     const defs = svg.append('defs');
 
-    // Create enhanced glow filter
+    // Create enhanced neon glow filter
     const filter = defs.append('filter')
       .attr('id', 'neon-glow')
       .attr('x', '-50%')
@@ -80,8 +80,6 @@ export default function Orbits({
 
     for (let i = 0; i < orbits; i++) {
       const radius = baseRadius * ((i + 1) / orbits);
-      const isEven = i % 2 === 0;
-      const baseColor = isEven ? 'rgb(59, 130, 246)' : 'rgb(168, 85, 247)';
 
       // Create gradient for orbit path
       const gradientId = `orbitGradient${i}`;
@@ -97,7 +95,7 @@ export default function Orbits({
         .attr('offset', '100%')
         .attr('stop-color', 'rgba(255, 255, 255, 0.2)');
 
-      // Create radial gradient for the neon ball effect
+      // Create radial gradient for the neon star effect
       const ballGradientId = `ballGradient${i}`;
       const ballGradient = defs.append('radialGradient')
         .attr('id', ballGradientId)
@@ -106,22 +104,26 @@ export default function Orbits({
         .attr('cy', '0.5')
         .attr('r', '0.5');
 
+      // White hot core
       ballGradient.append('stop')
         .attr('offset', '0%')
-        .attr('stop-color', 'white');
+        .attr('stop-color', '#ffffff');
 
+      // Yellow-orange middle
       ballGradient.append('stop')
         .attr('offset', '30%')
-        .attr('stop-color', baseColor);
+        .attr('stop-color', '#ffd700');
 
+      // Orange glow
       ballGradient.append('stop')
         .attr('offset', '70%')
-        .attr('stop-color', baseColor)
+        .attr('stop-color', '#ff8c00')
         .attr('stop-opacity', '0.6');
 
+      // Soft outer glow
       ballGradient.append('stop')
         .attr('offset', '100%')
-        .attr('stop-color', baseColor)
+        .attr('stop-color', '#ff8c00')
         .attr('stop-opacity', '0.1');
 
       // Draw orbit path with dash pattern

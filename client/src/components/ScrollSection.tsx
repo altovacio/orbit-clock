@@ -56,7 +56,30 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
           transition={{ duration: 0.5 }}
           className="aspect-square relative"
         >
-          <Orbits type={type} />
+          <Orbits 
+            type={type} 
+            onTopReached={isInView ? (orbitIndex) => {
+              // Only play sound if the section is in view
+              if (orbitIndex === 0 || type !== 'single') {
+                const audioContext = new AudioContext();
+                const oscillator = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                oscillator.connect(gain);
+                gain.connect(audioContext.destination);
+
+                // Use the pentatonic scale based on orbit index
+                const frequencies = [523.25, 587.33, 659.25, 783.99, 880.00];
+                oscillator.frequency.value = frequencies[orbitIndex % frequencies.length];
+
+                gain.gain.setValueAtTime(0, audioContext.currentTime);
+                gain.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+              }
+            } : undefined}
+          />
         </motion.div>
       </div>
     </div>
