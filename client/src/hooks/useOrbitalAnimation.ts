@@ -83,8 +83,8 @@ export function useOrbitalAnimation({
         });
 
       // Check if ball is at the north position (top)
-      // Using sine since we start from north position
-      const isAtTop = Math.abs(Math.sin(angle)) > 0.99;
+      // Using sine wave: at north position sin(angle) = 1
+      const isAtTop = Math.abs(Math.sin(angle) - 1) < 0.01;
       if (isAtTop && !lastTopRef.current[i] && onTopReached) {
         onTopReached(i);
       }

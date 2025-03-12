@@ -4,6 +4,7 @@ import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Plus, Minus } from 'lucide-react';
+import { useInView } from 'framer-motion';
 import Orbits from './Orbits';
 
 // Musical notes in the pentatonic scale for simulator
@@ -24,6 +25,8 @@ export default function Simulator() {
   const [periods, setPeriods] = useState<number[]>([3, 5]);
   const [scale, setScale] = useState(0.8);
   const audioContextRef = useRef<AudioContext>();
+  const ref = useRef(null);
+  const isInView = useInView(ref, { amount: 0.5 });
 
   const addOrbit = () => {
     if (periods.length < 10) {
@@ -38,6 +41,8 @@ export default function Simulator() {
   };
 
   const playSimulatorSound = (orbitIndex: number) => {
+    if (!isInView) return; // Only play sound if simulator is visible
+
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
     }
@@ -65,7 +70,7 @@ export default function Simulator() {
   };
 
   return (
-    <div className="min-h-screen p-8">
+    <div ref={ref} className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Interactive Orbital Simulator
