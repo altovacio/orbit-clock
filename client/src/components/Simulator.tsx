@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Plus, Minus } from 'lucide-react';
 import Orbits from './Orbits';
-import { useAudioContext } from '@/hooks/useAudioContext';
+
+// Musical notes in the pentatonic scale for simulator
+const SIMULATOR_NOTES = [
+  523.25, // C5
+  587.33, // D5
+  659.25, // E5
+  783.99, // G5
+  880.00, // A5
+  1046.50, // C6
+  1174.66, // D6
+  1318.51, // E6
+  1567.98, // G6
+  1760.00  // A6
+];
 
 export default function Simulator() {
   const [periods, setPeriods] = useState<number[]>([3, 5]);
   const [scale, setScale] = useState(0.8);
-  const { playSound } = useAudioContext();
+  const audioContextRef = useRef<AudioContext>();
 
   const addOrbit = () => {
     if (periods.length < 10) {
@@ -24,8 +37,31 @@ export default function Simulator() {
     }
   };
 
-  const handleTopReached = (orbitIndex: number) => {
-    playSound(orbitIndex);
+  const playSimulatorSound = (orbitIndex: number) => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext();
+    }
+
+    const context = audioContextRef.current;
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    // Use pentatonic scale notes based on orbit index
+    const frequency = SIMULATOR_NOTES[orbitIndex % SIMULATOR_NOTES.length];
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+
+    // Quick attack, slow release for a star-like shimmer
+    gainNode.gain.setValueAtTime(0, context.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.5);
   };
 
   return (
@@ -43,7 +79,7 @@ export default function Simulator() {
                 numOrbits={periods.length}
                 scale={scale}
                 periods={periods}
-                onTopReached={handleTopReached}
+                onTopReached={playSimulatorSound}
               />
             </div>
           </Card>

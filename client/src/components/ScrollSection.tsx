@@ -1,7 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import Orbits from './Orbits';
-import { useAudioContext } from '@/hooks/useAudioContext';
+
+// Musical notes for scroll sections (C major scale)
+const SCROLL_NOTES = [
+  523.25, // C5
+  587.33, // D5
+  659.25, // E5
+  698.46, // F5
+  783.99, // G5
+];
 
 interface ScrollSectionProps {
   id: string;
@@ -14,7 +22,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
   const controls = useAnimation();
   const ref = useRef(null);
   const isInView = useInView(ref, { amount: 0.5 });
-  const { playSound } = useAudioContext();
+  const audioContextRef = useRef<AudioContext>();
 
   useEffect(() => {
     if (isInView) {
@@ -23,6 +31,37 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
       controls.start('hidden');
     }
   }, [controls, isInView]);
+
+  const playScrollSound = (orbitIndex: number) => {
+    if (!isInView) return;
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext();
+    }
+
+    const context = audioContextRef.current;
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    // Use different notes for different sections
+    const sectionIndex = parseInt(id.replace(/\D/g, '')) || 0;
+    const baseNote = SCROLL_NOTES[sectionIndex % SCROLL_NOTES.length];
+    const note = baseNote * (1 + (orbitIndex * 0.5)); // Higher orbits get higher pitched notes
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(note, context.currentTime);
+
+    // Quick attack, slow release for a star-like shimmer
+    gainNode.gain.setValueAtTime(0, context.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.5);
+  };
 
   return (
     <div
@@ -60,10 +99,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
         >
           <Orbits 
             type={type} 
-            onTopReached={isInView ? (orbitIndex) => {
-              // Only play sound for visible sections and appropriate orbits
-              playSound(orbitIndex);
-            } : undefined}
+            onTopReached={isInView ? playScrollSound : undefined}
           />
         </motion.div>
       </div>
