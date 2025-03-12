@@ -5,16 +5,20 @@ import { useAudioContext } from '@/hooks/useAudioContext';
 
 interface OrbitProps {
   type: string;
+  numOrbits?: number;
+  scale?: number;
 }
 
-export default function Orbits({ type }: OrbitProps) {
+export default function Orbits({ type, numOrbits = 2, scale = 1 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const { playAlignmentSound } = useAudioContext();
-  
+  const { playSound } = useAudioContext();
+
   const { startAnimation, stopAnimation } = useOrbitalAnimation({
     svgRef,
     type,
-    onAlignment: playAlignmentSound
+    numOrbits,
+    scale,
+    onTopReached: playSound
   });
 
   useEffect(() => {
@@ -24,35 +28,27 @@ export default function Orbits({ type }: OrbitProps) {
     svg.selectAll('*').remove();
 
     // Setup SVG
-    const width = svg.node()?.getBoundingClientRect().width || 400;
-    const height = width;
+    const width = 400;
+    const height = 400;
     const centerX = width / 2;
     const centerY = height / 2;
+    const baseRadius = (width * 0.35) * scale; // Adjusted base radius
 
-    // Draw orbital paths
-    if (type === 'single' || type === 'single-timer') {
-      svg.append('circle')
-        .attr('cx', centerX)
-        .attr('cy', centerY)
-        .attr('r', width * 0.3)
-        .attr('class', 'stroke-blue-500/30 fill-none');
-    } else if (type === 'double' || type === 'crossing' || type === 'alignment') {
-      svg.append('circle')
-        .attr('cx', centerX)
-        .attr('cy', centerY)
-        .attr('r', width * 0.2)
-        .attr('class', 'stroke-blue-500/30 fill-none');
+    // Draw orbital paths based on number of orbits
+    const orbits = type === 'single' || type === 'single-timer' ? 1 : numOrbits;
 
+    for (let i = 0; i < orbits; i++) {
+      const radius = baseRadius * ((i + 1) / orbits);
       svg.append('circle')
         .attr('cx', centerX)
         .attr('cy', centerY)
-        .attr('r', width * 0.4)
-        .attr('class', 'stroke-purple-500/30 fill-none');
+        .attr('r', radius)
+        .attr('class', `stroke-[${i % 2 ? 'purple' : 'blue'}]-500/30 fill-none`);
     }
 
     startAnimation();
     return () => stopAnimation();
-  }, [type]);
+  }, [type, numOrbits, scale]);
 
   return (
     <svg

@@ -2,11 +2,25 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Plus, Minus } from 'lucide-react';
 import Orbits from './Orbits';
 
 export default function Simulator() {
-  const [period1, setPeriod1] = useState(3);
-  const [period2, setPeriod2] = useState(5);
+  const [periods, setPeriods] = useState<number[]>([3, 5]);
+  const [scale, setScale] = useState(0.8); // Reduced scale to fit screen better
+
+  const addOrbit = () => {
+    if (periods.length < 10) {
+      setPeriods([...periods, periods.length + 3]);
+    }
+  };
+
+  const removeOrbit = () => {
+    if (periods.length > 2) {
+      setPeriods(periods.slice(0, -1));
+    }
+  };
 
   return (
     <div className="min-h-screen p-8">
@@ -18,45 +32,77 @@ export default function Simulator() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
             <div className="aspect-square">
-              <Orbits type="double" />
+              <Orbits 
+                type="double" 
+                numOrbits={periods.length}
+                scale={scale}
+              />
             </div>
           </Card>
 
           <Card className="p-6 bg-gray-900/50 border-gray-800">
             <div className="space-y-8">
-              <div className="space-y-4">
-                <Label>Orbit 1 Period (seconds)</Label>
-                <Slider
-                  value={[period1]}
-                  onValueChange={([value]) => setPeriod1(value)}
-                  min={1}
-                  max={10}
-                  step={0.1}
-                />
-                <div className="text-sm text-gray-400">
-                  Current: {period1}s
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">Number of Orbits: {periods.length}</h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={removeOrbit}
+                    disabled={periods.length <= 2}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={addOrbit}
+                    disabled={periods.length >= 10}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <Label>Orbit 2 Period (seconds)</Label>
+                <Label>Orbit Scale</Label>
                 <Slider
-                  value={[period2]}
-                  onValueChange={([value]) => setPeriod2(value)}
-                  min={1}
-                  max={10}
+                  value={[scale]}
+                  onValueChange={([value]) => setScale(value)}
+                  min={0.4}
+                  max={1}
                   step={0.1}
                 />
                 <div className="text-sm text-gray-400">
-                  Current: {period2}s
+                  Scale: {scale.toFixed(1)}
                 </div>
               </div>
+
+              {periods.map((period, index) => (
+                <div key={index} className="space-y-4">
+                  <Label>Orbit {index + 1} Period (seconds)</Label>
+                  <Slider
+                    value={[period]}
+                    onValueChange={([value]) => {
+                      const newPeriods = [...periods];
+                      newPeriods[index] = value;
+                      setPeriods(newPeriods);
+                    }}
+                    min={1}
+                    max={10}
+                    step={0.1}
+                  />
+                  <div className="text-sm text-gray-400">
+                    Current: {period.toFixed(1)}s
+                  </div>
+                </div>
+              ))}
 
               <div className="p-4 bg-gray-800/50 rounded-lg">
                 <h3 className="font-semibold mb-2">Pattern Info</h3>
                 <p className="text-sm text-gray-400">
-                  The orbits will align every {(period1 * period2) / 
-                  Math.max(period1, period2)} seconds
+                  The orbits create complex patterns based on their relative periods.
+                  Listen for the sound when each ball reaches the top!
                 </p>
               </div>
             </div>
