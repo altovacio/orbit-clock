@@ -1,0 +1,88 @@
+# Educational Site: Synchronization & Periodicity
+
+## Overview
+Create an interactive educational website that teaches synchronization, periodicity, and Poincaré recurrence through visual simulations of orbiting objects. Start with an engaging scrollytelling introduction (similar to NYT interactive articles) that guides users through core concepts, then transition to a fully interactive simulation. The site should be mobile-friendly while also working well on desktop.
+
+## Part 1: Scrollytelling Introduction
+
+Implement a scroll-driven narrative introduction with the following sections:
+
+### Scroll Sections
+1. **Single Clock Introduction**
+   - Animation: Single ball moving in a circular path
+   - Text: "This is a clock - a repeating cycle with a period"
+   - Visual: Highlight the starting point and show one complete cycle
+
+2. **Period Explanation**
+   - Animation: Ball continues moving with a timer/counter
+   - Text: "The time it takes to complete one full circle is called its period"
+   - Visual: Show period measurement
+
+3. **Second Clock Introduction**
+   - Animation: Second concentric circle appears with its own ball moving at a different rate
+   - Text: "What happens when we have two cycles with different periods?"
+   - Visual: Highlight the different speeds/periods
+
+4. **Crossing Points**
+   - Animation: Focus on points where paths cross
+   - Text: "The balls cross paths at regular intervals that depend on their periods"
+   - Visual: Highlight crossing events
+
+5. **Alignment Explanation**
+   - Animation: Focus on moments when both balls align at the top
+   - Text: "Sometimes the balls align at the same point - this creates a pattern"
+   - Visual: Highlight alignment with a sound and visual effect
+   - Audio: Play a tone when alignment occurs
+
+6. **Pattern Introduction**
+   - Animation: Brief preview of multiple balls creating complex patterns
+   - Text: "With more elements, we can create complex systems with fascinating patterns"
+   - Visual: Teaser of the multi-ball simulation
+   - Call-to-action: "Continue to explore the full simulation"
+
+### Technical Requirements for Scrollytelling
+- Fixed-position canvas that updates based on scroll position
+- Text overlays that fade in/out with scrolling
+- Smooth transitions between scroll sections
+- Pause/resume animations based on viewport position
+- Mobile-friendly scroll detection and rendering
+
+## Part 2: Interactive Simulation Hub
+
+After completing the scrollytelling introduction, users arrive at a full interactive simulation environment:
+
+### Two-Ball Simulator
+- Two concentric circular paths with independently controlled periods
+- Visual indicators for alignments and crossings
+- Mathematical explanation of the relationship between periods
+- Sound feedback for alignments
+- Graph showing pattern of alignments over time
+
+### Multi-Ball Simulator
+- User-configurable number of balls/orbits (3-10)
+- Individual period controls
+- Visual tracking of alignments
+- Sound generation based on alignments
+- Connection to Poincaré recurrence theorem
+- Preset configurations for interesting patterns
+
+### Educational Sidebar
+- Mathematical explanations that update based on current configuration
+- Real-world examples and applications
+- Formula display for calculating future alignments
+- Brief explanation of Poincaré recurrence
+
+## Design Guidelines
+- Clean, minimalist interface inspired by NYT interactive articles
+- High-contrast colors for visibility
+- Mobile-first responsive design
+- Touch-friendly controls
+- Smooth transitions between sections
+- Optional dark mode support
+
+## Technical Considerations
+- Use HTML5 Canvas or SVG for animations
+- Implement Intersection Observer API for scroll-based animations
+- Optimize performance for mobile devices
+- Use Web Audio API for sound generation
+- Consider using D3.js for animations and visualizations
