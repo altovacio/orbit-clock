@@ -49,42 +49,43 @@ export function useOrbitalAnimation({
       const radius = baseRadius * ((i + 1) / orbits);
 
       // Calculate angle based on period (angular velocity = 2π/period)
-      const angle = (elapsedTime * (2 * Math.PI) / period) % (2 * Math.PI);
+      // Subtract π/2 to start from top (north) position
+      const angle = (elapsedTime * (2 * Math.PI) / period - Math.PI / 2) % (2 * Math.PI);
 
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
 
       // Check if ball is at the top (within a small threshold)
-      const isAtTop = Math.abs(Math.sin(angle) + 1) < 0.1;
+      const isAtTop = Math.abs(Math.sin(angle)) < 0.1 && Math.cos(angle) < 0;
       if (isAtTop && !lastTopRef.current[i] && onTopReached) {
         onTopReached(i);
       }
       lastTopRef.current[i] = isAtTop;
 
-      // Create or update the ball with modern styling
+      // Create or update the ball with neon fire effect
       svg.selectAll(`.orbit${i + 1}`)
         .data([null])
         .join('g')
         .attr('class', `orbit${i + 1}`)
         .attr('transform', `translate(${x},${y})`)
         .call(g => {
-          // Main ball
+          // Core glow
           g.selectAll('circle.ball-core')
             .data([null])
             .join('circle')
             .attr('class', 'ball-core')
-            .attr('r', 6)
-            .attr('fill', i % 2 ? 'rgb(168, 85, 247)' : 'rgb(59, 130, 246)')
-            .attr('filter', 'url(#glow)');
+            .attr('r', 8)
+            .attr('fill', `url(#ballGradient${i})`)
+            .attr('filter', 'url(#neon-glow)');
 
-          // Highlight
+          // Center highlight
           g.selectAll('circle.ball-highlight')
             .data([null])
             .join('circle')
             .attr('class', 'ball-highlight')
-            .attr('r', 2)
-            .attr('cx', -2)
-            .attr('cy', -2)
+            .attr('r', 3)
+            .attr('cx', -1)
+            .attr('cy', -1)
             .attr('fill', 'rgba(255, 255, 255, 0.8)');
         });
     }
