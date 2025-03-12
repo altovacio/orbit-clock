@@ -36,6 +36,7 @@ export default function Simulator() {
                 type="double" 
                 numOrbits={periods.length}
                 scale={scale}
+                periods={periods}
               />
             </div>
           </Card>

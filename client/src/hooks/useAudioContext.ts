@@ -1,9 +1,18 @@
 import { useRef, useCallback } from 'react';
 
+// Musical notes in the pentatonic scale (more harmonious)
+const NOTES = [
+  523.25, // C5
+  587.33, // D5
+  659.25, // E5
+  783.99, // G5
+  880.00  // A5
+];
+
 export function useAudioContext() {
   const audioContextRef = useRef<AudioContext>();
 
-  const playSound = useCallback(() => {
+  const playSound = useCallback((orbitIndex: number) => {
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext();
     }
@@ -12,10 +21,12 @@ export function useAudioContext() {
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
 
-    // Create a more pleasant "chime" sound
+    // Use pentatonic scale notes based on orbit index
+    const frequency = NOTES[orbitIndex % NOTES.length];
+
     oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(523.25, context.currentTime); // C5 note
-    gainNode.gain.setValueAtTime(0.3, context.currentTime);
+    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+    gainNode.gain.setValueAtTime(0.2, context.currentTime); // Reduced volume
     gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3);
 
     oscillator.connect(gainNode);
