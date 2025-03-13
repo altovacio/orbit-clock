@@ -1,0 +1,167 @@
+import { useState, useRef } from 'react';
+import { Card } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Plus, Minus } from 'lucide-react';
+import { useInView } from 'framer-motion';
+import Orbits from './Orbits';
+
+// Musical notes in the pentatonic scale for simulator
+const SIMULATOR_NOTES = [
+  523.25, // C5
+  587.33, // D5
+  659.25, // E5
+  783.99, // G5
+  880.00, // A5
+  1046.50, // C6
+  1174.66, // D6
+  1318.51, // E6
+  1567.98, // G6
+  1760.00  // A6
+];
+
+export default function Simulator() {
+  const [periods, setPeriods] = useState<number[]>([3, 5]);
+  const [scale, setScale] = useState(0.8);
+  const audioContextRef = useRef<AudioContext>();
+  const ref = useRef(null);
+  // Increase threshold to detect visibility earlier
+  const isInView = useInView(ref, { 
+    amount: 0.3, // Lower threshold means it will trigger when less of the component is visible
+    once: false  // Allow retriggering when scrolling back
+  });
+
+  const addOrbit = () => {
+    if (periods.length < 10) {
+      setPeriods([...periods, periods.length + 3]);
+    }
+  };
+
+  const removeOrbit = () => {
+    if (periods.length > 2) {
+      setPeriods(periods.slice(0, -1));
+    }
+  };
+
+  const playSimulatorSound = (orbitIndex: number) => {
+    if (!isInView) return; // Only play sound if simulator is visible
+
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext();
+    }
+
+    const context = audioContextRef.current;
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    // Use pentatonic scale notes based on orbit index
+    const frequency = SIMULATOR_NOTES[orbitIndex % SIMULATOR_NOTES.length];
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+
+    // Quick attack, slow release for a star-like shimmer
+    gainNode.gain.setValueAtTime(0, context.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.5);
+  };
+
+  return (
+    <div ref={ref} className="min-h-screen p-8">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          Interactive Orbital Simulator
+        </h2>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
+            <div className="aspect-square">
+              <Orbits 
+                type="double" 
+                numOrbits={periods.length}
+                scale={scale}
+                periods={periods}
+                onTopReached={playSimulatorSound}
+              />
+            </div>
+          </Card>
+
+          <Card className="p-6 bg-gray-900/50 border-gray-800">
+            <div className="space-y-8">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">Number of Orbits: {periods.length}</h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={removeOrbit}
+                    disabled={periods.length <= 2}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={addOrbit}
+                    disabled={periods.length >= 10}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Label>Orbit Scale</Label>
+                <Slider
+                  value={[scale]}
+                  onValueChange={([value]) => setScale(value)}
+                  min={0.4}
+                  max={1}
+                  step={0.1}
+                />
+                <div className="text-sm text-gray-400">
+                  Scale: {scale.toFixed(1)}
+                </div>
+              </div>
+
+              {periods.map((period, index) => (
+                <div key={index} className="space-y-4">
+                  <Label>Orbit {index + 1} Period (seconds)</Label>
+                  <Slider
+                    value={[period]}
+                    onValueChange={([value]) => {
+                      const newPeriods = [...periods];
+                      newPeriods[index] = value;
+                      setPeriods(newPeriods);
+                    }}
+                    min={1}
+                    max={10}
+                    step={0.1}
+                  />
+                  <div className="text-sm text-gray-400">
+                    Current: {period.toFixed(1)}s
+                  </div>
+                </div>
+              ))}
+
+              <div className="p-4 bg-gray-800/50 rounded-lg">
+                <h3 className="font-semibold mb-2">Pattern Info</h3>
+                <p className="text-sm text-gray-400">
+                  The orbits create complex patterns based on their relative periods.
+                  Listen for the sound when each ball reaches the top!
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
