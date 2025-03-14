@@ -14,7 +14,7 @@ export default function Orbits({
   type,
   numOrbits = 2,
   scale = 1,
-  periods = [3, 5],
+  periods = [1.4, 1.8],
   onTopReached
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -36,8 +36,6 @@ export default function Orbits({
 
     // Add definitions for gradients and filters
     const defs = svg.append('defs');
-
-    // Create enhanced neon glow filter (original removed)
 
     // Setup SVG
     const width = 400;
@@ -73,7 +71,7 @@ export default function Orbits({
         .attr('gradientUnits', 'objectBoundingBox')
         .attr('cx', '0.5')
         .attr('cy', '0.5')
-        .attr('r', '0.5');
+        .attr('r', '0.6'); // Reduced glow radius
 
       // White hot core (larger)
       ballGradient.append('stop')
@@ -101,48 +99,53 @@ export default function Orbits({
         .attr('offset', '100%')
         .attr('stop-color', '#ff8c00')
         .attr('stop-opacity', '0.1');
-
-      // Enhanced glow filter with more intense core
+        
       const filterGlow = defs.append('filter')
-        .attr('id', `neon-glow-${i}`)
-        .attr('x', '-100%')
-        .attr('y', '-100%')
-        .attr('width', '300%')
-        .attr('height', '300%');
+        .attr('id', `simple-glow-${i}`)
+        .attr('x', '-50%')
+        .attr('y', '-50%')
+        .attr('width', '200%')
+        .attr('height', '200%');
 
       filterGlow.append('feGaussianBlur')
-        .attr('in', 'SourceGraphic')
-        .attr('stdDeviation', '2')
-        .attr('result', 'blur1');
+        .attr('in', 'SourceAlpha')
+        .attr('stdDeviation', '2') // Reduced blur for a simpler glow
+        .attr('result', 'blur');
 
-      filterGlow.append('feGaussianBlur')
-        .attr('in', 'SourceGraphic')
-        .attr('stdDeviation', '4')
-        .attr('result', 'blur2');
+      filterGlow.append('feFlood')
+        .attr('flood-color', 'rgba(255, 255, 255, 0.5)') // White glow
+        .attr('result', 'color');
 
-      filterGlow.append('feGaussianBlur')
-        .attr('in', 'SourceGraphic')
-        .attr('stdDeviation', '8')
-        .attr('result', 'blur3');
+      filterGlow.append('feComposite')
+        .attr('in2', 'blur')
+        .attr('operator', 'in')
+        .attr('result', 'coloredBlur');
 
       filterGlow.append('feMerge')
         .selectAll('feMergeNode')
-        .data(['blur3', 'blur2', 'blur1', 'SourceGraphic'])
+        .data(['coloredBlur', 'SourceGraphic'])
         .enter()
         .append('feMergeNode')
         .attr('in', d => d);
-
-
+      
       // Draw orbit path with dash pattern
       svg.append('circle')
         .attr('cx', centerX)
         .attr('cy', centerY)
         .attr('r', radius)
         .attr('stroke', `url(#${gradientId})`)
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', 0.6)
         .attr('stroke-dasharray', '4,4')
         .attr('fill', 'none')
         .attr('class', `orbit-path-${i}`);
+
+      svg.append('line')
+        .attr('x1', centerX )
+        .attr('y1', centerY - radius - 2.5)
+        .attr('x2', centerX )
+        .attr('y2', centerY - radius + 2.5) // Length of the vertical line
+        .attr('stroke', '#ff8c00') // Color of the line
+        .attr('stroke-width', 0.6); // Width of the line
     }
 
     startAnimation();

@@ -67,7 +67,7 @@ export function useOrbitalAnimation({
             .data([null])
             .join('circle')
             .attr('class', 'ball-core')
-            .attr('r', 8)
+            .attr('r', 7)
             .attr('fill', `url(#ballGradient${i})`)
             .attr('filter', `url(#neon-glow-${i})`);
 
