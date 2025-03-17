@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback } from 'react';
 import { select } from 'd3-selection';
 
 interface UseOrbitalAnimationProps {
@@ -8,7 +8,6 @@ interface UseOrbitalAnimationProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
-  onPhaseChange?: (phase: number) => void;
 }
 
 export function useOrbitalAnimation({
@@ -17,8 +16,7 @@ export function useOrbitalAnimation({
   numOrbits = 2,
   scale = 1,
   periods = [3, 5],
-  onTopReached,
-  onPhaseChange
+  onTopReached
 }: UseOrbitalAnimationProps) {
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
@@ -53,13 +51,6 @@ export function useOrbitalAnimation({
       // Calculate angle based on period (angular velocity = 2π/period)
       // Start from north position (-π/2) and move clockwise
       const angle = -Math.PI / 2 + (elapsedTime * (2 * Math.PI) / period) % (2 * Math.PI);
-
-      // If this is the first orbit, report its phase
-      if (i === 0 && onPhaseChange) {
-        // Convert angle to degrees (0-360) and normalize
-        const degrees = ((angle + Math.PI / 2) * 180 / Math.PI + 360) % 360;
-        onPhaseChange(Math.round(degrees));
-      }
 
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
@@ -101,7 +92,7 @@ export function useOrbitalAnimation({
     }
 
     frameRef.current = requestAnimationFrame(animate);
-  }, [type, numOrbits, scale, periods, onTopReached, onPhaseChange]);
+  }, [type, numOrbits, scale, periods, onTopReached]);
 
   const startAnimation = useCallback(() => {
     startTimeRef.current = 0;

@@ -8,7 +8,6 @@ interface OrbitProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
-  onPhaseChange?: (phase: number) => void;  // Add this prop
 }
 
 export default function Orbits({
@@ -17,7 +16,6 @@ export default function Orbits({
   scale = 1,
   periods: customPeriods,
   onTopReached,
-  onPhaseChange,  // Add this prop
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -51,7 +49,6 @@ export default function Orbits({
     scale,
     periods,
     onTopReached,
-    onPhaseChange,  // Pass this prop
   });
 
   useEffect(() => {
@@ -101,7 +98,7 @@ export default function Orbits({
         .attr("gradientUnits", "objectBoundingBox")
         .attr("cx", "0.5")
         .attr("cy", "0.5")
-        .attr("r", "0.6");
+        .attr("r", "0.6"); // Reduced glow radius
 
       // White hot core (larger)
       ballGradient
@@ -146,12 +143,12 @@ export default function Orbits({
       filterGlow
         .append("feGaussianBlur")
         .attr("in", "SourceAlpha")
-        .attr("stdDeviation", "2")
+        .attr("stdDeviation", "2") // Reduced blur for a simpler glow
         .attr("result", "blur");
 
       filterGlow
         .append("feFlood")
-        .attr("flood-color", "rgba(255, 255, 255, 0.5)")
+        .attr("flood-color", "rgba(255, 255, 255, 0.5)") // White glow
         .attr("result", "color");
 
       filterGlow
@@ -185,9 +182,9 @@ export default function Orbits({
         .attr("x1", centerX)
         .attr("y1", centerY - radius - 2.5)
         .attr("x2", centerX)
-        .attr("y2", centerY - radius + 2.5)
-        .attr("stroke", "#ff8c00")
-        .attr("stroke-width", 0.6);
+        .attr("y2", centerY - radius + 2.5) // Length of the vertical line
+        .attr("stroke", "#ff8c00") // Color of the line
+        .attr("stroke-width", 0.6); // Width of the line
     }
 
     startAnimation();
