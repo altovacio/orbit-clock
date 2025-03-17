@@ -6,9 +6,9 @@ const sections = [
   {
     id: 'intro',
     title: 'Understanding Periodic Motion',
-    content: 'Just like a clock, this orbit completes one cycle every second. This repeating pattern is called a period - the time it takes to complete one full circle.',
+    content: 'Just like a clock, this orbit completes one cycle every two seconds. This repeating pattern is called a period - the time it takes to complete one full circle.',
     type: 'single',
-    periods: [1]
+    periods: [2]  // Changed from 1 to 2 seconds
   },
   {
     id: 'two-orbits',
