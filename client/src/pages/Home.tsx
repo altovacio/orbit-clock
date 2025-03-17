@@ -5,50 +5,38 @@ import Simulator from '@/components/Simulator';
 const sections = [
   {
     id: 'intro',
-    title: 'Understanding Periodic Motion',
-    content: 'This is a clock - a repeating cycle with a period',
+    title: 'What is an Orbital Period?',
+    content: 'Just like a clock hand, an orbiting object follows a circular path. The time it takes to complete one full circle is called its period.',
     type: 'single'
   },
   {
-    id: 'period',
-    title: 'The Period',
-    content: 'The time it takes to complete one full circle is called its period',
-    type: 'single-timer'
-  },
-  {
-    id: 'second',
-    title: 'Two Cycles',
-    content: 'What happens when we have two cycles with different periods?',
+    id: 'two-orbits',
+    title: 'When Two Orbits Meet',
+    content: 'Here we have two objects: one takes 1 second to orbit, the other takes 2 seconds. They will meet at the same point every 2 seconds - this is called their synchronization period.',
     type: 'double'
   },
   {
-    id: 'crossing',
-    title: 'Crossing Points',
-    content: 'The balls cross paths at regular intervals that depend on their periods',
-    type: 'crossing'
+    id: 'three-orbits',
+    title: 'Three-Body Dance',
+    content: 'With three objects (periods of 1, 2, and 3 seconds), the pattern becomes more complex. All three align every 6 seconds - this is the least common multiple of their periods.',
+    type: 'multi'
   },
   {
-    id: 'alignment',
-    title: 'Alignment',
-    content: 'Sometimes the balls align at the same point - this creates a pattern',
-    type: 'alignment'
-  },
-  {
-    id: 'patterns',
-    title: 'Complex Patterns',
-    content: 'With more elements, we can create complex systems with fascinating patterns',
+    id: 'simulator',
+    title: 'Interactive Orbital Laboratory',
+    content: 'Now it\'s your turn! Experiment with different numbers of orbits and periods. Watch how changing these values creates new patterns of motion.',
     type: 'multi'
   }
 ];
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     // Add star background
     const container = containerRef.current;
     if (!container) return;
-    
+
     for (let i = 0; i < 100; i++) {
       const star = document.createElement('div');
       star.className = 'absolute w-1 h-1 bg-white rounded-full animate-twinkle';

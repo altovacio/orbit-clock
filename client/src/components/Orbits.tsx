@@ -14,10 +14,28 @@ export default function Orbits({
   type,
   numOrbits = 2,
   scale = 1,
-  periods = [1.4, 1.8],
+  periods: customPeriods,
   onTopReached
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+
+  // Set demonstration periods based on type
+  let periods = customPeriods;
+  if (!periods) {
+    switch (type) {
+      case 'single':
+        periods = [1];
+        break;
+      case 'double':
+        periods = [1, 2];
+        break;
+      case 'multi':
+        periods = [1, 2, 3];
+        break;
+      default:
+        periods = Array(numOrbits).fill(0).map((_, i) => 1 + i * 0.2);
+    }
+  }
 
   const { startAnimation, stopAnimation } = useOrbitalAnimation({
     svgRef,
@@ -99,7 +117,7 @@ export default function Orbits({
         .attr('offset', '100%')
         .attr('stop-color', '#ff8c00')
         .attr('stop-opacity', '0.1');
-        
+
       const filterGlow = defs.append('filter')
         .attr('id', `simple-glow-${i}`)
         .attr('x', '-50%')
@@ -127,7 +145,7 @@ export default function Orbits({
         .enter()
         .append('feMergeNode')
         .attr('in', d => d);
-      
+
       // Draw orbit path with dash pattern
       svg.append('circle')
         .attr('cx', centerX)
