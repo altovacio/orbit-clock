@@ -100,12 +100,13 @@ function interpolateValues(start: number, end: number, count: number): number[] 
 
 export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
-  const [minPeriod, setMinPeriod] = useState(1.5);  
-  const [maxPeriod, setMaxPeriod] = useState(3);   
+  const [minPeriod, setMinPeriod] = useState(1.5);
+  const [maxPeriod, setMaxPeriod] = useState(3);
   const [scale, setScale] = useState(0.8);
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
   const [activePreset, setActivePreset] = useState<number>(0);
+  const [phase, setPhase] = useState<number>(0); // Added phase state
   const audioContextRef = useRef<AudioContext>();
   const ref = useRef(null);
 
@@ -187,8 +188,8 @@ export default function Simulator() {
               onClick={() => applyPreset(index)}
               className={`
                 px-4 py-2 rounded-lg text-left
-                ${activePreset === index 
-                  ? 'bg-blue-500/30 border-blue-500' 
+                ${activePreset === index
+                  ? 'bg-blue-500/30 border-blue-500'
                   : 'bg-gray-900/50 border-gray-800'
                 }
                 border transition-colors duration-200
@@ -203,6 +204,12 @@ export default function Simulator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
+            {/* Phase Counter */}
+            <div className="mb-4 text-center">
+              <span className="text-lg font-semibold text-gray-300">
+                Inner Orbit Phase: {phase}°
+              </span>
+            </div>
             <div className="aspect-square">
               <Orbits
                 type="double"
@@ -210,6 +217,7 @@ export default function Simulator() {
                 scale={scale}
                 periods={periods}
                 onTopReached={playSimulatorSound}
+                onPhaseChange={setPhase} // Pass the setter function
               />
             </div>
           </Card>
