@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import Orbits from './Orbits';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 
 // Musical notes for scroll sections (C major scale)
 const SCROLL_NOTES = [
@@ -21,6 +23,7 @@ interface ScrollSectionProps {
 export default function ScrollSection({ id, title, content, type }: ScrollSectionProps) {
   const controls = useAnimation();
   const ref = useRef(null);
+  const mathRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { amount: 0.5 });
   const audioContextRef = useRef<AudioContext>();
 
@@ -31,6 +34,22 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
       controls.start('hidden');
     }
   }, [controls, isInView]);
+
+  useEffect(() => {
+    if (mathRef.current) {
+      const elements = mathRef.current.getElementsByClassName('latex');
+      Array.from(elements).forEach(element => {
+        try {
+          katex.render(element.getAttribute('data-formula') || '', element as HTMLElement, {
+            throwOnError: false,
+            displayMode: true
+          });
+        } catch (error) {
+          console.error('KaTeX rendering error:', error);
+        }
+      });
+    }
+  }, [id]);
 
   const playScrollSound = (orbitIndex: number) => {
     if (!isInView) return;
@@ -61,46 +80,39 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
     oscillator.stop(context.currentTime + 0.5);
   };
 
-  // Math explanation based on section type
   const getMathExplanation = () => {
     switch (id) {
       case 'intro':
         return (
           <div className="mt-4 p-4 bg-blue-950/50 rounded-lg border border-blue-500/30">
             <h3 className="text-lg font-semibold text-blue-300 mb-2">The Math Behind It</h3>
-            <p className="text-sm text-blue-200">
-              Period (T) = Time for one complete revolution
-              <br />
-              Angular Velocity (ω) = 2π / T
-              <br />
-              Position = f(t) = (r·cos(ωt), r·sin(ωt))
-            </p>
+            <div ref={mathRef} className="space-y-4">
+              <div className="latex" data-formula="T = \text{Time for one revolution}" />
+              <div className="latex" data-formula="\omega = \frac{2\pi}{T} \text{ (Angular Velocity)}" />
+              <div className="latex" data-formula="\begin{cases} x(t) = r \cos(\omega t) \\ y(t) = r \sin(\omega t) \end{cases}" />
+            </div>
           </div>
         );
       case 'two-orbits':
         return (
           <div className="mt-4 p-4 bg-blue-950/50 rounded-lg border border-blue-500/30">
             <h3 className="text-lg font-semibold text-blue-300 mb-2">Synchronization Time</h3>
-            <p className="text-sm text-blue-200">
-              T₁ = 1s, T₂ = 2s
-              <br />
-              They sync when: n₁T₁ = n₂T₂
-              <br />
-              LCM(1, 2) = 2 seconds to sync
-            </p>
+            <div ref={mathRef} className="space-y-4">
+              <div className="latex" data-formula="T_1 = 1s, T_2 = 2s" />
+              <div className="latex" data-formula="\text{Sync when: } n_1T_1 = n_2T_2" />
+              <div className="latex" data-formula="\text{LCM}(1, 2) = 2 \text{ seconds}" />
+            </div>
           </div>
         );
       case 'three-orbits':
         return (
           <div className="mt-4 p-4 bg-blue-950/50 rounded-lg border border-blue-500/30">
             <h3 className="text-lg font-semibold text-blue-300 mb-2">Three-Body Sync</h3>
-            <p className="text-sm text-blue-200">
-              T₁ = 1s, T₂ = 2s, T₃ = 3s
-              <br />
-              Sync Time = LCM(1, 2, 3)
-              <br />
-              = LCM(LCM(1, 2), 3) = LCM(2, 3) = 6 seconds
-            </p>
+            <div ref={mathRef} className="space-y-4">
+              <div className="latex" data-formula="T_1 = 1s, T_2 = 2s, T_3 = 3s" />
+              <div className="latex" data-formula="\text{Sync Time} = \text{LCM}(1, 2, 3)" />
+              <div className="latex" data-formula="\text{LCM}(\text{LCM}(1, 2), 3) = \text{LCM}(2, 3) = 6 \text{ seconds}" />
+            </div>
           </div>
         );
       default:
