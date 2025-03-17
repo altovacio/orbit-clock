@@ -25,19 +25,15 @@ export default function Orbits({
     switch (type) {
       case 'single':
         periods = [1];
-        numOrbits = 1;
         break;
       case 'double':
         periods = [1, 2];
-        numOrbits = 2;
         break;
       case 'multi':
         periods = [1, 2, 3];
-        numOrbits = 3;
         break;
       default:
-        // For simulator, use the provided numOrbits and periods
-        periods = customPeriods || Array(numOrbits).fill(0).map((_, i) => 1 + i * 0.2);
+        periods = Array(numOrbits).fill(0).map((_, i) => 1 + i * 0.2);
     }
   }
 
@@ -67,13 +63,10 @@ export default function Orbits({
     const baseRadius = (width * 0.35) * scale;
 
     // Draw orbital paths based on number of orbits
-    const orbitsToShow = type === 'single' ? 1 : 
-                        type === 'double' ? 2 : 
-                        type === 'multi' ? 3 : 
-                        numOrbits;  // Use actual numOrbits for simulator
+    const orbits = type === 'single' || type === 'single-timer' ? 1 : numOrbits;
 
-    for (let i = 0; i < orbitsToShow; i++) {
-      const radius = baseRadius * ((i + 1) / orbitsToShow);
+    for (let i = 0; i < orbits; i++) {
+      const radius = baseRadius * ((i + 1) / orbits);
 
       // Create gradient for orbit path
       const gradientId = `orbitGradient${i}`;
@@ -96,9 +89,9 @@ export default function Orbits({
         .attr('gradientUnits', 'objectBoundingBox')
         .attr('cx', '0.5')
         .attr('cy', '0.5')
-        .attr('r', '0.6');
+        .attr('r', '0.6'); // Reduced glow radius
 
-      // White hot core
+      // White hot core (larger)
       ballGradient.append('stop')
         .attr('offset', '0%')
         .attr('stop-color', '#ffffff');
@@ -134,11 +127,11 @@ export default function Orbits({
 
       filterGlow.append('feGaussianBlur')
         .attr('in', 'SourceAlpha')
-        .attr('stdDeviation', '2')
+        .attr('stdDeviation', '2') // Reduced blur for a simpler glow
         .attr('result', 'blur');
 
       filterGlow.append('feFlood')
-        .attr('flood-color', 'rgba(255, 255, 255, 0.5)')
+        .attr('flood-color', 'rgba(255, 255, 255, 0.5)') // White glow
         .attr('result', 'color');
 
       filterGlow.append('feComposite')
@@ -165,12 +158,12 @@ export default function Orbits({
         .attr('class', `orbit-path-${i}`);
 
       svg.append('line')
-        .attr('x1', centerX)
+        .attr('x1', centerX )
         .attr('y1', centerY - radius - 2.5)
-        .attr('x2', centerX)
-        .attr('y2', centerY - radius + 2.5)
-        .attr('stroke', '#ff8c00')
-        .attr('stroke-width', 0.6);
+        .attr('x2', centerX )
+        .attr('y2', centerY - radius + 2.5) // Length of the vertical line
+        .attr('stroke', '#ff8c00') // Color of the line
+        .attr('stroke-width', 0.6); // Width of the line
     }
 
     startAnimation();
