@@ -23,7 +23,10 @@ interface ScrollSectionProps {
 export default function ScrollSection({ id, title, content, type, periods }: ScrollSectionProps) {
   const controls = useAnimation();
   const ref = useRef(null);
-  const isInView = useInView(ref, { amount: 0.5 });
+  const isInView = useInView(ref, { 
+    amount: 0.5, // Increased from 0.3 to 0.5 to make it more sensitive
+    once: false  // Allow retriggering when scrolling back into view
+  });
   const audioContextRef = useRef<AudioContext>();
   const [elapsedTime, setElapsedTime] = useState(0);
   const startTimeRef = useRef<number>(0);
@@ -86,11 +89,11 @@ export default function ScrollSection({ id, title, content, type, periods }: Scr
   };
 
   return (
-    <div
-      ref={ref}
-      className="min-h-screen flex items-center justify-center relative"
-    >
-      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    <div className="min-h-screen flex items-center justify-center relative">
+      <div 
+        ref={ref}  // Moved ref to the content container to better track visibility
+        className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
+      >
         <motion.div
           initial="hidden"
           animate={controls}
