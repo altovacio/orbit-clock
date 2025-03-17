@@ -23,7 +23,6 @@ export default function ScrollSection({ id, title, content, type, periods }: Scr
   useEffect(() => {
     if (isInView) {
       controls.start('visible');
-      // Start time tracking when section comes into view
       startTimeRef.current = Date.now();
       const updateTimer = () => {
         setElapsedTime((Date.now() - startTimeRef.current) / 1000);
