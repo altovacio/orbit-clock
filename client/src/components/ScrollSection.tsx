@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import Orbits from './Orbits';
+import MathOverlay from './MathOverlay';
 
 interface ScrollSectionProps {
   id: string;
@@ -15,12 +16,25 @@ export default function ScrollSection({ id, title, content, type, periods }: Scr
   const ref = useRef(null);
   const isInView = useInView(ref, { amount: 0.5 });
   const audioContextRef = useRef<AudioContext>();
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const startTimeRef = useRef<number>(0);
+  const frameRef = useRef<number>();
 
   useEffect(() => {
     if (isInView) {
       controls.start('visible');
+      // Start time tracking when section comes into view
+      startTimeRef.current = Date.now();
+      const updateTimer = () => {
+        setElapsedTime((Date.now() - startTimeRef.current) / 1000);
+        frameRef.current = requestAnimationFrame(updateTimer);
+      };
+      frameRef.current = requestAnimationFrame(updateTimer);
     } else {
       controls.start('hidden');
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
     }
   }, [controls, isInView]);
 
@@ -75,6 +89,12 @@ export default function ScrollSection({ id, title, content, type, periods }: Scr
           <p className="text-xl text-gray-300">
             {content}
           </p>
+          <MathOverlay
+            sectionId={id}
+            elapsedTime={elapsedTime}
+            periods={periods}
+            isInView={isInView}
+          />
         </motion.div>
 
         <motion.div
