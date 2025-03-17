@@ -71,9 +71,9 @@ export default function Orbits({
         .attr('gradientUnits', 'objectBoundingBox')
         .attr('cx', '0.5')
         .attr('cy', '0.5')
-        .attr('r', '0.6'); // Reduced glow radius
+        .attr('r', '0.6');
 
-      // White hot core (larger)
+      // White hot core (smaller)
       ballGradient.append('stop')
         .attr('offset', '0%')
         .attr('stop-color', '#ffffff');
@@ -99,21 +99,23 @@ export default function Orbits({
         .attr('offset', '100%')
         .attr('stop-color', '#ff8c00')
         .attr('stop-opacity', '0.1');
-        
+
+      // Create filter for enhanced glow effect
       const filterGlow = defs.append('filter')
-        .attr('id', `simple-glow-${i}`)
+        .attr('id', `enhanced-glow-${i}`)
         .attr('x', '-50%')
         .attr('y', '-50%')
         .attr('width', '200%')
         .attr('height', '200%');
 
+      // Bigger blur for stronger glow
       filterGlow.append('feGaussianBlur')
         .attr('in', 'SourceAlpha')
-        .attr('stdDeviation', '2') // Reduced blur for a simpler glow
+        .attr('stdDeviation', '3')
         .attr('result', 'blur');
 
       filterGlow.append('feFlood')
-        .attr('flood-color', 'rgba(255, 255, 255, 0.5)') // White glow
+        .attr('flood-color', '#ff8c00')
         .attr('result', 'color');
 
       filterGlow.append('feComposite')
@@ -127,7 +129,26 @@ export default function Orbits({
         .enter()
         .append('feMergeNode')
         .attr('in', d => d);
-      
+
+      // Create gradient for line markers with enhanced glow
+      const lineGradientId = `lineGradient${i}`;
+      const lineGradient = defs.append('linearGradient')
+        .attr('id', lineGradientId)
+        .attr('gradientUnits', 'userSpaceOnUse')
+        .attr('x1', '0')
+        .attr('y1', '0')
+        .attr('x2', '0')
+        .attr('y2', '1');
+
+      lineGradient.append('stop')
+        .attr('offset', '0%')
+        .attr('stop-color', '#ff8c00');
+
+      lineGradient.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', '#ff8c00')
+        .attr('stop-opacity', '0.3');
+
       // Draw orbit path with dash pattern
       svg.append('circle')
         .attr('cx', centerX)
@@ -139,13 +160,16 @@ export default function Orbits({
         .attr('fill', 'none')
         .attr('class', `orbit-path-${i}`);
 
+      // Draw vertical line marker with enhanced glow effect
       svg.append('line')
-        .attr('x1', centerX )
+        .attr('x1', centerX)
         .attr('y1', centerY - radius - 2.5)
-        .attr('x2', centerX )
-        .attr('y2', centerY - radius + 2.5) // Length of the vertical line
-        .attr('stroke', '#ff8c00') // Color of the line
-        .attr('stroke-width', 0.6); // Width of the line
+        .attr('x2', centerX)
+        .attr('y2', centerY - radius + 2.5)
+        .attr('stroke', `url(#${lineGradientId})`)
+        .attr('stroke-width', 0.6)
+        .attr('class', `marker-line-${i}`)
+        .attr('filter', `url(#enhanced-glow-${i})`);
     }
 
     startAnimation();

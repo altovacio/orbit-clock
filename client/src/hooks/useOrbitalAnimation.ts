@@ -62,21 +62,21 @@ export function useOrbitalAnimation({
         .attr('class', `orbit${i + 1}`)
         .attr('transform', `translate(${x},${y})`)
         .call(g => {
-          // Core glow
+          // Core glow (reduced size further)
           g.selectAll('circle.ball-core')
             .data([null])
             .join('circle')
             .attr('class', 'ball-core')
-            .attr('r', 7)
+            .attr('r', 4) // Reduced from 5
             .attr('fill', `url(#ballGradient${i})`)
-            .attr('filter', `url(#neon-glow-${i})`);
+            .attr('filter', `url(#enhanced-glow-${i})`);
 
-          // Center highlight
+          // Center highlight (reduced size)
           g.selectAll('circle.ball-highlight')
             .data([null])
             .join('circle')
             .attr('class', 'ball-highlight')
-            .attr('r', 4)
+            .attr('r', 2) // Reduced from 3
             .attr('cx', -1)
             .attr('cy', -1)
             .attr('fill', 'rgba(255, 255, 255, 0.9)');
@@ -85,6 +85,13 @@ export function useOrbitalAnimation({
       // Check if ball is at the north position (top)
       // Using sine wave: at north position sin(angle) ≈ -1
       const isAtTop = Math.abs(Math.sin(angle) + 1) < 0.01;
+
+      // Update marker line glow based on ball position with enhanced effect
+      svg.select(`.marker-line-${i}`)
+        .attr('stroke-opacity', isAtTop ? 1 : 0.3)
+        .attr('stroke-width', isAtTop ? 2 : 0.6)
+        .attr('filter', isAtTop ? `url(#enhanced-glow-${i})` : 'none');
+
       if (isAtTop && !lastTopRef.current[i] && onTopReached) {
         onTopReached(i);
       }
