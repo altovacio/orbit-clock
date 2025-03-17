@@ -20,12 +20,6 @@ const sections = [
     title: 'Three-Body Dance',
     content: 'With three objects (periods of 1, 2, and 3 seconds), the pattern becomes more complex. All three align every 6 seconds - this is the least common multiple of their periods.',
     type: 'multi'
-  },
-  {
-    id: 'simulator',
-    title: 'Interactive Orbital Laboratory',
-    content: 'Now it\'s your turn! Experiment with different numbers of orbits and periods. Watch how changing these values creates new patterns of motion.',
-    type: 'multi'
   }
 ];
 
