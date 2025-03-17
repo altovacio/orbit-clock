@@ -47,9 +47,16 @@ export default function ScrollSection({ id, title, content, type, periods }: Scr
   }, [controls, isInView]);
 
   const playScrollSound = (orbitIndex: number) => {
-    if (!isInView) return;
+    console.log(`[Audio Debug] playScrollSound called for section ${id}, orbit ${orbitIndex}`);
+    console.log(`[Audio Debug] isInView:`, isInView);
+
+    if (!isInView) {
+      console.log('[Audio Debug] Section not in view, skipping sound');
+      return;
+    }
 
     if (!audioContextRef.current) {
+      console.log('[Audio Debug] Creating new AudioContext');
       audioContextRef.current = new AudioContext();
     }
 
@@ -61,6 +68,8 @@ export default function ScrollSection({ id, title, content, type, periods }: Scr
     const sectionIndex = parseInt(id.replace(/\D/g, '')) || 0;
     const baseNote = SCROLL_NOTES[sectionIndex % SCROLL_NOTES.length];
     const note = baseNote * (1 + (orbitIndex * 0.5)); // Higher orbits get higher pitched notes
+
+    console.log(`[Audio Debug] Playing note with frequency ${note}Hz`);
 
     oscillator.type = 'sine';
     oscillator.frequency.setValueAtTime(note, context.currentTime);
