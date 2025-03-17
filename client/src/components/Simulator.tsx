@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -32,7 +32,7 @@ const SCALE_PATTERNS: Record<ScaleType, number[]> = {
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 };
 
-function generateScaleFrequencies(scaleType: ScaleType, rootNote: keyof typeof BASE_NOTES, octaves: number = 4): number[] {
+function generateScaleFrequencies(scaleType: ScaleType, rootNote: keyof typeof BASE_NOTES, octaves: number = 8): number[] {
   const pattern = SCALE_PATTERNS[scaleType];
   const rootFreq = BASE_NOTES[rootNote];
   const frequencies: number[] = [];
@@ -64,10 +64,7 @@ export default function Simulator() {
   const [scale, setScale] = useState(0.8);
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
-  const [elapsedTime, setElapsedTime] = useState(0);
   const audioContextRef = useRef<AudioContext>();
-  const startTimeRef = useRef<number>(0);
-  const animationFrameRef = useRef<number>();
   const ref = useRef(null);
 
   const isInView = useInView(ref, {
@@ -77,28 +74,6 @@ export default function Simulator() {
 
   // Calculate interpolated periods based on min and max
   const periods = interpolateValues(minPeriod, maxPeriod, numOrbits);
-
-  // Timer update effect
-  useEffect(() => {
-    const updateTimer = (timestamp: number) => {
-      if (startTimeRef.current === 0) {
-        startTimeRef.current = timestamp;
-      }
-      const elapsed = (timestamp - startTimeRef.current) / 1000;
-      setElapsedTime(elapsed);
-      animationFrameRef.current = requestAnimationFrame(updateTimer);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(updateTimer);
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      startTimeRef.current = 0;
-      setElapsedTime(0);
-    };
-  }, []);
 
   const addOrbit = () => {
     if (numOrbits < 50) {
@@ -117,8 +92,6 @@ export default function Simulator() {
     setMinPeriod(1.5);
     setMaxPeriod(3);
     setScale(0.8);
-    startTimeRef.current = 0;
-    setElapsedTime(0);
   };
 
   const playSimulatorSound = (orbitIndex: number) => {
@@ -158,12 +131,6 @@ export default function Simulator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
-            {/* Timer Display */}
-            <div className="mb-4 text-center">
-              <span className="text-lg font-semibold text-gray-300">
-                Time Elapsed: {elapsedTime.toFixed(1)}s
-              </span>
-            </div>
             <div className="aspect-square">
               <Orbits
                 type="double"
