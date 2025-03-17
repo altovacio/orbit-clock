@@ -53,8 +53,8 @@ function interpolateValues(start: number, end: number, count: number): number[] 
 
 export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
-  const [minPeriod, setMinPeriod] = useState(1.4);
-  const [maxPeriod, setMaxPeriod] = useState(1.8);
+  const [minPeriod, setMinPeriod] = useState(1.5);  
+  const [maxPeriod, setMaxPeriod] = useState(23);   
   const [scale, setScale] = useState(0.8);
   const [scaleType, setScaleType] = useState<ScaleType>('majorPentatonic');
   const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>('C');
@@ -83,8 +83,8 @@ export default function Simulator() {
 
   const resetSimulation = () => {
     setNumOrbits(3);
-    setMinPeriod(1.4);
-    setMaxPeriod(1.8);
+    setMinPeriod(1.5);
+    setMaxPeriod(23);
     setScale(0.8);
   };
 
@@ -181,7 +181,7 @@ export default function Simulator() {
                   <Slider
                     value={[minPeriod]}
                     onValueChange={([value]) => setMinPeriod(Math.min(value, maxPeriod))}
-                    min={1}
+                    min={0.1} 
                     max={10}
                     step={0.1}
                   />
