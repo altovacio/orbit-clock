@@ -7,8 +7,6 @@ import { Plus, Minus, RotateCcw } from 'lucide-react';
 import { useInView } from 'framer-motion';
 import Orbits from './Orbits';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSimulationStats } from '@/hooks/useSimulationStats';
-import OrderParameterGraph from './OrderParameterGraph';
 
 // Scale types
 type ScaleType = 'majorPentatonic' | 'major' | 'naturalMinor' | 'chromatic';
@@ -53,17 +51,6 @@ function interpolateValues(start: number, end: number, count: number): number[] 
   return result;
 }
 
-// Helper function to format time
-function formatTime(ms: number): string {
-  const seconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-
-  const pad = (n: number) => n.toString().padStart(2, '0');
-
-  return `${pad(hours)}:${pad(minutes % 60)}:${pad(seconds % 60)}`;
-}
-
 export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
   const [minPeriod, setMinPeriod] = useState(1.4);
@@ -74,7 +61,7 @@ export default function Simulator() {
   const audioContextRef = useRef<AudioContext>();
   const ref = useRef(null);
 
-  const isInView = useInView(ref, {
+  const isInView = useInView(ref, { 
     amount: 0.3,
     once: false
   });
@@ -129,13 +116,6 @@ export default function Simulator() {
     oscillator.stop(context.currentTime + 0.5);
   };
 
-  // Add simulation stats
-  const { elapsedTime, orderParameter, nextAlignment } = useSimulationStats(
-    numOrbits,
-    periods,
-    isInView
-  );
-
   return (
     <div ref={ref} className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
@@ -146,8 +126,8 @@ export default function Simulator() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
             <div className="aspect-square">
-              <Orbits
-                type="double"
+              <Orbits 
+                type="double" 
                 numOrbits={numOrbits}
                 scale={scale}
                 periods={periods}
@@ -157,34 +137,7 @@ export default function Simulator() {
           </Card>
 
           <div className="space-y-8">
-            <Card className="p-6 bg-gray-900/50 border-gray-800">
-              <div className="space-y-6">
-                <h3 className="font-semibold">Simulation Statistics</h3>
-
-                <div className="space-y-2">
-                  <Label>Elapsed Time</Label>
-                  <div className="text-2xl font-mono">
-                    {formatTime(elapsedTime)}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Next Alignment</Label>
-                  <div className="text-2xl font-mono">
-                    {nextAlignment ? formatTime(nextAlignment - elapsedTime) : '--:--:--'}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Order Parameter</Label>
-                  <div className="text-2xl font-mono">
-                    {orderParameter.toFixed(3)}
-                  </div>
-                  <OrderParameterGraph value={orderParameter} />
-                </div>
-              </div>
-            </Card>
-
+            {/* Orbit Controls Card */}
             <Card className="p-6 bg-gray-900/50 border-gray-800">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -251,9 +204,9 @@ export default function Simulator() {
                   </div>
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="w-full"
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
                   onClick={resetSimulation}
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
@@ -262,14 +215,15 @@ export default function Simulator() {
               </div>
             </Card>
 
+            {/* Sound Settings Card */}
             <Card className="p-6 bg-gray-900/50 border-gray-800">
               <div className="space-y-6">
                 <h3 className="font-semibold">Sound Settings</h3>
 
                 <div className="space-y-4">
                   <Label htmlFor="scale-type">Scale Type</Label>
-                  <Select
-                    value={scaleType}
+                  <Select 
+                    value={scaleType} 
                     onValueChange={(value) => setScaleType(value as ScaleType)}
                   >
                     <SelectTrigger id="scale-type">
@@ -286,8 +240,8 @@ export default function Simulator() {
 
                 <div className="space-y-4">
                   <Label htmlFor="root-note">Root Note</Label>
-                  <Select
-                    value={rootNote}
+                  <Select 
+                    value={rootNote} 
                     onValueChange={(value) => setRootNote(value as keyof typeof BASE_NOTES)}
                   >
                     <SelectTrigger id="root-note">
@@ -303,7 +257,7 @@ export default function Simulator() {
 
                 <div className="p-4 bg-gray-800/50 rounded-lg">
                   <p className="text-sm text-gray-400">
-                    Each orbit creates a unique note when reaching the top.
+                    Each orbit creates a unique note when reaching the top. 
                     Adjust the scale and root note to create different musical patterns.
                   </p>
                 </div>
