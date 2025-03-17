@@ -42,11 +42,11 @@ export function useOrbitalAnimation({
       lastTopRef.current = new Array(numOrbits).fill(false);
     }
 
-    const orbits = type === 'single' || type === 'single-timer' ? 1 : numOrbits;
+    const orbitsToShow = type === 'single' ? 1 : type === 'double' ? 2 : type === 'multi' ? 3 : numOrbits;
 
-    for (let i = 0; i < orbits; i++) {
+    for (let i = 0; i < orbitsToShow; i++) {
       const period = periods[i] || 3 + i; // Default period if not specified
-      const radius = baseRadius * ((i + 1) / orbits);
+      const radius = baseRadius * ((i + 1) / orbitsToShow);
 
       // Calculate angle based on period (angular velocity = 2π/period)
       // Start from north position (-π/2) and move clockwise
