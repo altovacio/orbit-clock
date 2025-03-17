@@ -14,6 +14,46 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Preset configurations
+interface PresetConfig {
+  title: string;
+  subtitle: string;
+  minPeriod: number;
+  maxPeriod: number;
+  numOrbits: number;
+}
+
+const PRESETS: PresetConfig[] = [
+  {
+    title: "Three-Orbit Dance",
+    subtitle: "6s recurrence",
+    minPeriod: 1.5,
+    maxPeriod: 3,
+    numOrbits: 3
+  },
+  {
+    title: "Four Notes Melody",
+    subtitle: "20s recurrence",
+    minPeriod: 1,
+    maxPeriod: 2,
+    numOrbits: 4
+  },
+  {
+    title: "Seven Note Rhythm",
+    subtitle: "3m30s recurrence",
+    minPeriod: 0.5,
+    maxPeriod: 2,
+    numOrbits: 7
+  },
+  {
+    title: "10 Note Madness",
+    subtitle: "1.304e10y ⚠️",
+    minPeriod: 1,
+    maxPeriod: 2.1,
+    numOrbits: 10
+  }
+];
+
 // Scale types
 type ScaleType = "majorPentatonic" | "major" | "naturalMinor" | "chromatic";
 
@@ -64,6 +104,7 @@ export default function Simulator() {
   const [scale, setScale] = useState(0.8);
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
+  const [activePreset, setActivePreset] = useState<number>(0);
   const audioContextRef = useRef<AudioContext>();
   const ref = useRef(null);
 
@@ -74,6 +115,14 @@ export default function Simulator() {
 
   // Calculate interpolated periods based on min and max
   const periods = interpolateValues(minPeriod, maxPeriod, numOrbits);
+
+  const applyPreset = (presetIndex: number) => {
+    const preset = PRESETS[presetIndex];
+    setNumOrbits(preset.numOrbits);
+    setMinPeriod(preset.minPeriod);
+    setMaxPeriod(preset.maxPeriod);
+    setActivePreset(presetIndex);
+  };
 
   const addOrbit = () => {
     if (numOrbits < 50) {
@@ -128,6 +177,28 @@ export default function Simulator() {
         <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Interactive Orbital Simulator
         </h2>
+
+        {/* Preset Chips */}
+        <div className="flex flex-wrap gap-4 mb-8 justify-center">
+          {PRESETS.map((preset, index) => (
+            <button
+              key={index}
+              onClick={() => applyPreset(index)}
+              className={`
+                px-4 py-2 rounded-lg text-left
+                ${activePreset === index 
+                  ? 'bg-blue-500/30 border-blue-500' 
+                  : 'bg-gray-900/50 border-gray-800'
+                }
+                border transition-colors duration-200
+                hover:border-blue-400
+              `}
+            >
+              <div className="font-semibold">{preset.title}</div>
+              <div className="text-sm text-gray-400">{preset.subtitle}</div>
+            </button>
+          ))}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
