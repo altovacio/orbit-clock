@@ -25,23 +25,26 @@ export default function Orbits({
     switch (type) {
       case 'single':
         periods = [1];
+        numOrbits = 1;
         break;
       case 'double':
         periods = [1, 2];
+        numOrbits = 2;
         break;
       case 'multi':
         periods = [1, 2, 3];
-        numOrbits = 3; // Force 3 orbits for multi type
+        numOrbits = 3;
         break;
       default:
-        periods = Array(numOrbits).fill(0).map((_, i) => 1 + i * 0.2);
+        // For simulator, use the provided numOrbits and periods
+        periods = customPeriods || Array(numOrbits).fill(0).map((_, i) => 1 + i * 0.2);
     }
   }
 
   const { startAnimation, stopAnimation } = useOrbitalAnimation({
     svgRef,
     type,
-    numOrbits: type === 'multi' ? 3 : numOrbits, // Ensure 3 orbits for multi type
+    numOrbits,
     scale,
     periods,
     onTopReached
@@ -64,7 +67,10 @@ export default function Orbits({
     const baseRadius = (width * 0.35) * scale;
 
     // Draw orbital paths based on number of orbits
-    const orbitsToShow = type === 'single' ? 1 : type === 'double' ? 2 : type === 'multi' ? 3 : numOrbits;
+    const orbitsToShow = type === 'single' ? 1 : 
+                        type === 'double' ? 2 : 
+                        type === 'multi' ? 3 : 
+                        numOrbits;  // Use actual numOrbits for simulator
 
     for (let i = 0; i < orbitsToShow; i++) {
       const radius = baseRadius * ((i + 1) / orbitsToShow);
