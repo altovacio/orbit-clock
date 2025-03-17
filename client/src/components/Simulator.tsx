@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import PianoKeys from "./PianoKeys"; // Import PianoKeys component
 
 // Preset configurations
 interface PresetConfig {
@@ -338,6 +339,12 @@ export default function Simulator() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Piano Visualization */}
+                <div className="space-y-2">
+                  <Label>Scale Notes</Label>
+                  <PianoKeys rootNote={rootNote} scaleType={scaleType} />
                 </div>
 
                 <div className="p-4 bg-gray-800/50 rounded-lg">
