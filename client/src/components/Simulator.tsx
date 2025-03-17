@@ -13,8 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import PianoKeys from "./PianoKeys"; // Import PianoKeys component
-import { useTimer } from "@/hooks/useTimer";
+import PianoKeys from "./PianoKeys";
 
 // Preset configurations
 interface PresetConfig {
@@ -107,22 +106,34 @@ export default function Simulator() {
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
   const [activePreset, setActivePreset] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout>();
+  const startTimeRef = useRef<number>(0);
   const audioContextRef = useRef<AudioContext>();
   const ref = useRef(null);
-  const { elapsedTime, startTimer, stopTimer, resetTimer } = useTimer();
 
   const isInView = useInView(ref, {
     amount: 0.3,
     once: false
   });
 
-  // Start/stop timer based on visibility
+  // Timer Effect
   useEffect(() => {
     if (isInView) {
-      startTimer();
+      startTimeRef.current = Date.now();
+      intervalRef.current = setInterval(() => {
+        setElapsedTime((Date.now() - startTimeRef.current) / 1000);
+      }, 100);
     } else {
-      stopTimer();
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [isInView]);
 
   // Calculate interpolated periods based on min and max
@@ -134,6 +145,9 @@ export default function Simulator() {
     setMinPeriod(preset.minPeriod);
     setMaxPeriod(preset.maxPeriod);
     setActivePreset(presetIndex);
+    // Reset timer when changing presets
+    startTimeRef.current = Date.now();
+    setElapsedTime(0);
   };
 
   const addOrbit = () => {
@@ -153,7 +167,9 @@ export default function Simulator() {
     setMinPeriod(1.5);
     setMaxPeriod(3);
     setScale(0.8);
-    resetTimer();
+    // Reset timer
+    startTimeRef.current = Date.now();
+    setElapsedTime(0);
   };
 
   const playSimulatorSound = (orbitIndex: number) => {
