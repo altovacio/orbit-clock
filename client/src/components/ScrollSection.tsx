@@ -3,6 +3,15 @@ import { motion, useAnimation, useInView } from 'framer-motion';
 import Orbits from './Orbits';
 import MathOverlay from './MathOverlay';
 
+// Musical notes for scroll sections (C major scale)
+const SCROLL_NOTES = [
+  523.25, // C5
+  587.33, // D5
+  659.25, // E5
+  698.46, // F5
+  783.99, // G5
+];
+
 interface ScrollSectionProps {
   id: string;
   title: string;
@@ -48,12 +57,13 @@ export default function ScrollSection({ id, title, content, type, periods }: Scr
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
 
-    // Calculate frequency based on orbit index
-    const baseFrequency = 440; // A4 note
-    const frequency = baseFrequency * Math.pow(1.5, orbitIndex); // Using perfect fifths for harmony
+    // Use different notes for different sections
+    const sectionIndex = parseInt(id.replace(/\D/g, '')) || 0;
+    const baseNote = SCROLL_NOTES[sectionIndex % SCROLL_NOTES.length];
+    const note = baseNote * (1 + (orbitIndex * 0.5)); // Higher orbits get higher pitched notes
 
     oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+    oscillator.frequency.setValueAtTime(note, context.currentTime);
 
     gainNode.gain.setValueAtTime(0, context.currentTime);
     gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
