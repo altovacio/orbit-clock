@@ -43,15 +43,13 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
 
-    // Use different notes for different sections
     const sectionIndex = parseInt(id.replace(/\D/g, '')) || 0;
     const baseNote = SCROLL_NOTES[sectionIndex % SCROLL_NOTES.length];
-    const note = baseNote * (1 + (orbitIndex * 0.5)); // Higher orbits get higher pitched notes
+    const note = baseNote * (1 + (orbitIndex * 0.5));
 
     oscillator.type = 'sine';
     oscillator.frequency.setValueAtTime(note, context.currentTime);
 
-    // Quick attack, slow release for a star-like shimmer
     gainNode.gain.setValueAtTime(0, context.currentTime);
     gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
     gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
@@ -61,6 +59,53 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
 
     oscillator.start();
     oscillator.stop(context.currentTime + 0.5);
+  };
+
+  // Math explanation based on section type
+  const getMathExplanation = () => {
+    switch (id) {
+      case 'intro':
+        return (
+          <div className="mt-4 p-4 bg-blue-950/50 rounded-lg border border-blue-500/30">
+            <h3 className="text-lg font-semibold text-blue-300 mb-2">The Math Behind It</h3>
+            <p className="text-sm text-blue-200">
+              Period (T) = Time for one complete revolution
+              <br />
+              Angular Velocity (ω) = 2π / T
+              <br />
+              Position = f(t) = (r·cos(ωt), r·sin(ωt))
+            </p>
+          </div>
+        );
+      case 'two-orbits':
+        return (
+          <div className="mt-4 p-4 bg-blue-950/50 rounded-lg border border-blue-500/30">
+            <h3 className="text-lg font-semibold text-blue-300 mb-2">Synchronization Time</h3>
+            <p className="text-sm text-blue-200">
+              T₁ = 1s, T₂ = 2s
+              <br />
+              They sync when: n₁T₁ = n₂T₂
+              <br />
+              LCM(1, 2) = 2 seconds to sync
+            </p>
+          </div>
+        );
+      case 'three-orbits':
+        return (
+          <div className="mt-4 p-4 bg-blue-950/50 rounded-lg border border-blue-500/30">
+            <h3 className="text-lg font-semibold text-blue-300 mb-2">Three-Body Sync</h3>
+            <p className="text-sm text-blue-200">
+              T₁ = 1s, T₂ = 2s, T₃ = 3s
+              <br />
+              Sync Time = LCM(1, 2, 3)
+              <br />
+              = LCM(LCM(1, 2), 3) = LCM(2, 3) = 6 seconds
+            </p>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -85,6 +130,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
           <p className="text-xl text-gray-300">
             {content}
           </p>
+          {getMathExplanation()}
         </motion.div>
 
         <motion.div
