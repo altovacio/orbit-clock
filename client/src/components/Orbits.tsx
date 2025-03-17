@@ -8,6 +8,7 @@ interface OrbitProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
+  onAnimationFrame?: (phase: number) => void;
 }
 
 export default function Orbits({
@@ -16,6 +17,7 @@ export default function Orbits({
   scale = 1,
   periods: customPeriods,
   onTopReached,
+  onAnimationFrame
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -49,6 +51,7 @@ export default function Orbits({
     scale,
     periods,
     onTopReached,
+    onAnimationFrame
   });
 
   useEffect(() => {

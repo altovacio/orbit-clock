@@ -106,6 +106,7 @@ export default function Simulator() {
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
   const [activePreset, setActivePreset] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const audioContextRef = useRef<AudioContext>();
   const ref = useRef(null);
 
@@ -172,6 +173,12 @@ export default function Simulator() {
     oscillator.stop(context.currentTime + 0.5);
   };
 
+  const onAnimationFrame = (phase: number) => {
+    // Convert phase to time based on the first orbit's period
+    const time = (phase * minPeriod) / (2 * Math.PI);
+    setElapsedTime(time);
+  };
+
   return (
     <div ref={ref} className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
@@ -203,6 +210,12 @@ export default function Simulator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
+            {/* Timer Display */}
+            <div className="mb-4 text-center">
+              <span className="text-lg font-semibold text-gray-300">
+                Time Elapsed: {elapsedTime.toFixed(1)}s
+              </span>
+            </div>
             <div className="aspect-square">
               <Orbits
                 type="double"
@@ -210,6 +223,7 @@ export default function Simulator() {
                 scale={scale}
                 periods={periods}
                 onTopReached={playSimulatorSound}
+                onAnimationFrame={onAnimationFrame}
               />
             </div>
           </Card>
