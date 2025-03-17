@@ -2,23 +2,15 @@ import { useEffect, useRef } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import Orbits from './Orbits';
 
-// Musical notes for scroll sections (C major scale)
-const SCROLL_NOTES = [
-  523.25, // C5
-  587.33, // D5
-  659.25, // E5
-  698.46, // F5
-  783.99, // G5
-];
-
 interface ScrollSectionProps {
   id: string;
   title: string;
   content: string;
   type: string;
+  periods?: number[];
 }
 
-export default function ScrollSection({ id, title, content, type }: ScrollSectionProps) {
+export default function ScrollSection({ id, title, content, type, periods }: ScrollSectionProps) {
   const controls = useAnimation();
   const ref = useRef(null);
   const isInView = useInView(ref, { amount: 0.5 });
@@ -43,15 +35,13 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
 
-    // Use different notes for different sections
-    const sectionIndex = parseInt(id.replace(/\D/g, '')) || 0;
-    const baseNote = SCROLL_NOTES[sectionIndex % SCROLL_NOTES.length];
-    const note = baseNote * (1 + (orbitIndex * 0.5)); // Higher orbits get higher pitched notes
+    // Calculate frequency based on orbit index
+    const baseFrequency = 440; // A4 note
+    const frequency = baseFrequency * Math.pow(1.5, orbitIndex); // Using perfect fifths for harmony
 
     oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(note, context.currentTime);
+    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
 
-    // Quick attack, slow release for a star-like shimmer
     gainNode.gain.setValueAtTime(0, context.currentTime);
     gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
     gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
@@ -98,8 +88,10 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
           className="aspect-square relative"
         >
           <Orbits 
-            type={type} 
-            onTopReached={isInView ? playScrollSound : undefined}
+            type={type}
+            periods={periods}
+            numOrbits={periods?.length}
+            onTopReached={playScrollSound}
           />
         </motion.div>
       </div>

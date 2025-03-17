@@ -57,8 +57,12 @@ function interpolateValues(start: number, end: number, count: number): number[] 
   return result;
 }
 
-export default function Simulator() {
-  const [numOrbits, setNumOrbits] = useState(3);
+interface SimulatorProps {
+  initialOrbits?: number;
+}
+
+export default function Simulator({ initialOrbits = 4 }: SimulatorProps) {
+  const [numOrbits, setNumOrbits] = useState(initialOrbits);
   const [minPeriod, setMinPeriod] = useState(1.5);  
   const [maxPeriod, setMaxPeriod] = useState(3);   
   const [scale, setScale] = useState(0.8);
