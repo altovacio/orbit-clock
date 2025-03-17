@@ -30,29 +30,29 @@ const PRESETS: PresetConfig[] = [
     subtitle: "6s recurrence",
     minPeriod: 1.5,
     maxPeriod: 3,
-    numOrbits: 3
+    numOrbits: 3,
   },
   {
     title: "Four Notes Melody",
     subtitle: "20s recurrence",
     minPeriod: 1,
     maxPeriod: 2,
-    numOrbits: 4
+    numOrbits: 4,
   },
   {
     title: "Seven Note Rhythm",
     subtitle: "3m30s recurrence",
     minPeriod: 0.5,
     maxPeriod: 2,
-    numOrbits: 7
+    numOrbits: 7,
   },
   {
     title: "10 Note Madness",
     subtitle: "1.304e10y ⚠️",
     minPeriod: 1,
     maxPeriod: 2.1,
-    numOrbits: 10
-  }
+    numOrbits: 10,
+  },
 ];
 
 // Scale types
@@ -60,9 +60,18 @@ type ScaleType = "majorPentatonic" | "major" | "naturalMinor" | "chromatic";
 
 // Base frequencies for notes (C4 to B4)
 const BASE_NOTES = {
-  C: 261.63, 'C#': 277.18, D: 293.66, 'D#': 311.13, E: 329.63,
-  F: 349.23, 'F#': 369.99, G: 392.0, 'G#': 415.3, A: 440.0,
-  'A#': 466.16, B: 493.88,
+  C: 261.63,
+  "C#": 277.18,
+  D: 293.66,
+  "D#": 311.13,
+  E: 329.63,
+  F: 349.23,
+  "F#": 369.99,
+  G: 392.0,
+  "G#": 415.3,
+  A: 440.0,
+  "A#": 466.16,
+  B: 493.88,
 };
 
 // Scale patterns (semitone intervals from root)
@@ -70,10 +79,14 @@ const SCALE_PATTERNS: Record<ScaleType, number[]> = {
   majorPentatonic: [0, 2, 4, 7, 9],
   major: [0, 2, 4, 5, 7, 9, 11],
   naturalMinor: [0, 2, 3, 5, 7, 8, 10],
-  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
 };
 
-function generateScaleFrequencies(scaleType: ScaleType, rootNote: keyof typeof BASE_NOTES, octaves: number = 8): number[] {
+function generateScaleFrequencies(
+  scaleType: ScaleType,
+  rootNote: keyof typeof BASE_NOTES,
+  octaves: number = 8,
+): number[] {
   const pattern = SCALE_PATTERNS[scaleType];
   const rootFreq = BASE_NOTES[rootNote];
   const frequencies: number[] = [];
@@ -89,7 +102,11 @@ function generateScaleFrequencies(scaleType: ScaleType, rootNote: keyof typeof B
 }
 
 // Linear interpolation helper function
-function interpolateValues(start: number, end: number, count: number): number[] {
+function interpolateValues(
+  start: number,
+  end: number,
+  count: number,
+): number[] {
   const result = [];
   for (let i = 0; i < count; i++) {
     const t = count === 1 ? 0 : i / (count - 1);
@@ -100,8 +117,8 @@ function interpolateValues(start: number, end: number, count: number): number[] 
 
 export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
-  const [minPeriod, setMinPeriod] = useState(1.5);  
-  const [maxPeriod, setMaxPeriod] = useState(3);   
+  const [minPeriod, setMinPeriod] = useState(1.5);
+  const [maxPeriod, setMaxPeriod] = useState(3);
   const [scale, setScale] = useState(0.8);
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
@@ -111,7 +128,7 @@ export default function Simulator() {
 
   const isInView = useInView(ref, {
     amount: 0.3,
-    once: false
+    once: false,
   });
 
   // Calculate interpolated periods based on min and max
@@ -187,9 +204,10 @@ export default function Simulator() {
               onClick={() => applyPreset(index)}
               className={`
                 px-4 py-2 rounded-lg text-left
-                ${activePreset === index 
-                  ? 'bg-blue-500/30 border-blue-500' 
-                  : 'bg-gray-900/50 border-gray-800'
+                ${
+                  activePreset === index
+                    ? "bg-blue-500/30 border-blue-500"
+                    : "bg-gray-900/50 border-gray-800"
                 }
                 border transition-colors duration-200
                 hover:border-blue-400
@@ -219,7 +237,9 @@ export default function Simulator() {
             <Card className="p-6 bg-gray-900/50 border-gray-800">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Number of Orbits: {numOrbits}</h3>
+                  <h3 className="font-semibold">
+                    Number of Orbits: {numOrbits}
+                  </h3>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -258,7 +278,9 @@ export default function Simulator() {
                   <Label>Minimum Period (seconds)</Label>
                   <Slider
                     value={[minPeriod]}
-                    onValueChange={([value]) => setMinPeriod(Math.min(value, maxPeriod))}
+                    onValueChange={([value]) =>
+                      setMinPeriod(Math.min(value, maxPeriod))
+                    }
                     min={0.1}
                     max={10}
                     step={0.1}
@@ -272,8 +294,10 @@ export default function Simulator() {
                   <Label>Maximum Period (seconds)</Label>
                   <Slider
                     value={[maxPeriod]}
-                    onValueChange={([value]) => setMaxPeriod(Math.max(value, minPeriod))}
-                    min={1}
+                    onValueChange={([value]) =>
+                      setMaxPeriod(Math.max(value, minPeriod))
+                    }
+                    min={0.1}
                     max={10}
                     step={0.1}
                   />
