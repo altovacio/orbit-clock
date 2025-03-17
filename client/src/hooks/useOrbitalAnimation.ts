@@ -49,7 +49,8 @@ export function useOrbitalAnimation({
       const radius = baseRadius * ((i + 1) / orbits);
 
       // Calculate angle based on period (angular velocity = 2π/period)
-      const angle = (elapsedTime * (2 * Math.PI) / period) % (2 * Math.PI);
+      // Start from north position (π/2)
+      const angle = Math.PI / 2 + (elapsedTime * (2 * Math.PI) / period) % (2 * Math.PI);
 
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
@@ -82,6 +83,7 @@ export function useOrbitalAnimation({
         });
 
       // Check if ball is at the north position (top)
+      // Using sine wave: at north position sin(angle) = -1
       const isAtTop = Math.abs(Math.sin(angle) + 1) < 0.01;
       if (isAtTop && !lastTopRef.current[i] && onTopReached) {
         onTopReached(i);
@@ -94,9 +96,6 @@ export function useOrbitalAnimation({
 
   const startAnimation = useCallback(() => {
     startTimeRef.current = 0;
-    if (frameRef.current) {
-      cancelAnimationFrame(frameRef.current);
-    }
     frameRef.current = requestAnimationFrame(animate);
   }, [animate]);
 
