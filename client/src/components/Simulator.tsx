@@ -1,21 +1,27 @@
-import { useState, useRef } from 'react';
-import { Card } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Plus, Minus, RotateCcw } from 'lucide-react';
-import { useInView } from 'framer-motion';
-import Orbits from './Orbits';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState, useRef, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Plus, Minus, RotateCcw } from "lucide-react";
+import { useInView } from "framer-motion";
+import Orbits from "./Orbits";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Scale types
-type ScaleType = 'majorPentatonic' | 'major' | 'naturalMinor' | 'chromatic';
+type ScaleType = "majorPentatonic" | "major" | "naturalMinor" | "chromatic";
 
 // Base frequencies for notes (C4 to B4)
 const BASE_NOTES = {
-  'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13, 'E': 329.63,
-  'F': 349.23, 'F#': 369.99, 'G': 392.00, 'G#': 415.30, 'A': 440.00,
-  'A#': 466.16, 'B': 493.88
+  C: 261.63, 'C#': 277.18, D: 293.66, 'D#': 311.13, E: 329.63,
+  F: 349.23, 'F#': 369.99, G: 392.0, 'G#': 415.3, A: 440.0,
+  'A#': 466.16, B: 493.88,
 };
 
 // Scale patterns (semitone intervals from root)
@@ -54,20 +60,45 @@ function interpolateValues(start: number, end: number, count: number): number[] 
 export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
   const [minPeriod, setMinPeriod] = useState(1.5);  
-  const [maxPeriod, setMaxPeriod] = useState(23);   
+  const [maxPeriod, setMaxPeriod] = useState(3);   
   const [scale, setScale] = useState(0.8);
-  const [scaleType, setScaleType] = useState<ScaleType>('majorPentatonic');
-  const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>('C');
+  const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
+  const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
+  const [elapsedTime, setElapsedTime] = useState(0);
   const audioContextRef = useRef<AudioContext>();
+  const startTimeRef = useRef<number>(0);
+  const animationFrameRef = useRef<number>();
   const ref = useRef(null);
 
-  const isInView = useInView(ref, { 
+  const isInView = useInView(ref, {
     amount: 0.3,
     once: false
   });
 
   // Calculate interpolated periods based on min and max
   const periods = interpolateValues(minPeriod, maxPeriod, numOrbits);
+
+  // Timer update effect
+  useEffect(() => {
+    const updateTimer = (timestamp: number) => {
+      if (startTimeRef.current === 0) {
+        startTimeRef.current = timestamp;
+      }
+      const elapsed = (timestamp - startTimeRef.current) / 1000;
+      setElapsedTime(elapsed);
+      animationFrameRef.current = requestAnimationFrame(updateTimer);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(updateTimer);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      startTimeRef.current = 0;
+      setElapsedTime(0);
+    };
+  }, []);
 
   const addOrbit = () => {
     if (numOrbits < 50) {
@@ -84,8 +115,10 @@ export default function Simulator() {
   const resetSimulation = () => {
     setNumOrbits(3);
     setMinPeriod(1.5);
-    setMaxPeriod(23);
+    setMaxPeriod(3);
     setScale(0.8);
+    startTimeRef.current = 0;
+    setElapsedTime(0);
   };
 
   const playSimulatorSound = (orbitIndex: number) => {
@@ -102,7 +135,7 @@ export default function Simulator() {
     const frequencies = generateScaleFrequencies(scaleType, rootNote);
     const frequency = frequencies[orbitIndex % frequencies.length];
 
-    oscillator.type = 'sine';
+    oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(frequency, context.currentTime);
 
     gainNode.gain.setValueAtTime(0, context.currentTime);
@@ -125,9 +158,15 @@ export default function Simulator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
+            {/* Timer Display */}
+            <div className="mb-4 text-center">
+              <span className="text-lg font-semibold text-gray-300">
+                Time Elapsed: {elapsedTime.toFixed(1)}s
+              </span>
+            </div>
             <div className="aspect-square">
-              <Orbits 
-                type="double" 
+              <Orbits
+                type="double"
                 numOrbits={numOrbits}
                 scale={scale}
                 periods={periods}
@@ -181,7 +220,7 @@ export default function Simulator() {
                   <Slider
                     value={[minPeriod]}
                     onValueChange={([value]) => setMinPeriod(Math.min(value, maxPeriod))}
-                    min={0.1} 
+                    min={0.1}
                     max={10}
                     step={0.1}
                   />
@@ -204,9 +243,9 @@ export default function Simulator() {
                   </div>
                 </div>
 
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
+                <Button
+                  variant="outline"
+                  className="w-full"
                   onClick={resetSimulation}
                 >
                   <RotateCcw className="h-4 w-4 mr-2" />
@@ -222,17 +261,21 @@ export default function Simulator() {
 
                 <div className="space-y-4">
                   <Label htmlFor="scale-type">Scale Type</Label>
-                  <Select 
-                    value={scaleType} 
+                  <Select
+                    value={scaleType}
                     onValueChange={(value) => setScaleType(value as ScaleType)}
                   >
                     <SelectTrigger id="scale-type">
                       <SelectValue placeholder="Select scale type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="majorPentatonic">Major Pentatonic</SelectItem>
+                      <SelectItem value="majorPentatonic">
+                        Major Pentatonic
+                      </SelectItem>
                       <SelectItem value="major">Major</SelectItem>
-                      <SelectItem value="naturalMinor">Natural Minor</SelectItem>
+                      <SelectItem value="naturalMinor">
+                        Natural Minor
+                      </SelectItem>
                       <SelectItem value="chromatic">Chromatic</SelectItem>
                     </SelectContent>
                   </Select>
@@ -240,16 +283,20 @@ export default function Simulator() {
 
                 <div className="space-y-4">
                   <Label htmlFor="root-note">Root Note</Label>
-                  <Select 
-                    value={rootNote} 
-                    onValueChange={(value) => setRootNote(value as keyof typeof BASE_NOTES)}
+                  <Select
+                    value={rootNote}
+                    onValueChange={(value) =>
+                      setRootNote(value as keyof typeof BASE_NOTES)
+                    }
                   >
                     <SelectTrigger id="root-note">
                       <SelectValue placeholder="Select root note" />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.keys(BASE_NOTES).map((note) => (
-                        <SelectItem key={note} value={note}>{note}</SelectItem>
+                        <SelectItem key={note} value={note}>
+                          {note}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -257,8 +304,9 @@ export default function Simulator() {
 
                 <div className="p-4 bg-gray-800/50 rounded-lg">
                   <p className="text-sm text-gray-400">
-                    Each orbit creates a unique note when reaching the top. 
-                    Adjust the scale and root note to create different musical patterns.
+                    Each orbit creates a unique note when reaching the top.
+                    Adjust the scale and root note to create different musical
+                    patterns.
                   </p>
                 </div>
               </div>
