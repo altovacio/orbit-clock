@@ -8,7 +8,6 @@ interface UseOrbitalAnimationProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
-  onAnimationFrame?: (phase: number) => void;
 }
 
 export function useOrbitalAnimation({
@@ -17,8 +16,7 @@ export function useOrbitalAnimation({
   numOrbits = 2,
   scale = 1,
   periods = [3, 5],
-  onTopReached,
-  onAnimationFrame
+  onTopReached
 }: UseOrbitalAnimationProps) {
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
@@ -38,13 +36,6 @@ export function useOrbitalAnimation({
       startTimeRef.current = timestamp;
     }
     const elapsedTime = (timestamp - startTimeRef.current) / 1000; // Convert to seconds
-
-    // Calculate phase for the first orbit and pass it to the callback
-    if (onAnimationFrame) {
-      const period = periods[0] || 3;
-      const phase = (elapsedTime * (2 * Math.PI) / period) % (2 * Math.PI);
-      onAnimationFrame(phase);
-    }
 
     // Initialize lastTopRef if needed
     if (lastTopRef.current.length !== numOrbits) {
@@ -101,7 +92,7 @@ export function useOrbitalAnimation({
     }
 
     frameRef.current = requestAnimationFrame(animate);
-  }, [type, numOrbits, scale, periods, onTopReached, onAnimationFrame]);
+  }, [type, numOrbits, scale, periods, onTopReached]);
 
   const startAnimation = useCallback(() => {
     startTimeRef.current = 0;
