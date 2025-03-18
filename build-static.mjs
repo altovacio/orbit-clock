@@ -3,62 +3,106 @@ import path from 'path';
 
 async function main() {
   try {
-    // Use the correct build directory
-    const distDir = path.join(process.cwd(), 'dist/public');
-    console.log(`Working directory: ${process.cwd()}`);
+    // Get correct paths
+    const workingDir = process.cwd();
+    const distDir = path.join(workingDir, 'dist/public');
+    console.log(`Working directory: ${workingDir}`);
     console.log(`Build directory: ${distDir}`);
 
-    // Read index.html
-    console.log('Reading index.html...');
-    const indexPath = path.join(distDir, 'index.html');
-    let html = await fs.readFile(indexPath, 'utf-8');
-
-    // Find all CSS and JS files referenced in the HTML
-    const cssFiles = (html.match(/href="[^"]*\.css"/g) || [])
-      .map(match => match.match(/href="([^"]*)"/)[1]);
-    const jsFiles = (html.match(/src="[^"]*\.js"/g) || [])
-      .map(match => match.match(/src="([^"]*)"/)[1]);
-
-    console.log('Found assets:', { cssFiles, jsFiles });
-
-    // Inline CSS files
-    for (const cssFile of cssFiles) {
-      const cssPath = path.join(distDir, cssFile.replace(/^\.\//, ''));
-      console.log(`Reading CSS: ${cssPath}`);
-      const cssContent = await fs.readFile(cssPath, 'utf-8');
-
-      // Replace the link tag with an inline style tag
-      html = html.replace(
-        `<link rel="stylesheet" crossorigin href="${cssFile}">`,
-        `<style type="text/css">${cssContent}</style>`
-      );
-      console.log(`Inlined CSS: ${cssPath}`);
+    // First check if the build directory exists
+    try {
+      await fs.access(distDir);
+    } catch (err) {
+      console.error(`Build directory ${distDir} does not exist`);
+      process.exit(1);
     }
 
-    // Inline JavaScript files
-    for (const jsFile of jsFiles) {
-      const jsPath = path.join(distDir, jsFile.replace(/^\.\//, ''));
-      console.log(`Reading JS: ${jsPath}`);
-      const jsContent = await fs.readFile(jsPath, 'utf-8');
+    // List directory to verify contents
+    const files = await fs.readdir(distDir);
+    console.log('Files in build directory:', files);
 
-      // Replace the script tag with an inline script tag
-      html = html.replace(
-        `<script type="module" crossorigin src="${jsFile}"></script>`,
-        `<script type="module">${jsContent}</script>`
-      );
-      console.log(`Inlined JS: ${jsPath}`);
+    // Read index.html
+    console.log('\nReading index.html...');
+    const indexPath = path.join(distDir, 'index.html');
+    const html = await fs.readFile(indexPath, 'utf-8');
+    console.log('Read index.html successfully');
+
+    // Find and log all asset references
+    const cssLinks = html.match(/<link[^>]*href="[^"]*\.css"[^>]*>/g) || [];
+    const jsScripts = html.match(/<script[^>]*src="[^"]*\.js"[^>]*>/g) || [];
+    console.log('\nFound asset references:');
+    console.log('CSS:', cssLinks);
+    console.log('JS:', jsScripts);
+
+    // Create a working copy of the HTML
+    let newHtml = html;
+
+    // Process CSS files
+    for (const linkTag of cssLinks) {
+      try {
+        // Extract href, handling both relative and absolute paths
+        const href = linkTag.match(/href="([^"]*)"/)[1];
+        const cssPath = path.join(distDir, href.replace(/^[./]+/, ''));
+        console.log(`\nProcessing CSS file: ${cssPath}`);
+
+        // Read and verify CSS content
+        const cssContent = await fs.readFile(cssPath, 'utf-8');
+        console.log(`Read ${cssContent.length} bytes of CSS`);
+
+        // Create and insert style tag
+        const styleTag = `<style type="text/css">\n${cssContent}\n</style>`;
+        newHtml = newHtml.replace(linkTag, styleTag);
+        console.log('Replaced CSS link with inline style');
+      } catch (err) {
+        console.error('Error processing CSS:', err);
+        process.exit(1);
+      }
+    }
+
+    // Process JavaScript files
+    for (const scriptTag of jsScripts) {
+      try {
+        // Extract src, handling both relative and absolute paths
+        const src = scriptTag.match(/src="([^"]*)"/)[1];
+        const jsPath = path.join(distDir, src.replace(/^[./]+/, ''));
+        console.log(`\nProcessing JavaScript file: ${jsPath}`);
+
+        // Read and verify JS content
+        const jsContent = await fs.readFile(jsPath, 'utf-8');
+        console.log(`Read ${jsContent.length} bytes of JavaScript`);
+
+        // Preserve the type attribute if it exists
+        const typeMatch = scriptTag.match(/type="([^"]*)"/);
+        const type = typeMatch ? typeMatch[1] : 'module';
+
+        // Create and insert script tag
+        const newScriptTag = `<script type="${type}">\n${jsContent}\n</script>`;
+        newHtml = newHtml.replace(scriptTag, newScriptTag);
+        console.log('Replaced script tag with inline content');
+      } catch (err) {
+        console.error('Error processing JavaScript:', err);
+        process.exit(1);
+      }
     }
 
     // Remove any remaining crossorigin attributes
-    html = html.replace(/ crossorigin/g, '');
+    newHtml = newHtml.replace(/ crossorigin/g, '');
 
-    // Write the self-contained file
+    // Write the final standalone file
     const outputPath = path.join(distDir, 'standalone.html');
-    await fs.writeFile(outputPath, html, 'utf-8');
+    await fs.writeFile(outputPath, newHtml, 'utf-8');
 
-    const stats = await fs.stat(outputPath);
-    console.log(`Created standalone.html (${stats.size} bytes)`);
-    console.log('You can now open this file directly in your browser');
+    // Verify the output file
+    const finalStats = await fs.stat(outputPath);
+    console.log(`\nCreated standalone.html (${finalStats.size} bytes)`);
+
+    // Basic validation
+    if (newHtml.includes('href="./assets/') || newHtml.includes('src="./assets/')) {
+      throw new Error('Found unprocessed asset references in output');
+    }
+
+    console.log('Successfully created self-contained HTML file');
+    console.log('You can now open standalone.html directly in your browser');
 
   } catch (err) {
     console.error('Build failed:', err);
