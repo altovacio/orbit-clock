@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -154,12 +154,18 @@ export default function Simulator() {
     setMaxPeriod(3);
   };
 
-  const { playSound } = useAudioContext();
+  const { playSound, setScale } = useAudioContext();
 
   const playSimulatorSound = (orbitIndex: number) => {
     if (!isInView) return;
     playSound(orbitIndex);
   };
+
+  // Add this useEffect to sync scale changes with audio context
+  useEffect(() => {
+    // Assuming rootNote and scaleType are defined in component state
+    setScale(rootNote, scaleType);
+  }, [rootNote, scaleType, setScale]);
 
   return (
     <div ref={ref} className="min-h-screen p-8">

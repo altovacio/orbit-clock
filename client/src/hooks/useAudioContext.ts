@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, createContext, useContext, useState } from 'react';
+import React, { useRef, useCallback, createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 // Base note frequencies (C4 to B4)
@@ -26,13 +26,25 @@ function generateScaleFrequencies(
 ): number[] {
   const pattern = SCALE_PATTERNS[scaleType];
   const rootFreq = BASE_NOTES[rootNote as keyof typeof BASE_NOTES];
-  return pattern.map(interval => rootFreq * Math.pow(2, interval / 12));
+  const octaves = 3; // Generate 3 octaves
+  const frequencies: number[] = [];
+
+  for (let octave = 0; octave < octaves; octave++) {
+    pattern.forEach(interval => {
+      // Add 12 semitones for each octave
+      const totalInterval = interval + (12 * octave);
+      frequencies.push(rootFreq * Math.pow(2, totalInterval / 12));
+    });
+  }
+
+  return frequencies;
 }
 
 interface AudioContextType {
   isMuted: boolean;
   toggleMute: () => void;
   playSound: (orbitIndex: number) => void;
+  setScale: (rootNote: keyof typeof BASE_NOTES, scaleType: keyof typeof SCALE_PATTERNS) => void;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -49,16 +61,28 @@ export function AudioProvider({ children }: AudioProviderProps) {
     scaleType: 'majorPentatonic' as keyof typeof SCALE_PATTERNS
   });
 
+  // Initialize audio context on mount
+  useEffect(() => {
+    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
   const toggleMute = useCallback(() => {
     setIsMuted(prev => !prev);
   }, []);
 
-  const playSound = useCallback((orbitIndex: number) => {
-    if (isMuted) return;
+  const playSound = useCallback(async (orbitIndex: number) => {
+    if (isMuted || !audioContextRef.current) return;
 
     try {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new window.AudioContext();
+      // Resume context if suspended (required by some browsers)
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
       }
 
       const context = audioContextRef.current;
@@ -90,12 +114,17 @@ export function AudioProvider({ children }: AudioProviderProps) {
     } catch (error) {
       console.error('Audio playback error:', error);
     }
-  }, [isMuted]);
+  }, [isMuted, currentScale]);
+
+  const setScale = useCallback((rootNote: keyof typeof BASE_NOTES, scaleType: keyof typeof SCALE_PATTERNS) => {
+    setCurrentScale({ rootNote, scaleType });
+  }, []);
 
   const value = {
     isMuted,
     toggleMute,
-    playSound
+    playSound,
+    setScale,
   };
 
   return React.createElement(AudioContext.Provider, { value }, children);
