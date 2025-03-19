@@ -180,9 +180,9 @@ export default function Orbits({
       svg
         .append("line")
         .attr("x1", centerX)
-        .attr("y1", centerY - radius - 2.5)
+        .attr("y1", centerY - radius - 5)
         .attr("x2", centerX)
-        .attr("y2", centerY - radius + 2.5) // Length of the vertical line
+        .attr("y2", centerY - radius + 5) // Length of the vertical line
         .attr("stroke", "#ff8c00") // Color of the line
         .attr("stroke-width", 0.6); // Width of the line
     }

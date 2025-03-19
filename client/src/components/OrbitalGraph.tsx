@@ -46,7 +46,8 @@ export default function OrbitalGraph({
     const defs = svg.append("defs");
 
     // Add arrow markers for the double-headed arrow
-    defs.append("marker")
+    defs
+      .append("marker")
       .attr("id", `arrow-left-${period}`)
       .attr("viewBox", "0 -5 10 10")
       .attr("refX", 0)
@@ -58,7 +59,8 @@ export default function OrbitalGraph({
       .attr("d", "M 10,-5 L 0,0 L 10,5")
       .attr("fill", "rgba(255, 255, 255, 0.5)");
 
-    defs.append("marker")
+    defs
+      .append("marker")
       .attr("id", `arrow-right-${period}`)
       .attr("viewBox", "0 -5 10 10")
       .attr("refX", 10)
@@ -127,7 +129,7 @@ export default function OrbitalGraph({
     // Create a small orbit visualization on the left
     const orbitRadius = 12;
     const orbitCenterX = -80; // Moved further left
-    const orbitCenterY = innerHeight/2;
+    const orbitCenterY = innerHeight / 2;
 
     // Draw orbit path
     svg
@@ -140,8 +142,18 @@ export default function OrbitalGraph({
       .attr("stroke-dasharray", "2,2")
       .attr("fill", "none");
 
+    svg
+      .append("line")
+      .attr("x1", orbitCenterX)
+      .attr("y1", orbitCenterY - orbitRadius - 5)
+      .attr("x2", orbitCenterX)
+      .attr("y2", orbitCenterY - orbitRadius + 5) // Length of the vertical line
+      .attr("stroke", "#ff8c00") // Color of the line
+      .attr("stroke-width", 0.6); // Width of the line
+
     // Draw double-headed arrow
-    svg.append("line")
+    svg
+      .append("line")
       .attr("x1", orbitCenterX + orbitRadius + 5)
       .attr("y1", orbitCenterY)
       .attr("x2", -10) // Stop before the graph starts
@@ -152,9 +164,7 @@ export default function OrbitalGraph({
       .attr("marker-end", `url(#arrow-right-${period})`);
 
     // Create orbit ball group
-    const orbitBall = svg
-      .append("g")
-      .attr("class", "orbit-ball");
+    const orbitBall = svg.append("g").attr("class", "orbit-ball");
 
     // Add the core glow
     orbitBall
@@ -180,8 +190,8 @@ export default function OrbitalGraph({
     // Create line generator
     const line = d3
       .line<[number, number]>()
-      .x(d => xScale(d[0]))
-      .y(d => yScale(d[1]));
+      .x((d) => xScale(d[0]))
+      .y((d) => yScale(d[1]));
 
     // Draw the sine wave path with a gradient
     const waveGradient = defs
@@ -215,19 +225,18 @@ export default function OrbitalGraph({
     // Draw vertical lines for each period
     for (let i = 0; i <= numPeriods; i++) {
       const x = xScale(i * 2 * Math.PI);
-      svg.append("line")
+      svg
+        .append("line")
         .attr("x1", x)
-        .attr("y1", 0)
+        .attr("y1", -innerHeight / 4)
         .attr("x2", x)
-        .attr("y2", innerHeight)
+        .attr("y2", innerHeight / 4)
         .attr("stroke", "rgba(255, 255, 255, 0.2)")
         .attr("stroke-width", 1);
     }
 
     // Create the moving dot on the wave (matching orbit ball style)
-    const waveBall = svg
-      .append("g")
-      .attr("class", "wave-ball");
+    const waveBall = svg.append("g").attr("class", "wave-ball");
 
     // Add core glow (same as orbit ball)
     waveBall
@@ -260,7 +269,7 @@ export default function OrbitalGraph({
       waveBall.attr("transform", `translate(${xScale(x)},${yScale(y)})`);
 
       // Update orbit ball position
-      const angle = -Math.PI/2 + (elapsed * 2 * Math.PI / period);
+      const angle = -Math.PI / 2 + (elapsed * 2 * Math.PI) / period;
       const orbitX = orbitCenterX + Math.cos(angle) * orbitRadius;
       const orbitY = orbitCenterY + Math.sin(angle) * orbitRadius;
       orbitBall.attr("transform", `translate(${orbitX},${orbitY})`);
