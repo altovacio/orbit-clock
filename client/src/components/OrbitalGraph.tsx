@@ -14,19 +14,20 @@ export default function OrbitalGraph({
   isRunning = true,
 }: OrbitalGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const orbitStarGroupRef = useRef<SVGGElement>(null);
+  const waveStarGroupRef = useRef<SVGGElement>(null);
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || !orbitStarGroupRef.current || !waveStarGroupRef.current) return;
 
-    const width = 300; 
+    const width = 300;
     const height = 60;
-    const margin = { top: 10, right: 10, bottom: 10, left: 120 }; 
+    const margin = { top: 10, right: 10, bottom: 10, left: 120 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    
     d3.select(svgRef.current).selectAll("*").remove();
 
     const svg = d3
@@ -35,10 +36,9 @@ export default function OrbitalGraph({
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    
     const defs = svg.append("defs");
 
-    
+    // Add arrow markers
     defs.append("marker")
       .attr("id", `arrow-left-${period}`)
       .attr("viewBox", "0 -5 10 10")
@@ -63,7 +63,6 @@ export default function OrbitalGraph({
       .attr("d", "M 0,-5 L 10,0 L 0,5")
       .attr("fill", "rgba(255, 255, 255, 0.5)");
 
-    
     const xScale = d3
       .scaleLinear()
       .domain([0, numPeriods * 2 * Math.PI])
@@ -71,12 +70,11 @@ export default function OrbitalGraph({
 
     const yScale = d3.scaleLinear().domain([-1, 1]).range([innerHeight, 0]);
 
-    
     const orbitRadius = 12;
     const orbitCenterX = -80;
     const orbitCenterY = innerHeight/2;
 
-    
+    // Draw orbit path
     svg
       .append("circle")
       .attr("cx", orbitCenterX)
@@ -87,39 +85,41 @@ export default function OrbitalGraph({
       .attr("stroke-dasharray", "2,2")
       .attr("fill", "none");
 
-    
+    // Draw double-headed arrow
     svg.append("line")
       .attr("x1", orbitCenterX + orbitRadius + 5)
       .attr("y1", orbitCenterY)
-      .attr("x2", -10) 
+      .attr("x2", -10)
       .attr("y2", orbitCenterY)
       .attr("stroke", "rgba(255, 255, 255, 0.5)")
       .attr("stroke-width", 1)
       .attr("marker-start", `url(#arrow-left-${period})`)
       .attr("marker-end", `url(#arrow-right-${period})`);
 
-    
-    const orbitStar = svg
-      .append("g")
-      .attr("class", "orbit-star");
+    // Create star groups
+    const orbitStarGroup = svg.append("g")
+      .attr("class", "orbit-star-group")
+      .node();
+    orbitStarGroupRef.current = orbitStarGroup;
 
-    
-    const orbitStarId = `orbit-${period}`;
-    const waveStarId = `wave-${period}`;
+    const waveStarGroup = svg.append("g")
+      .attr("class", "wave-star-group")
+      .node();
+    waveStarGroupRef.current = waveStarGroup;
 
-    
+
+    // Generate sine wave data
     const wavePoints = Array.from({ length: 100 }, (_, i) => {
       const x = (i / 99) * numPeriods * 2 * Math.PI;
       return [x, Math.cos(x)];
     });
 
-    
     const line = d3
       .line<[number, number]>()
       .x(d => xScale(d[0]))
       .y(d => yScale(d[1]));
 
-    
+    // Draw the sine wave path with a gradient
     const waveGradient = defs
       .append("linearGradient")
       .attr("id", `cosineGradient-${period}`)
@@ -139,7 +139,7 @@ export default function OrbitalGraph({
       .attr("offset", "100%")
       .attr("stop-color", "rgba(255, 255, 255, 0.1)");
 
-    
+    // Draw the sine wave
     svg
       .append("path")
       .datum(wavePoints)
@@ -148,12 +148,6 @@ export default function OrbitalGraph({
       .attr("stroke-width", 1)
       .attr("d", line);
 
-    
-    const waveStar = svg
-      .append("g")
-      .attr("class", "wave-star");
-
-    
     function animate(timestamp: number) {
       if (!isRunning) return;
 
@@ -165,14 +159,16 @@ export default function OrbitalGraph({
       const x = ((elapsed / period) * 2 * Math.PI) % (numPeriods * 2 * Math.PI);
       const y = Math.cos(x);
 
-      
-      waveStar.attr("transform", `translate(${xScale(x)},${yScale(y)})`);
+      // Update wave star position
+      d3.select(waveStarGroupRef.current)
+        .attr("transform", `translate(${xScale(x)},${yScale(y)})`);
 
-      
+      // Update orbit star position
       const angle = -Math.PI/2 + (elapsed * 2 * Math.PI / period);
       const orbitX = orbitCenterX + Math.cos(angle) * orbitRadius;
       const orbitY = orbitCenterY + Math.sin(angle) * orbitRadius;
-      orbitStar.attr("transform", `translate(${orbitX},${orbitY})`);
+      d3.select(orbitStarGroupRef.current)
+        .attr("transform", `translate(${orbitX},${orbitY})`);
 
       frameRef.current = requestAnimationFrame(animate);
     }
@@ -192,8 +188,24 @@ export default function OrbitalGraph({
   return (
     <svg ref={svgRef} className="w-full" style={{ maxHeight: "60px" }}>
       <defs />
-      <Star svgRef={svgRef} starId={`orbit-${period}`} radius={4} highlightRadius={2} />
-      <Star svgRef={svgRef} starId={`wave-${period}`} radius={3} highlightRadius={1.5} />
+      <g ref={orbitStarGroupRef}>
+        <Star 
+          svgRef={svgRef} 
+          groupRef={orbitStarGroupRef}
+          starId={`orbit-${period}`} 
+          radius={4} 
+          highlightRadius={2} 
+        />
+      </g>
+      <g ref={waveStarGroupRef}>
+        <Star 
+          svgRef={svgRef} 
+          groupRef={waveStarGroupRef}
+          starId={`wave-${period}`} 
+          radius={3} 
+          highlightRadius={1.5} 
+        />
+      </g>
     </svg>
   );
 }

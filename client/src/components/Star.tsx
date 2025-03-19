@@ -1,18 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { select } from 'd3-selection';
 
 interface StarProps {
   svgRef: React.RefObject<SVGSVGElement>;
+  groupRef: React.RefObject<SVGGElement>;
   starId: string;
   radius?: number;
   highlightRadius?: number;
 }
 
-export function Star({ svgRef, starId, radius = 4, highlightRadius = 2 }: StarProps) {
+export function Star({ svgRef, groupRef, starId, radius = 4, highlightRadius = 2 }: StarProps) {
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || !groupRef.current) return;
 
     const svg = select(svgRef.current);
+    const group = select(groupRef.current);
     const defs = svg.select('defs');
 
     // Star gradient
@@ -74,18 +76,15 @@ export function Star({ svgRef, starId, radius = 4, highlightRadius = 2 }: StarPr
     feMerge.append('feMergeNode').attr('in', 'coloredBlur');
     feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
 
-    // Create star group
-    const starGroup = svg.append('g').attr('class', `star-${starId}`);
-
     // Add the core glow
-    starGroup
+    group
       .append('circle')
       .attr('r', radius)
       .attr('fill', `url(#starGradient-${starId})`)
       .attr('filter', `url(#glow-${starId})`);
 
     // Add the highlight
-    starGroup
+    group
       .append('circle')
       .attr('r', highlightRadius)
       .attr('cx', -0.5)
@@ -94,11 +93,11 @@ export function Star({ svgRef, starId, radius = 4, highlightRadius = 2 }: StarPr
 
     return () => {
       // Cleanup
-      svg.selectAll(`.star-${starId}`).remove();
       svg.select(`#starGradient-${starId}`).remove();
       svg.select(`#glow-${starId}`).remove();
+      group.selectAll('*').remove();
     };
-  }, [svgRef, starId, radius, highlightRadius]);
+  }, [svgRef, groupRef, starId, radius, highlightRadius]);
 
   return null;
 }
