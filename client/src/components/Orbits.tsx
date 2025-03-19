@@ -222,11 +222,11 @@ export default function Orbits({
       if (color.note) {
         ballGroup.append("text")
           .attr("class", "note-label")
-          .attr("y", -12) // Position above the ball
+          .attr("y", -10) // Position closer to the ball
           .attr("text-anchor", "middle")
-          .attr("fill", "black")
-          .attr("font-size", "12px")
-          .attr("font-weight", "bold")
+          .attr("fill", "white") // White text
+          .attr("font-size", "8px") // Smaller font
+          .attr("font-weight", "normal")
           .text(color.note);
       }
     }

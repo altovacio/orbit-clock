@@ -159,9 +159,13 @@ export default function Simulator() {
     const scaleIndex = i % scaleNotes.length;
     const octave = Math.floor(i / scaleNotes.length);
     const { note } = scaleNotes[scaleIndex];
+    // Get color based on the base note (without octave)
+    const baseNote = note.replace(/\d+$/, '') as keyof typeof NOTE_COLORS;
+    const color = NOTE_COLORS[baseNote];
     return {
-      ...NOTE_COLORS[note as keyof typeof NOTE_COLORS],
-      note: `${note}${octave + 4}` // Starting from octave 4 (middle C)
+      ...color,
+      // For debugging: show the color value instead of the note
+      note: color.mid
     };
   });
 
