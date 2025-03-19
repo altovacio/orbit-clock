@@ -21,7 +21,7 @@ export default function OrbitalGraph({
 
     const width = 200;
     const height = 60;
-    const margin = { top: 10, right: 50, bottom: 10, left: 10 }; // Increased right margin for orbit
+    const margin = { top: 10, right: 10, bottom: 10, left: 60 }; // Increased left margin for orbit
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -44,6 +44,31 @@ export default function OrbitalGraph({
 
     // Create gradients and filters
     const defs = svg.append("defs");
+
+    // Add arrow markers for the double-headed arrow
+    defs.append("marker")
+      .attr("id", `arrow-left-${period}`)
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 0)
+      .attr("refY", 0)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M 10,-5 L 0,0 L 10,5")
+      .attr("fill", "rgba(255, 255, 255, 0.5)");
+
+    defs.append("marker")
+      .attr("id", `arrow-right-${period}`)
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 10)
+      .attr("refY", 0)
+      .attr("markerWidth", 6)
+      .attr("markerHeight", 6)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M 0,-5 L 10,0 L 0,5")
+      .attr("fill", "rgba(255, 255, 255, 0.5)");
 
     // Ball gradient
     const ballGradient = defs
@@ -131,18 +156,9 @@ export default function OrbitalGraph({
       .attr("offset", "100%")
       .attr("stop-color", "rgba(255, 255, 255, 0.1)");
 
-    // Draw the sine wave
-    svg
-      .append("path")
-      .datum(wavePoints)
-      .attr("fill", "none")
-      .attr("stroke", `url(#cosineGradient-${period})`)
-      .attr("stroke-width", 1)
-      .attr("d", line);
-
-    // Create a small orbit visualization on the right
+    // Create a small orbit visualization on the left
     const orbitRadius = 12;
-    const orbitCenterX = innerWidth + margin.right/2;
+    const orbitCenterX = -35; // Moved to the left side
     const orbitCenterY = innerHeight/2;
 
     // Draw orbit path
@@ -155,6 +171,17 @@ export default function OrbitalGraph({
       .attr("stroke-width", 0.6)
       .attr("stroke-dasharray", "2,2")
       .attr("fill", "none");
+
+    // Draw double-headed arrow
+    svg.append("line")
+      .attr("x1", orbitCenterX + orbitRadius + 5)
+      .attr("y1", orbitCenterY)
+      .attr("x2", -5) // Stop before the graph starts
+      .attr("y2", orbitCenterY)
+      .attr("stroke", "rgba(255, 255, 255, 0.5)")
+      .attr("stroke-width", 1)
+      .attr("marker-start", `url(#arrow-left-${period})`)
+      .attr("marker-end", `url(#arrow-right-${period})`);
 
     // Create orbit ball group
     const orbitBall = svg
@@ -175,6 +202,15 @@ export default function OrbitalGraph({
       .attr("cx", -0.5)
       .attr("cy", -0.5)
       .attr("fill", "rgba(255, 255, 255, 0.9)");
+
+    // Draw the sine wave
+    svg
+      .append("path")
+      .datum(wavePoints)
+      .attr("fill", "none")
+      .attr("stroke", `url(#cosineGradient-${period})`)
+      .attr("stroke-width", 1)
+      .attr("d", line);
 
     // Create the moving dot on the wave
     const dot = svg
