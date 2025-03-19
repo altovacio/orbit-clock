@@ -21,7 +21,7 @@ export default function OrbitalGraph({
 
     const width = 200;
     const height = 60;
-    const margin = { top: 10, right: 10, bottom: 10, left: 180 }; // Doubled left margin for orbit
+    const margin = { top: 10, right: 10, bottom: 10, left: 90 }; // Increased left margin for orbit
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -126,7 +126,7 @@ export default function OrbitalGraph({
 
     // Create a small orbit visualization on the left
     const orbitRadius = 12;
-    const orbitCenterX = -120; // Moved further left
+    const orbitCenterX = -60; // Moved further left
     const orbitCenterY = innerHeight/2;
 
     // Draw orbit path
@@ -144,7 +144,7 @@ export default function OrbitalGraph({
     svg.append("line")
       .attr("x1", orbitCenterX + orbitRadius + 5)
       .attr("y1", orbitCenterY)
-      .attr("x2", -20) // Stop before the graph starts
+      .attr("x2", -10) // Stop before the graph starts
       .attr("y2", orbitCenterY)
       .attr("stroke", "rgba(255, 255, 255, 0.5)")
       .attr("stroke-width", 1)
