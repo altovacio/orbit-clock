@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { select } from "d3-selection";
 import { useOrbitalAnimation } from "@/hooks/useOrbitalAnimation";
+import { NOTE_COLORS, type NoteColorScheme } from "./Simulator";
 
 interface OrbitProps {
   type: string;
@@ -9,6 +10,7 @@ interface OrbitProps {
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
   orbitColors?: ("default" | "blue" | "red")[];
+  notes?: (keyof typeof NOTE_COLORS)[];
 }
 
 export default function Orbits({
@@ -17,7 +19,8 @@ export default function Orbits({
   scale = 1,
   periods: customPeriods,
   onTopReached,
-  orbitColors
+  orbitColors,
+  notes
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -75,10 +78,11 @@ export default function Orbits({
 
     for (let i = 0; i < orbits; i++) {
       const radius = baseRadius * ((i + 1) / orbits);
+      const note = notes?.[i];
       const color = orbitColors?.[i] || "default";
 
       // Color schemes
-      const colorSchemes = {
+      const colorSchemes: {[key:string]: NoteColorScheme} = {
         default: {
           core: "#ffffff",
           mid: "#ffd700",
@@ -96,7 +100,8 @@ export default function Orbits({
         }
       };
 
-      const colors = colorSchemes[color];
+      // Use note colors if provided, otherwise fall back to orbit color
+      const colors = note ? NOTE_COLORS[note] : colorSchemes[color];
 
       // Create gradient for orbit path
       const gradientId = `orbitGradient${i}`;
@@ -209,7 +214,7 @@ export default function Orbits({
 
     startAnimation();
     return () => stopAnimation();
-  }, [type, numOrbits, scale, periods, orbitColors]);
+  }, [type, numOrbits, scale, periods, orbitColors, notes]);
 
   return (
     <svg

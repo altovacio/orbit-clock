@@ -1,18 +1,21 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { NOTE_COLORS, type NoteColorScheme } from "./Simulator";
 
 interface OrbitalGraphProps {
   period: number;
   numPeriods: number;
   isRunning?: boolean;
   orbitColor?: "default" | "blue" | "red";
+  note?: keyof typeof NOTE_COLORS;
 }
 
 export default function OrbitalGraph({
   period,
   numPeriods,
   isRunning = true,
-  orbitColor = "default"
+  orbitColor = "default",
+  note
 }: OrbitalGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const frameRef = useRef<number>();
@@ -37,7 +40,8 @@ export default function OrbitalGraph({
     }
   };
 
-  const colors = colorSchemes[orbitColor];
+  // Use note colors if provided, otherwise fall back to orbit color
+  const colors = note ? NOTE_COLORS[note] : colorSchemes[orbitColor];
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -287,7 +291,7 @@ export default function OrbitalGraph({
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [period, numPeriods, isRunning, orbitColor]);
+  }, [period, numPeriods, isRunning, orbitColor, note]);
 
   return <svg ref={svgRef} className="w-full" style={{ maxHeight: "60px" }} />;
 }
