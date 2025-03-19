@@ -212,6 +212,18 @@ export default function OrbitalGraph({
       .attr("stroke-width", 1)
       .attr("d", line);
 
+    // Draw vertical lines for each period
+    for (let i = 0; i <= numPeriods; i++) {
+      const x = xScale(i * 2 * Math.PI);
+      svg.append("line")
+        .attr("x1", x)
+        .attr("y1", 0)
+        .attr("x2", x)
+        .attr("y2", innerHeight)
+        .attr("stroke", "rgba(255, 255, 255, 0.2)")
+        .attr("stroke-width", 1);
+    }
+
     // Create the moving dot on the wave (matching orbit ball style)
     const waveBall = svg
       .append("g")
