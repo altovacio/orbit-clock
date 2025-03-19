@@ -7,6 +7,7 @@ interface PianoKeysProps {
 
 // Note positions (C to B)
 const ALL_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const WHITE_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 
 // Scale patterns (semitone intervals from root)
 const SCALE_PATTERNS = {
@@ -30,7 +31,7 @@ export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
       className="w-full h-24 my-4"
     >
       {/* White keys */}
-      {ALL_NOTES.filter(note => !note.includes('#')).map((note, i) => {
+      {WHITE_NOTES.map((note, i) => {
         const x = i * 50;
         const isInScale = scaleNotes.includes(note);
         return (
@@ -50,7 +51,12 @@ export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
       {/* Black keys */}
       {ALL_NOTES.map((note, i) => {
         if (!note.includes('#')) return null;
-        const x = (Math.floor(i / 2) * 50) + 35;
+
+        // Calculate black key position based on the previous white key
+        const prevWhiteKeyIndex = WHITE_NOTES.indexOf(ALL_NOTES[i - 1]);
+        if (prevWhiteKeyIndex === -1) return null;
+
+        const x = (prevWhiteKeyIndex * 50) + 35;
         const isInScale = scaleNotes.includes(note);
         return (
           <rect
@@ -64,9 +70,8 @@ export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
         );
       })}
 
-      {/* Note labels */}
-      {ALL_NOTES.map((note, i) => {
-        if (note.includes('#')) return null;
+      {/* Note labels on white keys */}
+      {WHITE_NOTES.map((note, i) => {
         const x = i * 50 + 24;
         return (
           <text
