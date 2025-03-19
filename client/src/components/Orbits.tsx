@@ -9,6 +9,12 @@ const getRGBString = (colorVal: string) => {
   return col ? `${col.r},${col.g},${col.b}` : "255,255,255";
 };
 
+// Helper function to get computed fill color
+const getComputedColor = (element: SVGElement) => {
+  const style = window.getComputedStyle(element);
+  return style.fill;
+};
+
 interface OrbitProps {
   type: string;
   numOrbits?: number;
@@ -19,7 +25,7 @@ interface OrbitProps {
     core: string;
     mid: string;
     glow: string;
-    note?: string; // Add note property
+    note?: string;
   }[];
 }
 
@@ -55,16 +61,6 @@ export default function Orbits({
           .map((_, i) => 1 + i * 0.2);
     }
   }
-
-  const { startAnimation, stopAnimation } = useOrbitalAnimation({
-    svgRef,
-    type,
-    numOrbits,
-    scale,
-    periods,
-    onTopReached,
-    orbitColors
-  });
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -204,7 +200,7 @@ export default function Orbits({
         .attr("class", `orbit${i + 1}`);
 
       // Add the ball
-      ballGroup.append("circle")
+      const ball = ballGroup.append("circle")
         .attr("class", "ball-core")
         .attr("r", 7)
         .attr("fill", `url(#ballGradient${i})`)
@@ -218,22 +214,42 @@ export default function Orbits({
         .attr("cy", -1)
         .attr("fill", "rgba(255, 255, 255, 0.9)");
 
-      // Add note text above the ball
-      if (color.note) {
+      // Add debug text above the ball showing the actual RGB values
+      if (color.mid) {
         ballGroup.append("text")
           .attr("class", "note-label")
-          .attr("y", -10) // Position closer to the ball
+          .attr("y", -10)
           .attr("text-anchor", "middle")
-          .attr("fill", "white") // White text
-          .attr("font-size", "8px") // Smaller font
+          .attr("fill", "white")
+          .attr("font-size", "6px")
           .attr("font-weight", "normal")
-          .text(color.note);
+          .text(color.mid); // Display the actual mid color value
       }
     }
 
+    return () => {
+      if (svgRef.current) {
+        svgRef.current.innerHTML = '';
+      }
+    };
+  }, [type, numOrbits, scale, periods, orbitColors]);
+
+  const { startAnimation, stopAnimation } = useOrbitalAnimation({
+    svgRef,
+    type,
+    numOrbits,
+    scale,
+    periods,
+    onTopReached,
+    orbitColors
+  });
+
+  useEffect(() => {
+    if (!svgRef.current) return;
     startAnimation();
     return () => stopAnimation();
-  }, [type, numOrbits, scale, periods, orbitColors]);
+  }, [startAnimation, stopAnimation]);
+
 
   return (
     <svg

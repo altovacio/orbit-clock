@@ -157,17 +157,14 @@ export default function Simulator() {
   // Generate colors for each orbit based on its corresponding note in the scale
   const orbitColors = Array(numOrbits).fill(0).map((_, i) => {
     const scaleIndex = i % scaleNotes.length;
-    const octave = Math.floor(i / scaleNotes.length);
     const { note } = scaleNotes[scaleIndex];
     // Get base note and its color
     const baseNote = note.replace(/\d+$/, '') as keyof typeof NOTE_COLORS;
     const color = {...NOTE_COLORS[baseNote]}; // Create a new object to avoid reference issues
 
     return {
-      core: color.core,
-      mid: color.mid,
-      glow: color.glow,
-      note: `${color.mid}` // For debugging: show the color value
+      ...color,
+      note: `${baseNote}-${color.mid}` // Show both note and color for debugging
     };
   });
 
