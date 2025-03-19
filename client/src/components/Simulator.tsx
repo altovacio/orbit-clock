@@ -61,25 +61,20 @@ type ScaleType = "majorPentatonic" | "major" | "naturalMinor" | "chromatic";
 // Base frequencies for notes (C4 to B4)
 const BASE_NOTES = {
   C: 261.63,
-  "C#": 277.18,
   D: 293.66,
-  "D#": 311.13,
   E: 329.63,
   F: 349.23,
-  "F#": 369.99,
   G: 392.0,
-  "G#": 415.3,
   A: 440.0,
-  "A#": 466.16,
   B: 493.88,
 };
 
 // Scale patterns (semitone intervals from root)
 const SCALE_PATTERNS: Record<ScaleType, number[]> = {
-  majorPentatonic: [0, 2, 4, 7, 9],
-  major: [0, 2, 4, 5, 7, 9, 11],
-  naturalMinor: [0, 2, 3, 5, 7, 8, 10],
-  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+  majorPentatonic: [0, 2, 4, 7, 9], // C, D, E, G, A
+  major: [0, 2, 4, 5, 7, 9, 11], // C, D, E, F, G, A, B
+  naturalMinor: [0, 2, 3, 5, 7, 8, 10], // C, D, Eb, F, G, Ab, Bb
+  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], // All 12 semitones
 };
 
 function generateScaleFrequencies(

@@ -212,12 +212,25 @@ export default function OrbitalGraph({
       .attr("stroke-width", 1)
       .attr("d", line);
 
-    // Create the moving dot on the wave
-    const dot = svg
+    // Create the moving dot on the wave (matching orbit ball style)
+    const waveBall = svg
+      .append("g")
+      .attr("class", "wave-ball");
+
+    // Add core glow (same as orbit ball)
+    waveBall
       .append("circle")
-      .attr("r", 3)
-      .attr("fill", "#FFD700")
+      .attr("r", 4)
+      .attr("fill", `url(#ballGradient-${period})`)
       .attr("filter", `url(#glow-${period})`);
+
+    // Add highlight (same as orbit ball)
+    waveBall
+      .append("circle")
+      .attr("r", 2)
+      .attr("cx", -0.5)
+      .attr("cy", -0.5)
+      .attr("fill", "rgba(255, 255, 255, 0.9)");
 
     // Animation function
     function animate(timestamp: number) {
@@ -231,8 +244,8 @@ export default function OrbitalGraph({
       const x = ((elapsed / period) * 2 * Math.PI) % (numPeriods * 2 * Math.PI);
       const y = Math.cos(x);
 
-      // Update wave dot
-      dot.attr("cx", xScale(x)).attr("cy", yScale(y));
+      // Update wave ball
+      waveBall.attr("transform", `translate(${xScale(x)},${yScale(y)})`);
 
       // Update orbit ball position
       const angle = -Math.PI/2 + (elapsed * 2 * Math.PI / period);
