@@ -31,6 +31,11 @@ const NOTE_COLORS = {
   B: { core: "#ffffff", mid: "#FF6BC4", glow: "#FF0896" }       // Pink
 };
 
+// Get base note name (without octave number)
+function getBaseNote(note: string): string {
+  return note.replace(/\d+$/, '');
+}
+
 // Preset configurations
 interface PresetConfig {
   title: string;
@@ -98,14 +103,6 @@ const SCALE_PATTERNS: Record<ScaleType, number[]> = {
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
 };
 
-// Get note name from semitone offset
-function getNoteNameFromSemitones(rootNote: keyof typeof BASE_NOTES, semitones: number): string {
-  const notes = Object.keys(BASE_NOTES);
-  const rootIndex = notes.indexOf(rootNote);
-  const noteIndex = (rootIndex + semitones) % 12;
-  return notes[noteIndex];
-}
-
 // Generate notes for the scale
 function generateScaleNotes(
   scaleType: ScaleType,
@@ -113,9 +110,12 @@ function generateScaleNotes(
 ): { note: string; frequency: number }[] {
   const pattern = SCALE_PATTERNS[scaleType];
   const rootFreq = BASE_NOTES[rootNote];
+  const notes = Object.keys(BASE_NOTES);
+  const rootIndex = notes.indexOf(rootNote);
 
   return pattern.map(semitones => {
-    const note = getNoteNameFromSemitones(rootNote, semitones);
+    const noteIndex = (rootIndex + semitones) % 12;
+    const note = notes[noteIndex];
     const frequency = rootFreq * Math.pow(2, semitones / 12);
     return { note, frequency };
   });

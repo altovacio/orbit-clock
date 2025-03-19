@@ -27,13 +27,17 @@ export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
     return ALL_NOTES[noteIndex];
   });
 
+  // Mapping of white key positions to note indices
+  const whiteKeyIndices = [0, 2, 4, 5, 7, 9, 11]; // C, D, E, F, G, A, B positions
+  const whiteKeyNotes = ALL_NOTES.filter(note => !note.includes('#'));
+
   return (
     <svg
       viewBox="0 0 350 100"
       className="w-full h-24 my-4"
     >
       {/* White keys */}
-      {ALL_NOTES.filter(note => !note.includes('#')).map((note, i) => {
+      {whiteKeyNotes.map((note, i) => {
         const x = i * 50;
         const isInScale = scaleNotes.includes(note);
         return (
@@ -68,8 +72,7 @@ export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
       })}
 
       {/* Note labels */}
-      {ALL_NOTES.map((note, i) => {
-        if (note.includes('#')) return null;
+      {whiteKeyNotes.map((note, i) => {
         const x = i * 50 + 24;
         const isInScale = scaleNotes.includes(note);
         return (
