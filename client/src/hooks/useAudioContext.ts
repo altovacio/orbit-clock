@@ -1,19 +1,33 @@
 import React, { useRef, useCallback, createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
-// Musical notes in the pentatonic scale (harmonious star-like sounds)
-const NOTES = [
-  523.25, // C5
-  587.33, // D5
-  659.25, // E5
-  783.99, // G5
-  880.00, // A5
-  1046.50, // C6
-  1174.66, // D6
-  1318.51, // E6
-  1567.98, // G6
-  1760.00  // A6
-];
+// Base note frequencies (C4 to B4)
+const BASE_NOTES = {
+  C: 261.63,
+  D: 293.66,
+  E: 329.63,
+  F: 349.23,
+  G: 392.0,
+  A: 440.0,
+  B: 493.88,
+};
+
+// Scale patterns (semitone intervals from root)
+const SCALE_PATTERNS = {
+  majorPentatonic: [0, 2, 4, 7, 9],
+  major: [0, 2, 4, 5, 7, 9, 11],
+  naturalMinor: [0, 2, 3, 5, 7, 8, 10],
+  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+};
+
+function generateScaleFrequencies(
+  rootNote: keyof typeof BASE_NOTES,
+  scaleType: keyof typeof SCALE_PATTERNS
+): number[] {
+  const pattern = SCALE_PATTERNS[scaleType];
+  const rootFreq = BASE_NOTES[rootNote as keyof typeof BASE_NOTES];
+  return pattern.map(interval => rootFreq * Math.pow(2, interval / 12));
+}
 
 interface AudioContextType {
   isMuted: boolean;
@@ -29,7 +43,11 @@ interface AudioProviderProps {
 
 export function AudioProvider({ children }: AudioProviderProps) {
   const audioContextRef = useRef<AudioContext>();
-  const [isMuted, setIsMuted] = useState(true); // Start muted by default
+  const [isMuted, setIsMuted] = useState(true);
+  const [currentScale, setCurrentScale] = useState({
+    rootNote: 'C' as keyof typeof BASE_NOTES,
+    scaleType: 'majorPentatonic' as keyof typeof SCALE_PATTERNS
+  });
 
   const toggleMute = useCallback(() => {
     setIsMuted(prev => !prev);
@@ -47,8 +65,8 @@ export function AudioProvider({ children }: AudioProviderProps) {
       const oscillator = context.createOscillator();
       const gainNode = context.createGain();
 
-      // Use pentatonic scale notes
-      const freq = NOTES[orbitIndex % NOTES.length];
+      const frequencies = generateScaleFrequencies(currentScale.rootNote, currentScale.scaleType);
+      const freq = frequencies[orbitIndex % frequencies.length];
 
       oscillator.type = 'sine';
       oscillator.frequency.setValueAtTime(freq, context.currentTime);
