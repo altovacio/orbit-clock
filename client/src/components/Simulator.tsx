@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import PianoKeys from "./PianoKeys"; // Import PianoKeys component
+import PianoKeys from "./PianoKeys";
 
 // Color mapping for musical notes
 const NOTE_COLORS = {
@@ -101,22 +101,20 @@ const SCALE_PATTERNS: Record<ScaleType, number[]> = {
 function generateScaleFrequencies(
   scaleType: ScaleType,
   rootNote: keyof typeof BASE_NOTES,
-  octaves: number = 8,
 ): { frequency: number; note: string }[] {
   const pattern = SCALE_PATTERNS[scaleType];
   const rootFreq = BASE_NOTES[rootNote];
   const notes = Object.keys(BASE_NOTES);
   const frequencies: { frequency: number; note: string }[] = [];
 
-  for (let octave = 0; octave < octaves; octave++) {
-    for (const semitones of pattern) {
-      const freq = rootFreq * Math.pow(2, (octave * 12 + semitones) / 12);
-      const noteIndex = (notes.indexOf(rootNote) + semitones) % 12;
-      frequencies.push({
-        frequency: freq,
-        note: notes[noteIndex],
-      });
-    }
+  // Generate one octave of the scale
+  for (const semitones of pattern) {
+    const freq = rootFreq * Math.pow(2, semitones / 12);
+    const noteIndex = (notes.indexOf(rootNote) + semitones) % 12;
+    frequencies.push({
+      frequency: freq,
+      note: notes[noteIndex],
+    });
   }
 
   return frequencies;
@@ -153,11 +151,11 @@ export default function Simulator() {
 
   // Calculate interpolated periods based on min and max
   const periods = interpolateValues(minPeriod, maxPeriod, numOrbits);
-  const frequencies = generateScaleFrequencies(scaleType, rootNote);
+  const scaleFrequencies = generateScaleFrequencies(scaleType, rootNote);
 
-  // Generate colors for each orbit based on its corresponding note
+  // Generate colors for each orbit based on its corresponding note in the scale
   const orbitColors = Array(numOrbits).fill(0).map((_, i) => {
-    const noteData = frequencies[i % frequencies.length];
+    const noteData = scaleFrequencies[i % scaleFrequencies.length];
     return NOTE_COLORS[noteData.note as keyof typeof NOTE_COLORS];
   });
 
@@ -198,9 +196,16 @@ export default function Simulator() {
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
 
-    const noteData = frequencies[orbitIndex % frequencies.length];
+    const scaleLength = scaleFrequencies.length;
+    const octave = Math.floor(orbitIndex / scaleLength);
+    const noteInScale = orbitIndex % scaleLength;
+    const noteData = scaleFrequencies[noteInScale];
+
+    // Adjust frequency for the correct octave
+    const frequency = noteData.frequency * Math.pow(2, octave);
+
     oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(noteData.frequency, context.currentTime);
+    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
 
     gainNode.gain.setValueAtTime(0, context.currentTime);
     gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
