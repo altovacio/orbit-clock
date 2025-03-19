@@ -21,7 +21,7 @@ export default function OrbitalGraph({
 
     const width = 200;
     const height = 60;
-    const margin = { top: 10, right: 10, bottom: 10, left: 60 }; // Increased left margin for orbit
+    const margin = { top: 10, right: 10, bottom: 10, left: 90 }; // Increased left margin for orbit
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -124,6 +124,53 @@ export default function OrbitalGraph({
     feMerge.append("feMergeNode").attr("in", "coloredBlur");
     feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
+    // Create a small orbit visualization on the left
+    const orbitRadius = 12;
+    const orbitCenterX = -60; // Moved further left
+    const orbitCenterY = innerHeight/2;
+
+    // Draw orbit path
+    svg
+      .append("circle")
+      .attr("cx", orbitCenterX)
+      .attr("cy", orbitCenterY)
+      .attr("r", orbitRadius)
+      .attr("stroke", "rgba(255, 255, 255, 0.3)")
+      .attr("stroke-width", 0.6)
+      .attr("stroke-dasharray", "2,2")
+      .attr("fill", "none");
+
+    // Draw double-headed arrow
+    svg.append("line")
+      .attr("x1", orbitCenterX + orbitRadius + 5)
+      .attr("y1", orbitCenterY)
+      .attr("x2", -10) // Stop before the graph starts
+      .attr("y2", orbitCenterY)
+      .attr("stroke", "rgba(255, 255, 255, 0.5)")
+      .attr("stroke-width", 1)
+      .attr("marker-start", `url(#arrow-left-${period})`)
+      .attr("marker-end", `url(#arrow-right-${period})`);
+
+    // Create orbit ball group
+    const orbitBall = svg
+      .append("g")
+      .attr("class", "orbit-ball");
+
+    // Add the core glow
+    orbitBall
+      .append("circle")
+      .attr("r", 4)
+      .attr("fill", `url(#ballGradient-${period})`)
+      .attr("filter", `url(#glow-${period})`);
+
+    // Add the highlight
+    orbitBall
+      .append("circle")
+      .attr("r", 2)
+      .attr("cx", -0.5)
+      .attr("cy", -0.5)
+      .attr("fill", "rgba(255, 255, 255, 0.9)");
+
     // Generate sine wave data
     const wavePoints = Array.from({ length: 100 }, (_, i) => {
       const x = (i / 99) * numPeriods * 2 * Math.PI;
@@ -155,53 +202,6 @@ export default function OrbitalGraph({
       .append("stop")
       .attr("offset", "100%")
       .attr("stop-color", "rgba(255, 255, 255, 0.1)");
-
-    // Create a small orbit visualization on the left
-    const orbitRadius = 12;
-    const orbitCenterX = -35; // Moved to the left side
-    const orbitCenterY = innerHeight/2;
-
-    // Draw orbit path
-    svg
-      .append("circle")
-      .attr("cx", orbitCenterX)
-      .attr("cy", orbitCenterY)
-      .attr("r", orbitRadius)
-      .attr("stroke", "rgba(255, 255, 255, 0.3)")
-      .attr("stroke-width", 0.6)
-      .attr("stroke-dasharray", "2,2")
-      .attr("fill", "none");
-
-    // Draw double-headed arrow
-    svg.append("line")
-      .attr("x1", orbitCenterX + orbitRadius + 5)
-      .attr("y1", orbitCenterY)
-      .attr("x2", -5) // Stop before the graph starts
-      .attr("y2", orbitCenterY)
-      .attr("stroke", "rgba(255, 255, 255, 0.5)")
-      .attr("stroke-width", 1)
-      .attr("marker-start", `url(#arrow-left-${period})`)
-      .attr("marker-end", `url(#arrow-right-${period})`);
-
-    // Create orbit ball group
-    const orbitBall = svg
-      .append("g")
-      .attr("class", "orbit-ball");
-
-    // Add the core glow
-    orbitBall
-      .append("circle")
-      .attr("r", 4)
-      .attr("fill", `url(#ballGradient-${period})`)
-      .attr("filter", `url(#glow-${period})`);
-
-    // Add the highlight
-    orbitBall
-      .append("circle")
-      .attr("r", 2)
-      .attr("cx", -0.5)
-      .attr("cy", -0.5)
-      .attr("fill", "rgba(255, 255, 255, 0.9)");
 
     // Draw the sine wave
     svg
