@@ -119,7 +119,6 @@ export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
   const [minPeriod, setMinPeriod] = useState(1.5);
   const [maxPeriod, setMaxPeriod] = useState(3);
-  const [scale, setScale] = useState(0.8);
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
   const [activePreset, setActivePreset] = useState<number>(0);
@@ -158,7 +157,6 @@ export default function Simulator() {
     setNumOrbits(3);
     setMinPeriod(1.5);
     setMaxPeriod(3);
-    setScale(0.8);
   };
 
   const playSimulatorSound = (orbitIndex: number) => {
@@ -225,7 +223,7 @@ export default function Simulator() {
               <Orbits
                 type="double"
                 numOrbits={numOrbits}
-                scale={scale}
+                scale={1}
                 periods={periods}
                 onTopReached={playSimulatorSound}
               />
@@ -257,20 +255,6 @@ export default function Simulator() {
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <Label>Orbit Scale</Label>
-                  <Slider
-                    value={[scale]}
-                    onValueChange={([value]) => setScale(value)}
-                    min={0.4}
-                    max={1}
-                    step={0.1}
-                  />
-                  <div className="text-sm text-gray-400">
-                    Scale: {scale.toFixed(1)}
                   </div>
                 </div>
 
