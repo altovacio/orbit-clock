@@ -4,7 +4,6 @@ import Orbits from './Orbits';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import OrbitalGraph from './OrbitalGraph';
-import { NOTE_COLORS } from '@/lib/colors';
 
 // Musical notes for scroll sections (C major scale)
 const SCROLL_NOTES = [
@@ -93,7 +92,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               </div>
               <div className="border-t border-blue-500/30 pt-4">
                 <p className="text-sm text-gray-400 mb-2">Y-position over time (1 period)</p>
-                <OrbitalGraph period={1} numPeriods={1} isRunning={isInView} note="C" />
+                <OrbitalGraph period={1} numPeriods={1} isRunning={isInView} orbitColor="default" />
               </div>
             </div>
           </div>
@@ -108,11 +107,11 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
                   <p className="text-sm text-gray-400 mb-2">First orbit (1 period)</p>
-                  <OrbitalGraph period={1} numPeriods={2} isRunning={isInView} note="D" />
+                  <OrbitalGraph period={1} numPeriods={2} isRunning={isInView} orbitColor="default" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Second orbit (2 periods)</p>
-                  <OrbitalGraph period={2} numPeriods={1} isRunning={isInView} note="E" />
+                  <OrbitalGraph period={2} numPeriods={1} isRunning={isInView} orbitColor="blue" />
                 </div>
               </div>
             </div>
@@ -128,15 +127,15 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
                   <p className="text-sm text-gray-400 mb-2">First orbit (6 periods)</p>
-                  <OrbitalGraph period={1} numPeriods={6} isRunning={isInView} note="C" />
+                  <OrbitalGraph period={1} numPeriods={6} isRunning={isInView} orbitColor="default" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Second orbit (3 periods)</p>
-                  <OrbitalGraph period={2} numPeriods={3} isRunning={isInView} note="E" />
+                  <OrbitalGraph period={2} numPeriods={3} isRunning={isInView} orbitColor="blue" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Third orbit (2 periods)</p>
-                  <OrbitalGraph period={3} numPeriods={2} isRunning={isInView} note="G" />
+                  <OrbitalGraph period={3} numPeriods={2} isRunning={isInView} orbitColor="red" />
                 </div>
               </div>
             </div>
@@ -182,15 +181,12 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
           transition={{ duration: 0.5 }}
           className="aspect-square relative"
         >
-          <Orbits
-            type={type}
-            numOrbits={3} // Added numOrbits prop
-            scale={1}
-            periods={[1,2,3]} // Added periods prop
+          <Orbits 
+            type={type} 
             onTopReached={isInView ? playScrollSound : undefined}
-            notes={id === 'three-orbits' ? ['C', 'E', 'G'] :
-                   id === 'two-orbits' ? ['D', 'E'] :
-                   ['C']}
+            orbitColors={id === 'three-orbits' ? ['default', 'blue', 'red'] : 
+                        id === 'two-orbits' ? ['default', 'blue'] : 
+                        undefined}
           />
         </motion.div>
       </div>

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { select } from "d3-selection";
 import { useOrbitalAnimation } from "@/hooks/useOrbitalAnimation";
-import { NOTE_COLORS, type NoteColorScheme } from "@/lib/colors";
 
 interface OrbitProps {
   type: string;
@@ -9,7 +8,7 @@ interface OrbitProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
-  notes?: (keyof typeof NOTE_COLORS)[];
+  orbitColors?: ("default" | "blue" | "red")[];
 }
 
 export default function Orbits({
@@ -18,7 +17,7 @@ export default function Orbits({
   scale = 1,
   periods: customPeriods,
   onTopReached,
-  notes
+  orbitColors
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -52,7 +51,7 @@ export default function Orbits({
     scale,
     periods,
     onTopReached,
-    notes
+    orbitColors
   });
 
   useEffect(() => {
@@ -76,14 +75,28 @@ export default function Orbits({
 
     for (let i = 0; i < orbits; i++) {
       const radius = baseRadius * ((i + 1) / orbits);
-      const note = notes?.[i];
+      const color = orbitColors?.[i] || "default";
 
-      // Use note colors or default to orange-yellow theme
-      const colors: NoteColorScheme = note ? NOTE_COLORS[note] : {
-        core: "#ffffff",
-        mid: "#ffd700",
-        glow: "#ff8c00"
+      // Color schemes
+      const colorSchemes = {
+        default: {
+          core: "#ffffff",
+          mid: "#ffd700",
+          glow: "#ff8c00"
+        },
+        blue: {
+          core: "#ffffff",
+          mid: "#4facfe",
+          glow: "#0066ff"
+        },
+        red: {
+          core: "#ffffff",
+          mid: "#ff6b6b",
+          glow: "#ff0844"
+        }
       };
+
+      const colors = colorSchemes[color];
 
       // Create gradient for orbit path
       const gradientId = `orbitGradient${i}`;
@@ -95,12 +108,12 @@ export default function Orbits({
       gradient
         .append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", `rgba(${colors.mid}, 0.6)`);
+        .attr("stop-color", `rgba(${color === 'blue' ? '79, 172, 254' : color === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.6)`);
 
       gradient
         .append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", `rgba(${colors.glow}, 0.2)`);
+        .attr("stop-color", `rgba(${color === 'blue' ? '79, 172, 254' : color === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.2)`);
 
       // Create radial gradient for the neon star effect
       const ballGradientId = `ballGradient${i}`;
@@ -196,7 +209,7 @@ export default function Orbits({
 
     startAnimation();
     return () => stopAnimation();
-  }, [type, numOrbits, scale, periods, notes]);
+  }, [type, numOrbits, scale, periods, orbitColors]);
 
   return (
     <svg

@@ -115,8 +115,6 @@ function interpolateValues(
   return result;
 }
 
-const ALL_NOTES = Object.keys(BASE_NOTES) as (keyof typeof BASE_NOTES)[];
-
 export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
   const [minPeriod, setMinPeriod] = useState(1.5);
@@ -175,13 +173,6 @@ export default function Simulator() {
     const frequencies = generateScaleFrequencies(scaleType, rootNote);
     const frequency = frequencies[orbitIndex % frequencies.length];
 
-    // Get the note name from the frequency
-    let baseFreq = frequency;
-    while (baseFreq > BASE_NOTES[ALL_NOTES[0]]) {
-      baseFreq /= 2;
-    }
-    const noteName = ALL_NOTES.find(note => Math.abs(BASE_NOTES[note] - baseFreq) < 1) || 'C';
-
     oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(frequency, context.currentTime);
 
@@ -195,17 +186,6 @@ export default function Simulator() {
     oscillator.start();
     oscillator.stop(context.currentTime + 0.5);
   };
-
-  // Calculate notes for all orbits
-  const frequencies = generateScaleFrequencies(scaleType, rootNote);
-  const orbitNotes = Array(numOrbits).fill(0).map((_, i) => {
-    const frequency = frequencies[i % frequencies.length];
-    let baseFreq = frequency;
-    while (baseFreq > BASE_NOTES[ALL_NOTES[0]]) {
-      baseFreq /= 2;
-    }
-    return ALL_NOTES.find(note => Math.abs(BASE_NOTES[note] - baseFreq) < 1) || 'C';
-  });
 
   return (
     <div ref={ref} className="min-h-screen p-8">
@@ -246,7 +226,6 @@ export default function Simulator() {
                 scale={1}
                 periods={periods}
                 onTopReached={playSimulatorSound}
-                notes={orbitNotes}
               />
             </div>
           </Card>
