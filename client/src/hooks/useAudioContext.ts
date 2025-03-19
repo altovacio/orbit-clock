@@ -38,30 +38,40 @@ export function AudioProvider({ children }: AudioProviderProps) {
   const playSound = useCallback((orbitIndex: number) => {
     if (isMuted) return;
 
-    if (!audioContextRef.current) {
-      audioContextRef.current = new window.AudioContext();
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new window.AudioContext();
+      }
+
+      const context = audioContextRef.current;
+      const oscillator = context.createOscillator();
+      const gainNode = context.createGain();
+
+      // Use pentatonic scale notes based on orbit index
+      const freq = 440 * Math.pow(2, orbitIndex / 12); // Simple frequency calculation
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(freq, context.currentTime);
+
+      // Quick attack, slow release for a star-like shimmer
+      gainNode.gain.setValueAtTime(0, context.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(context.destination);
+
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.5);
+
+      // Cleanup connections
+      setTimeout(() => {
+        oscillator.disconnect();
+        gainNode.disconnect();
+      }, 1000);
+    } catch (error) {
+      console.error('Audio playback error:', error);
     }
-
-    const context = audioContextRef.current;
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-
-    // Use pentatonic scale notes based on orbit index
-    const frequency = NOTES[orbitIndex % NOTES.length];
-
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
-
-    // Quick attack, slow release for a star-like shimmer
-    gainNode.gain.setValueAtTime(0, context.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.5);
   }, [isMuted]);
 
   const value = {

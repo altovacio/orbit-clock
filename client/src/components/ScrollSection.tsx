@@ -6,15 +6,6 @@ import 'katex/dist/katex.min.css';
 import OrbitalGraph from './OrbitalGraph';
 import { useAudioContext } from '@/hooks/useAudioContext';
 
-// Musical notes for scroll sections (C major scale)
-const SCROLL_NOTES = [
-  523.25, // C5
-  587.33, // D5
-  659.25, // E5
-  698.46, // F5
-  783.99, // G5
-];
-
 interface ScrollSectionProps {
   id: string;
   title: string;
@@ -55,10 +46,10 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
 
   const playScrollSound = (orbitIndex: number) => {
     if (!isInView) return;
+    // Calculate sectionIndex for pitch variation
     const sectionIndex = parseInt(id.replace(/\D/g, '')) || 0;
-    const baseNote = SCROLL_NOTES[sectionIndex % SCROLL_NOTES.length];
-    const note = baseNote * (1 + (orbitIndex * 0.5));
-    playSound(orbitIndex);
+    // Add section offset to orbit index for varied pitches
+    playSound(orbitIndex + (sectionIndex * 3));
   };
 
   const getMathExplanation = () => {
@@ -163,7 +154,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
         >
           <Orbits 
             type={type} 
-            onTopReached={isInView ? playScrollSound : undefined}
+            onTopReached={playScrollSound}
           />
         </motion.div>
       </div>
