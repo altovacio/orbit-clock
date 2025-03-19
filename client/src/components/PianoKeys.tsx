@@ -67,7 +67,9 @@ export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
       {/* Note labels */}
       {ALL_NOTES.map((note, i) => {
         if (note.includes('#')) return null;
-        const x = i * 50 + 24;
+        // Calculate position based on the white key index, not the overall note index
+        const whiteKeyIndex = ['C', 'D', 'E', 'F', 'G', 'A', 'B'].indexOf(note);
+        const x = whiteKeyIndex * 50 + 24;
         const isInScale = scaleNotes.includes(note);
         return (
           <text
