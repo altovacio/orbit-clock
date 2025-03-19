@@ -29,7 +29,7 @@ interface AudioProviderProps {
 
 export function AudioProvider({ children }: AudioProviderProps) {
   const audioContextRef = useRef<AudioContext>();
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // Start muted by default
 
   const toggleMute = useCallback(() => {
     setIsMuted(prev => !prev);
