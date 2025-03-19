@@ -8,7 +8,6 @@ interface UseOrbitalAnimationProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
-  orbitColors?: ("default" | "blue" | "red")[];
 }
 
 export function useOrbitalAnimation({
@@ -17,8 +16,7 @@ export function useOrbitalAnimation({
   numOrbits = 2,
   scale = 1,
   periods = [3, 5],
-  onTopReached,
-  orbitColors
+  onTopReached
 }: UseOrbitalAnimationProps) {
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
@@ -71,7 +69,7 @@ export function useOrbitalAnimation({
             .attr('class', 'ball-core')
             .attr('r', 7)
             .attr('fill', `url(#ballGradient${i})`)
-            .attr('filter', `url(#simple-glow-${i})`);
+            .attr('filter', `url(#neon-glow-${i})`);
 
           // Center highlight
           g.selectAll('circle.ball-highlight')

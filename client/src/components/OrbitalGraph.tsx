@@ -5,46 +5,23 @@ interface OrbitalGraphProps {
   period: number;
   numPeriods: number;
   isRunning?: boolean;
-  orbitColor?: "default" | "blue" | "red";
 }
 
 export default function OrbitalGraph({
   period,
   numPeriods,
   isRunning = true,
-  orbitColor = "default"
 }: OrbitalGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
 
-  // Define color schemes
-  const colorSchemes = {
-    default: {
-      core: "#ffffff",
-      mid: "#ffd700",
-      glow: "#ff8c00"
-    },
-    blue: {
-      core: "#ffffff",
-      mid: "#4facfe",
-      glow: "#0066ff"
-    },
-    red: {
-      core: "#ffffff",
-      mid: "#ff6b6b",
-      glow: "#ff0844"
-    }
-  };
-
-  const colors = colorSchemes[orbitColor];
-
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const width = 300; 
+    const width = 300; // Increased overall width to accommodate larger margin
     const height = 60;
-    const margin = { top: 10, right: 10, bottom: 10, left: 120 }; 
+    const margin = { top: 10, right: 10, bottom: 10, left: 120 }; // Increased left margin for orbit
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -105,28 +82,28 @@ export default function OrbitalGraph({
     ballGradient
       .append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", colors.core);
+      .attr("stop-color", "#ffffff");
 
     ballGradient
       .append("stop")
       .attr("offset", "40%")
-      .attr("stop-color", colors.core);
+      .attr("stop-color", "#ffffff");
 
     ballGradient
       .append("stop")
       .attr("offset", "60%")
-      .attr("stop-color", colors.mid);
+      .attr("stop-color", "#ffd700");
 
     ballGradient
       .append("stop")
       .attr("offset", "85%")
-      .attr("stop-color", colors.glow)
+      .attr("stop-color", "#ff8c00")
       .attr("stop-opacity", "0.6");
 
     ballGradient
       .append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", colors.glow)
+      .attr("stop-color", "#ff8c00")
       .attr("stop-opacity", "0.1");
 
     // Glow filter
@@ -149,7 +126,7 @@ export default function OrbitalGraph({
 
     // Create a small orbit visualization on the left
     const orbitRadius = 12;
-    const orbitCenterX = -80;
+    const orbitCenterX = -80; // Moved further left
     const orbitCenterY = innerHeight/2;
 
     // Draw orbit path
@@ -158,7 +135,7 @@ export default function OrbitalGraph({
       .attr("cx", orbitCenterX)
       .attr("cy", orbitCenterY)
       .attr("r", orbitRadius)
-      .attr("stroke", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.3)`)
+      .attr("stroke", "rgba(255, 255, 255, 0.3)")
       .attr("stroke-width", 0.6)
       .attr("stroke-dasharray", "2,2")
       .attr("fill", "none");
@@ -167,9 +144,9 @@ export default function OrbitalGraph({
     svg.append("line")
       .attr("x1", orbitCenterX + orbitRadius + 5)
       .attr("y1", orbitCenterY)
-      .attr("x2", -10)
+      .attr("x2", -10) // Stop before the graph starts
       .attr("y2", orbitCenterY)
-      .attr("stroke", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.5)`)
+      .attr("stroke", "rgba(255, 255, 255, 0.5)")
       .attr("stroke-width", 1)
       .attr("marker-start", `url(#arrow-left-${period})`)
       .attr("marker-end", `url(#arrow-right-${period})`);
@@ -182,16 +159,16 @@ export default function OrbitalGraph({
     // Add the core glow
     orbitBall
       .append("circle")
-      .attr("r", 7)
+      .attr("r", 4)
       .attr("fill", `url(#ballGradient-${period})`)
       .attr("filter", `url(#glow-${period})`);
 
     // Add the highlight
     orbitBall
       .append("circle")
-      .attr("r", 4)
-      .attr("cx", -1)
-      .attr("cy", -1)
+      .attr("r", 2)
+      .attr("cx", -0.5)
+      .attr("cy", -0.5)
       .attr("fill", "rgba(255, 255, 255, 0.9)");
 
     // Generate sine wave data
@@ -219,12 +196,12 @@ export default function OrbitalGraph({
     waveGradient
       .append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.4)`);
+      .attr("stop-color", "rgba(255, 255, 255, 0.4)");
 
     waveGradient
       .append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.1)`);
+      .attr("stop-color", "rgba(255, 255, 255, 0.1)");
 
     // Draw the sine wave
     svg
@@ -238,19 +215,11 @@ export default function OrbitalGraph({
     // Create the moving dot on the wave
     const dot = svg
       .append("circle")
-      .attr("r", 7)
-      .attr("fill", `url(#ballGradient-${period})`)
+      .attr("r", 3)
+      .attr("fill", "#FFD700")
       .attr("filter", `url(#glow-${period})`);
 
-    // Add highlight to the dot
-    svg
-      .append("circle")
-      .attr("r", 4)
-      .attr("cx", -1)
-      .attr("cy", -1)
-      .attr("fill", "rgba(255, 255, 255, 0.9)")
-      .attr("class", "dot-highlight");
-
+    // Animation function
     function animate(timestamp: number) {
       if (!isRunning) return;
 
@@ -264,9 +233,6 @@ export default function OrbitalGraph({
 
       // Update wave dot
       dot.attr("cx", xScale(x)).attr("cy", yScale(y));
-      svg.select(".dot-highlight")
-        .attr("cx", xScale(x) - 1)
-        .attr("cy", yScale(y) - 1);
 
       // Update orbit ball position
       const angle = -Math.PI/2 + (elapsed * 2 * Math.PI / period);
@@ -287,7 +253,7 @@ export default function OrbitalGraph({
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [period, numPeriods, isRunning, orbitColor]);
+  }, [period, numPeriods, isRunning]);
 
   return <svg ref={svgRef} className="w-full" style={{ maxHeight: "60px" }} />;
 }

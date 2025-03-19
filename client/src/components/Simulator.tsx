@@ -194,6 +194,29 @@ export default function Simulator() {
           Interactive Orbital Simulator
         </h2>
 
+        {/* Preset Chips */}
+        <div className="flex flex-wrap gap-4 mb-8 justify-center">
+          {PRESETS.map((preset, index) => (
+            <button
+              key={index}
+              onClick={() => applyPreset(index)}
+              className={`
+                px-4 py-2 rounded-lg text-left
+                ${
+                  activePreset === index
+                    ? "bg-blue-500/30 border-blue-500"
+                    : "bg-gray-900/50 border-gray-800"
+                }
+                border transition-colors duration-200
+                hover:border-blue-400
+              `}
+            >
+              <div className="font-semibold">{preset.title}</div>
+              <div className="text-sm text-gray-400">{preset.subtitle}</div>
+            </button>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
             <div className="aspect-square">
@@ -211,32 +234,6 @@ export default function Simulator() {
             {/* Orbit Controls Card */}
             <Card className="p-6 bg-gray-900/50 border-gray-800">
               <div className="space-y-6">
-                {/* Preset Chips moved here */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Presets</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {PRESETS.map((preset, index) => (
-                      <button
-                        key={index}
-                        onClick={() => applyPreset(index)}
-                        className={`
-                          px-3 py-2 rounded-lg text-left text-sm
-                          ${
-                            activePreset === index
-                              ? "bg-blue-500/30 border-blue-500"
-                              : "bg-gray-900/50 border-gray-800"
-                          }
-                          border transition-colors duration-200
-                          hover:border-blue-400
-                        `}
-                      >
-                        <div className="font-semibold">{preset.title}</div>
-                        <div className="text-xs text-gray-400">{preset.subtitle}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold">
                     Number of Orbits: {numOrbits}
