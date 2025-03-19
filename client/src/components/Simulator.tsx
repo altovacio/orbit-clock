@@ -162,6 +162,13 @@ export default function Simulator() {
     const baseNote = note.replace(/\d+$/, '') as keyof typeof NOTE_COLORS;
     const color = {...NOTE_COLORS[baseNote]}; // Create a new object to avoid reference issues
 
+    console.log(`Ball ${i}:`, {
+      note: baseNote,
+      color: color.mid,
+      scaleIndex,
+      scaleLength: scaleNotes.length
+    });
+
     return {
       ...color,
       note: `${baseNote}-${color.mid}` // Show both note and color for debugging

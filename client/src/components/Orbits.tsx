@@ -216,6 +216,13 @@ export default function Orbits({
 
       // Add debug text above the ball showing the actual RGB values
       if (color.mid) {
+        console.log(`Creating ball ${i}:`, {
+          color: color.mid,
+          gradient: `url(#ballGradient${i})`,
+          orbitIndex: i,
+          colorObject: color
+        });
+
         ballGroup.append("text")
           .attr("class", "note-label")
           .attr("y", -10)
