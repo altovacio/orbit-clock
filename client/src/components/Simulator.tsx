@@ -154,11 +154,15 @@ export default function Simulator() {
   const periods = interpolateValues(minPeriod, maxPeriod, numOrbits);
   const scaleNotes = generateScaleNotes(scaleType, rootNote);
 
-  // Generate colors for each orbit based on its corresponding note
+  // Generate colors for each orbit based on its corresponding note in the scale
   const orbitColors = Array(numOrbits).fill(0).map((_, i) => {
     const scaleIndex = i % scaleNotes.length;
+    const octave = Math.floor(i / scaleNotes.length);
     const { note } = scaleNotes[scaleIndex];
-    return NOTE_COLORS[note as keyof typeof NOTE_COLORS];
+    return {
+      ...NOTE_COLORS[note as keyof typeof NOTE_COLORS],
+      note: `${note}${octave + 4}` // Starting from octave 4 (middle C)
+    };
   });
 
   const applyPreset = (presetIndex: number) => {

@@ -19,6 +19,7 @@ interface OrbitProps {
     core: string;
     mid: string;
     glow: string;
+    note?: string; // Add note property
   }[];
 }
 
@@ -187,6 +188,7 @@ export default function Orbits({
         .attr("fill", "none")
         .attr("class", `orbit-path-${i}`);
 
+      // Draw vertical line at top of orbit
       svg
         .append("line")
         .attr("x1", centerX)
@@ -195,6 +197,38 @@ export default function Orbits({
         .attr("y2", centerY - radius + 2.5)
         .attr("stroke", color.glow)
         .attr("stroke-width", 0.6);
+
+      // Create a group for the ball and its label
+      const ballGroup = svg
+        .append("g")
+        .attr("class", `orbit${i + 1}`);
+
+      // Add the ball
+      ballGroup.append("circle")
+        .attr("class", "ball-core")
+        .attr("r", 7)
+        .attr("fill", `url(#ballGradient${i})`)
+        .attr("filter", `url(#simple-glow-${i})`);
+
+      // Add the highlight
+      ballGroup.append("circle")
+        .attr("class", "ball-highlight")
+        .attr("r", 4)
+        .attr("cx", -1)
+        .attr("cy", -1)
+        .attr("fill", "rgba(255, 255, 255, 0.9)");
+
+      // Add note text above the ball
+      if (color.note) {
+        ballGroup.append("text")
+          .attr("class", "note-label")
+          .attr("y", -12) // Position above the ball
+          .attr("text-anchor", "middle")
+          .attr("fill", "black")
+          .attr("font-size", "12px")
+          .attr("font-weight", "bold")
+          .text(color.note);
+      }
     }
 
     startAnimation();
