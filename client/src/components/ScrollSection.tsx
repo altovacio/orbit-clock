@@ -92,7 +92,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               </div>
               <div className="border-t border-blue-500/30 pt-4">
                 <p className="text-sm text-gray-400 mb-2">Y-position over time (1 period)</p>
-                <OrbitalGraph period={1} numPeriods={1} isRunning={isInView} />
+                <OrbitalGraph period={1} numPeriods={1} isRunning={isInView} orbitColor="default" />
               </div>
             </div>
           </div>
@@ -107,11 +107,11 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
                   <p className="text-sm text-gray-400 mb-2">First orbit (1 period)</p>
-                  <OrbitalGraph period={1} numPeriods={2} isRunning={isInView} />
+                  <OrbitalGraph period={1} numPeriods={2} isRunning={isInView} orbitColor="default" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Second orbit (2 periods)</p>
-                  <OrbitalGraph period={2} numPeriods={1} isRunning={isInView} />
+                  <OrbitalGraph period={2} numPeriods={1} isRunning={isInView} orbitColor="blue" />
                 </div>
               </div>
             </div>
@@ -127,15 +127,15 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
                   <p className="text-sm text-gray-400 mb-2">First orbit (6 periods)</p>
-                  <OrbitalGraph period={1} numPeriods={6} isRunning={isInView} />
+                  <OrbitalGraph period={1} numPeriods={6} isRunning={isInView} orbitColor="default" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Second orbit (3 periods)</p>
-                  <OrbitalGraph period={2} numPeriods={3} isRunning={isInView} />
+                  <OrbitalGraph period={2} numPeriods={3} isRunning={isInView} orbitColor="blue" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Third orbit (2 periods)</p>
-                  <OrbitalGraph period={3} numPeriods={2} isRunning={isInView} />
+                  <OrbitalGraph period={3} numPeriods={2} isRunning={isInView} orbitColor="red" />
                 </div>
               </div>
             </div>
@@ -184,6 +184,9 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
           <Orbits 
             type={type} 
             onTopReached={isInView ? playScrollSound : undefined}
+            orbitColors={id === 'three-orbits' ? ['default', 'blue', 'red'] : 
+                        id === 'two-orbits' ? ['default', 'blue'] : 
+                        undefined}
           />
         </motion.div>
       </div>

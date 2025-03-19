@@ -8,6 +8,7 @@ interface OrbitProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
+  orbitColors?: ("default" | "blue" | "red")[];
 }
 
 export default function Orbits({
@@ -16,6 +17,7 @@ export default function Orbits({
   scale = 1,
   periods: customPeriods,
   onTopReached,
+  orbitColors
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -49,6 +51,7 @@ export default function Orbits({
     scale,
     periods,
     onTopReached,
+    orbitColors
   });
 
   useEffect(() => {
@@ -72,6 +75,28 @@ export default function Orbits({
 
     for (let i = 0; i < orbits; i++) {
       const radius = baseRadius * ((i + 1) / orbits);
+      const color = orbitColors?.[i] || "default";
+
+      // Color schemes
+      const colorSchemes = {
+        default: {
+          core: "#ffffff",
+          mid: "#ffd700",
+          glow: "#ff8c00"
+        },
+        blue: {
+          core: "#ffffff",
+          mid: "#4facfe",
+          glow: "#0066ff"
+        },
+        red: {
+          core: "#ffffff",
+          mid: "#ff6b6b",
+          glow: "#ff0844"
+        }
+      };
+
+      const colors = colorSchemes[color];
 
       // Create gradient for orbit path
       const gradientId = `orbitGradient${i}`;
@@ -83,12 +108,12 @@ export default function Orbits({
       gradient
         .append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", "rgba(255, 255, 255, 0.6)");
+        .attr("stop-color", `rgba(${color === 'blue' ? '79, 172, 254' : color === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.6)`);
 
       gradient
         .append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", "rgba(255, 255, 255, 0.2)");
+        .attr("stop-color", `rgba(${color === 'blue' ? '79, 172, 254' : color === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.2)`);
 
       // Create radial gradient for the neon star effect
       const ballGradientId = `ballGradient${i}`;
@@ -98,38 +123,33 @@ export default function Orbits({
         .attr("gradientUnits", "objectBoundingBox")
         .attr("cx", "0.5")
         .attr("cy", "0.5")
-        .attr("r", "0.6"); // Reduced glow radius
+        .attr("r", "0.6");
 
-      // White hot core (larger)
       ballGradient
         .append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", "#ffffff");
+        .attr("stop-color", colors.core);
 
-      // Expanded white area
       ballGradient
         .append("stop")
         .attr("offset", "40%")
-        .attr("stop-color", "#ffffff");
+        .attr("stop-color", colors.core);
 
-      // Yellow-orange transition
       ballGradient
         .append("stop")
         .attr("offset", "60%")
-        .attr("stop-color", "#ffd700");
+        .attr("stop-color", colors.mid);
 
-      // Orange glow
       ballGradient
         .append("stop")
         .attr("offset", "85%")
-        .attr("stop-color", "#ff8c00")
+        .attr("stop-color", colors.glow)
         .attr("stop-opacity", "0.6");
 
-      // Soft outer glow
       ballGradient
         .append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", "#ff8c00")
+        .attr("stop-color", colors.glow)
         .attr("stop-opacity", "0.1");
 
       const filterGlow = defs
@@ -143,12 +163,12 @@ export default function Orbits({
       filterGlow
         .append("feGaussianBlur")
         .attr("in", "SourceAlpha")
-        .attr("stdDeviation", "2") // Reduced blur for a simpler glow
+        .attr("stdDeviation", "2")
         .attr("result", "blur");
 
       filterGlow
         .append("feFlood")
-        .attr("flood-color", "rgba(255, 255, 255, 0.5)") // White glow
+        .attr("flood-color", "rgba(255, 255, 255, 0.5)")
         .attr("result", "color");
 
       filterGlow
@@ -182,14 +202,14 @@ export default function Orbits({
         .attr("x1", centerX)
         .attr("y1", centerY - radius - 2.5)
         .attr("x2", centerX)
-        .attr("y2", centerY - radius + 2.5) // Length of the vertical line
-        .attr("stroke", "#ff8c00") // Color of the line
-        .attr("stroke-width", 0.6); // Width of the line
+        .attr("y2", centerY - radius + 2.5)
+        .attr("stroke", colors.glow)
+        .attr("stroke-width", 0.6);
     }
 
     startAnimation();
     return () => stopAnimation();
-  }, [type, numOrbits, scale, periods]);
+  }, [type, numOrbits, scale, periods, orbitColors]);
 
   return (
     <svg
