@@ -68,14 +68,17 @@ export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
       {ALL_NOTES.map((note, i) => {
         if (note.includes('#')) return null;
         const x = i * 50 + 24;
+        const isInScale = scaleNotes.includes(note);
         return (
           <text
             key={`label-${note}`}
             x={x}
-            y={90}
+            y={85}
             textAnchor="middle"
-            fill="black"
-            fontSize="12"
+            fill={isInScale ? "#1e293b" : "#374151"}
+            fontSize="14"
+            fontWeight="500"
+            className="select-none"
           >
             {note}
           </text>
