@@ -1,12 +1,11 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
-import { NOTE_COLORS, type NoteColorScheme } from "./Simulator";
+import { NOTE_COLORS, type NoteColorScheme } from "@/lib/colors";
 
 interface OrbitalGraphProps {
   period: number;
   numPeriods: number;
   isRunning?: boolean;
-  orbitColor?: "default" | "blue" | "red";
   note?: keyof typeof NOTE_COLORS;
 }
 
@@ -14,41 +13,25 @@ export default function OrbitalGraph({
   period,
   numPeriods,
   isRunning = true,
-  orbitColor = "default",
   note
 }: OrbitalGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
 
-  // Define color schemes
-  const colorSchemes = {
-    default: {
-      core: "#ffffff",
-      mid: "#ffd700",
-      glow: "#ff8c00"
-    },
-    blue: {
-      core: "#ffffff",
-      mid: "#4facfe",
-      glow: "#0066ff"
-    },
-    red: {
-      core: "#ffffff",
-      mid: "#ff6b6b",
-      glow: "#ff0844"
-    }
+  // Use note colors or default to orange-yellow theme
+  const colors: NoteColorScheme = note ? NOTE_COLORS[note] : {
+    core: "#ffffff",
+    mid: "#ffd700",
+    glow: "#ff8c00"
   };
-
-  // Use note colors if provided, otherwise fall back to orbit color
-  const colors = note ? NOTE_COLORS[note] : colorSchemes[orbitColor];
 
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const width = 300; 
+    const width = 300;
     const height = 60;
-    const margin = { top: 10, right: 10, bottom: 10, left: 120 }; 
+    const margin = { top: 10, right: 10, bottom: 10, left: 120 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -133,24 +116,6 @@ export default function OrbitalGraph({
       .attr("stop-color", colors.glow)
       .attr("stop-opacity", "0.1");
 
-    // Glow filter
-    const glowFilter = defs
-      .append("filter")
-      .attr("id", `glow-${period}`)
-      .attr("x", "-50%")
-      .attr("y", "-50%")
-      .attr("width", "200%")
-      .attr("height", "200%");
-
-    glowFilter
-      .append("feGaussianBlur")
-      .attr("stdDeviation", "2")
-      .attr("result", "coloredBlur");
-
-    const feMerge = glowFilter.append("feMerge");
-    feMerge.append("feMergeNode").attr("in", "coloredBlur");
-    feMerge.append("feMergeNode").attr("in", "SourceGraphic");
-
     // Create a small orbit visualization on the left
     const orbitRadius = 12;
     const orbitCenterX = -80;
@@ -162,7 +127,7 @@ export default function OrbitalGraph({
       .attr("cx", orbitCenterX)
       .attr("cy", orbitCenterY)
       .attr("r", orbitRadius)
-      .attr("stroke", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.3)`)
+      .attr("stroke", `rgba(${colors.mid}, 0.3)`)
       .attr("stroke-width", 0.6)
       .attr("stroke-dasharray", "2,2")
       .attr("fill", "none");
@@ -173,7 +138,7 @@ export default function OrbitalGraph({
       .attr("y1", orbitCenterY)
       .attr("x2", -10)
       .attr("y2", orbitCenterY)
-      .attr("stroke", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.5)`)
+      .attr("stroke", `rgba(${colors.mid}, 0.5)`)
       .attr("stroke-width", 1)
       .attr("marker-start", `url(#arrow-left-${period})`)
       .attr("marker-end", `url(#arrow-right-${period})`);
@@ -223,12 +188,12 @@ export default function OrbitalGraph({
     waveGradient
       .append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.4)`);
+      .attr("stop-color", `rgba(${colors.mid}, 0.4)`);
 
     waveGradient
       .append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.1)`);
+      .attr("stop-color", `rgba(${colors.glow}, 0.1)`);
 
     // Draw the sine wave
     svg
@@ -291,7 +256,7 @@ export default function OrbitalGraph({
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [period, numPeriods, isRunning, orbitColor, note]);
+  }, [period, numPeriods, isRunning, colors]);
 
   return <svg ref={svgRef} className="w-full" style={{ maxHeight: "60px" }} />;
 }

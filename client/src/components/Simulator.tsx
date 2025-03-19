@@ -74,72 +74,6 @@ const BASE_NOTES = {
   B: 493.88,
 };
 
-// Color schemes for each note
-export const NOTE_COLORS = {
-  C: {
-    core: "#ffffff",
-    mid: "#ff6b6b",
-    glow: "#ff0844",
-  },
-  "C#": {
-    core: "#ffffff",
-    mid: "#ff9f43",
-    glow: "#ff6b00",
-  },
-  D: {
-    core: "#ffffff",
-    mid: "#ffd700",
-    glow: "#ff8c00",
-  },
-  "D#": {
-    core: "#ffffff",
-    mid: "#a8e6cf",
-    glow: "#3ebd93",
-  },
-  E: {
-    core: "#ffffff",
-    mid: "#4facfe",
-    glow: "#0066ff",
-  },
-  F: {
-    core: "#ffffff",
-    mid: "#cd84f1",
-    glow: "#9b59b6",
-  },
-  "F#": {
-    core: "#ffffff",
-    mid: "#ff9ff3",
-    glow: "#f368e0",
-  },
-  G: {
-    core: "#ffffff",
-    mid: "#ffcccc",
-    glow: "#ff6b6b",
-  },
-  "G#": {
-    core: "#ffffff",
-    mid: "#7bed9f",
-    glow: "#2ed573",
-  },
-  A: {
-    core: "#ffffff",
-    mid: "#70a1ff",
-    glow: "#1e90ff",
-  },
-  "A#": {
-    core: "#ffffff",
-    mid: "#a3a1ff",
-    glow: "#5352ed",
-  },
-  B: {
-    core: "#ffffff",
-    mid: "#ff9ff3",
-    glow: "#f368e0",
-  },
-} as const;
-
-export type NoteColorScheme = typeof NOTE_COLORS[keyof typeof NOTE_COLORS];
-
 // Scale patterns (semitone intervals from root)
 const SCALE_PATTERNS: Record<ScaleType, number[]> = {
   majorPentatonic: [0, 2, 4, 7, 9],
@@ -180,6 +114,8 @@ function interpolateValues(
   }
   return result;
 }
+
+const ALL_NOTES = Object.keys(BASE_NOTES) as (keyof typeof BASE_NOTES)[];
 
 export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
@@ -240,12 +176,11 @@ export default function Simulator() {
     const frequency = frequencies[orbitIndex % frequencies.length];
 
     // Get the note name from the frequency
-    const noteNames = Object.keys(BASE_NOTES) as (keyof typeof BASE_NOTES)[];
     let baseFreq = frequency;
-    while (baseFreq > BASE_NOTES[noteNames[0]]) {
+    while (baseFreq > BASE_NOTES[ALL_NOTES[0]]) {
       baseFreq /= 2;
     }
-    const noteName = noteNames.find(note => Math.abs(BASE_NOTES[note] - baseFreq) < 1) || 'C';
+    const noteName = ALL_NOTES.find(note => Math.abs(BASE_NOTES[note] - baseFreq) < 1) || 'C';
 
     oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(frequency, context.currentTime);
@@ -260,6 +195,17 @@ export default function Simulator() {
     oscillator.start();
     oscillator.stop(context.currentTime + 0.5);
   };
+
+  // Calculate notes for all orbits
+  const frequencies = generateScaleFrequencies(scaleType, rootNote);
+  const orbitNotes = Array(numOrbits).fill(0).map((_, i) => {
+    const frequency = frequencies[i % frequencies.length];
+    let baseFreq = frequency;
+    while (baseFreq > BASE_NOTES[ALL_NOTES[0]]) {
+      baseFreq /= 2;
+    }
+    return ALL_NOTES.find(note => Math.abs(BASE_NOTES[note] - baseFreq) < 1) || 'C';
+  });
 
   return (
     <div ref={ref} className="min-h-screen p-8">
@@ -300,6 +246,7 @@ export default function Simulator() {
                 scale={1}
                 periods={periods}
                 onTopReached={playSimulatorSound}
+                notes={orbitNotes}
               />
             </div>
           </Card>
