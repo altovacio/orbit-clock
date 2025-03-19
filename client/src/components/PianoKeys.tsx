@@ -10,26 +10,19 @@ const ALL_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', '
 
 // Scale patterns (semitone intervals from root)
 const SCALE_PATTERNS = {
-  majorPentatonic: [0, 2, 4, 7, 9],  // C D E G A
-  major: [0, 2, 4, 5, 7, 9, 11],     // C D E F G A B
-  naturalMinor: [0, 2, 3, 5, 7, 8, 10], // C D Eb F G Ab Bb
+  majorPentatonic: [0, 2, 4, 7, 9],
+  major: [0, 2, 4, 5, 7, 9, 11],
+  naturalMinor: [0, 2, 3, 5, 7, 8, 10],
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 };
 
 export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
   // Calculate which notes are in the scale
-  const rootIndex = ALL_NOTES.indexOf(rootNote);
+  const rootIndex = ALL_NOTES.indexOf(rootNote.replace('#', ''));
   const pattern = SCALE_PATTERNS[scaleType as keyof typeof SCALE_PATTERNS] || [];
-
-  // Generate the actual notes in the scale
-  const scaleNotes = pattern.map(interval => {
-    const noteIndex = (rootIndex + interval) % 12;
-    return ALL_NOTES[noteIndex];
-  });
-
-  // Mapping of white key positions to note indices
-  const whiteKeyIndices = [0, 2, 4, 5, 7, 9, 11]; // C, D, E, F, G, A, B positions
-  const whiteKeyNotes = ALL_NOTES.filter(note => !note.includes('#'));
+  const scaleNotes = pattern.map(interval => 
+    ALL_NOTES[(rootIndex + interval) % 12]
+  );
 
   return (
     <svg
@@ -37,7 +30,7 @@ export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
       className="w-full h-24 my-4"
     >
       {/* White keys */}
-      {whiteKeyNotes.map((note, i) => {
+      {ALL_NOTES.filter(note => !note.includes('#')).map((note, i) => {
         const x = i * 50;
         const isInScale = scaleNotes.includes(note);
         return (
@@ -72,18 +65,17 @@ export default function PianoKeys({ rootNote, scaleType }: PianoKeysProps) {
       })}
 
       {/* Note labels */}
-      {whiteKeyNotes.map((note, i) => {
+      {ALL_NOTES.map((note, i) => {
+        if (note.includes('#')) return null;
         const x = i * 50 + 24;
-        const isInScale = scaleNotes.includes(note);
         return (
           <text
             key={`label-${note}`}
             x={x}
             y={90}
             textAnchor="middle"
-            fill={isInScale ? "#1e40af" : "black"}
+            fill="black"
             fontSize="12"
-            fontWeight={isInScale ? "bold" : "normal"}
           >
             {note}
           </text>

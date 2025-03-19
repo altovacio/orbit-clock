@@ -1,39 +1,50 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
-// Helper function to convert color to RGB string
-const getRGBString = (colorVal: string) => {
-  const col = d3.color(colorVal);
-  return col ? `${col.r},${col.g},${col.b}` : "255,255,255";
-};
-
 interface OrbitalGraphProps {
   period: number;
   numPeriods: number;
   isRunning?: boolean;
-  orbitColor?: {
-    core: string;
-    mid: string;
-    glow: string;
-  };
+  orbitColor?: "default" | "blue" | "red";
 }
 
 export default function OrbitalGraph({
   period,
   numPeriods,
   isRunning = true,
-  orbitColor = { core: "#ffffff", mid: "#ffd700", glow: "#ff8c00" }
+  orbitColor = "default"
 }: OrbitalGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
 
+  // Define color schemes
+  const colorSchemes = {
+    default: {
+      core: "#ffffff",
+      mid: "#ffd700",
+      glow: "#ff8c00"
+    },
+    blue: {
+      core: "#ffffff",
+      mid: "#4facfe",
+      glow: "#0066ff"
+    },
+    red: {
+      core: "#ffffff",
+      mid: "#ff6b6b",
+      glow: "#ff0844"
+    }
+  };
+
+  const colors = colorSchemes[orbitColor];
+
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const width = 300;
+    const width = 300; 
     const height = 60;
-    const margin = { top: 10, right: 10, bottom: 10, left: 120 };
+    const margin = { top: 10, right: 10, bottom: 10, left: 120 }; 
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -68,7 +79,7 @@ export default function OrbitalGraph({
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M 10,-5 L 0,0 L 10,5")
-      .attr("fill", `rgba(${getRGBString(orbitColor.mid)}, 0.5)`);
+      .attr("fill", "rgba(255, 255, 255, 0.5)");
 
     defs.append("marker")
       .attr("id", `arrow-right-${period}`)
@@ -80,7 +91,7 @@ export default function OrbitalGraph({
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M 0,-5 L 10,0 L 0,5")
-      .attr("fill", `rgba(${getRGBString(orbitColor.mid)}, 0.5)`);
+      .attr("fill", "rgba(255, 255, 255, 0.5)");
 
     // Ball gradient
     const ballGradient = defs
@@ -94,28 +105,28 @@ export default function OrbitalGraph({
     ballGradient
       .append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", orbitColor.core);
+      .attr("stop-color", colors.core);
 
     ballGradient
       .append("stop")
       .attr("offset", "40%")
-      .attr("stop-color", orbitColor.core);
+      .attr("stop-color", colors.core);
 
     ballGradient
       .append("stop")
       .attr("offset", "60%")
-      .attr("stop-color", orbitColor.mid);
+      .attr("stop-color", colors.mid);
 
     ballGradient
       .append("stop")
       .attr("offset", "85%")
-      .attr("stop-color", orbitColor.glow)
+      .attr("stop-color", colors.glow)
       .attr("stop-opacity", "0.6");
 
     ballGradient
       .append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", orbitColor.glow)
+      .attr("stop-color", colors.glow)
       .attr("stop-opacity", "0.1");
 
     // Glow filter
@@ -139,7 +150,7 @@ export default function OrbitalGraph({
     // Create a small orbit visualization on the left
     const orbitRadius = 12;
     const orbitCenterX = -80;
-    const orbitCenterY = innerHeight / 2;
+    const orbitCenterY = innerHeight/2;
 
     // Draw orbit path
     svg
@@ -147,7 +158,7 @@ export default function OrbitalGraph({
       .attr("cx", orbitCenterX)
       .attr("cy", orbitCenterY)
       .attr("r", orbitRadius)
-      .attr("stroke", `rgba(${getRGBString(orbitColor.mid)}, 0.3)`)
+      .attr("stroke", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.3)`)
       .attr("stroke-width", 0.6)
       .attr("stroke-dasharray", "2,2")
       .attr("fill", "none");
@@ -158,7 +169,7 @@ export default function OrbitalGraph({
       .attr("y1", orbitCenterY)
       .attr("x2", -10)
       .attr("y2", orbitCenterY)
-      .attr("stroke", `rgba(${getRGBString(orbitColor.mid)}, 0.5)`)
+      .attr("stroke", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.5)`)
       .attr("stroke-width", 1)
       .attr("marker-start", `url(#arrow-left-${period})`)
       .attr("marker-end", `url(#arrow-right-${period})`);
@@ -208,12 +219,12 @@ export default function OrbitalGraph({
     waveGradient
       .append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", `rgba(${getRGBString(orbitColor.mid)}, 0.4)`);
+      .attr("stop-color", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.4)`);
 
     waveGradient
       .append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", `rgba(${getRGBString(orbitColor.mid)}, 0.1)`);
+      .attr("stop-color", `rgba(${orbitColor === 'blue' ? '79, 172, 254' : orbitColor === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.1)`);
 
     // Draw the sine wave
     svg
@@ -258,7 +269,7 @@ export default function OrbitalGraph({
         .attr("cy", yScale(y) - 1);
 
       // Update orbit ball position
-      const angle = -Math.PI / 2 + (elapsed * 2 * Math.PI / period);
+      const angle = -Math.PI/2 + (elapsed * 2 * Math.PI / period);
       const orbitX = orbitCenterX + Math.cos(angle) * orbitRadius;
       const orbitY = orbitCenterY + Math.sin(angle) * orbitRadius;
       orbitBall.attr("transform", `translate(${orbitX},${orbitY})`);

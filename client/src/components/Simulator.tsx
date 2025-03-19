@@ -13,28 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import PianoKeys from "./PianoKeys";
-
-// Color mapping for musical notes
-const NOTE_COLORS = {
-  C: { core: "#ffffff", mid: "#FF6B6B", glow: "#FF0844" },      // Red
-  "C#": { core: "#ffffff", mid: "#FF9F6B", glow: "#FF4908" },   // Orange-Red
-  D: { core: "#ffffff", mid: "#FFD76B", glow: "#FFB108" },      // Orange
-  "D#": { core: "#ffffff", mid: "#FFEB6B", glow: "#FFD908" },   // Yellow-Orange
-  E: { core: "#ffffff", mid: "#C4FF6B", glow: "#96FF08" },      // Yellow-Green
-  F: { core: "#ffffff", mid: "#6BFF7C", glow: "#08FF2B" },      // Green
-  "F#": { core: "#ffffff", mid: "#6BFFC4", glow: "#08FF96" },   // Blue-Green
-  G: { core: "#ffffff", mid: "#6BC4FF", glow: "#0896FF" },      // Light Blue
-  "G#": { core: "#ffffff", mid: "#6B8CFF", glow: "#083DFF" },   // Blue
-  A: { core: "#ffffff", mid: "#966BFF", glow: "#5908FF" },      // Purple
-  "A#": { core: "#ffffff", mid: "#C46BFF", glow: "#9608FF" },   // Purple-Pink
-  B: { core: "#ffffff", mid: "#FF6BC4", glow: "#FF0896" }       // Pink
-};
-
-// Get base note name (without octave number)
-function getBaseNote(note: string): string {
-  return note.replace(/\d+$/, '');
-}
+import PianoKeys from "./PianoKeys"; // Import PianoKeys component
 
 // Preset configurations
 interface PresetConfig {
@@ -97,28 +76,29 @@ const BASE_NOTES = {
 
 // Scale patterns (semitone intervals from root)
 const SCALE_PATTERNS: Record<ScaleType, number[]> = {
-  majorPentatonic: [0, 2, 4, 7, 9],  // C D E G A
-  major: [0, 2, 4, 5, 7, 9, 11],     // C D E F G A B
-  naturalMinor: [0, 2, 3, 5, 7, 8, 10], // C D Eb F G Ab Bb
+  majorPentatonic: [0, 2, 4, 7, 9],
+  major: [0, 2, 4, 5, 7, 9, 11],
+  naturalMinor: [0, 2, 3, 5, 7, 8, 10],
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
 };
 
-// Generate notes for the scale
-function generateScaleNotes(
+function generateScaleFrequencies(
   scaleType: ScaleType,
-  rootNote: keyof typeof BASE_NOTES
-): { note: string; frequency: number }[] {
+  rootNote: keyof typeof BASE_NOTES,
+  octaves: number = 8,
+): number[] {
   const pattern = SCALE_PATTERNS[scaleType];
   const rootFreq = BASE_NOTES[rootNote];
-  const notes = Object.keys(BASE_NOTES);
-  const rootIndex = notes.indexOf(rootNote);
+  const frequencies: number[] = [];
 
-  return pattern.map(semitones => {
-    const noteIndex = (rootIndex + semitones) % 12;
-    const note = notes[noteIndex];
-    const frequency = rootFreq * Math.pow(2, semitones / 12);
-    return { note, frequency };
-  });
+  for (let octave = 0; octave < octaves; octave++) {
+    for (const semitones of pattern) {
+      const freq = rootFreq * Math.pow(2, (octave * 12 + semitones) / 12);
+      frequencies.push(freq);
+    }
+  }
+
+  return frequencies;
 }
 
 // Linear interpolation helper function
@@ -152,28 +132,6 @@ export default function Simulator() {
 
   // Calculate interpolated periods based on min and max
   const periods = interpolateValues(minPeriod, maxPeriod, numOrbits);
-  const scaleNotes = generateScaleNotes(scaleType, rootNote);
-
-  // Generate colors for each orbit based on its corresponding note in the scale
-  const orbitColors = Array(numOrbits).fill(0).map((_, i) => {
-    const scaleIndex = i % scaleNotes.length;
-    const { note } = scaleNotes[scaleIndex];
-    // Get base note and its color
-    const baseNote = note.replace(/\d+$/, '') as keyof typeof NOTE_COLORS;
-    const color = {...NOTE_COLORS[baseNote]}; // Create a new object to avoid reference issues
-
-    console.log(`Ball ${i}:`, {
-      note: baseNote,
-      color: color.mid,
-      scaleIndex,
-      scaleLength: scaleNotes.length
-    });
-
-    return {
-      ...color,
-      note: `${baseNote}-${color.mid}` // Show both note and color for debugging
-    };
-  });
 
   const applyPreset = (presetIndex: number) => {
     const preset = PRESETS[presetIndex];
@@ -212,16 +170,11 @@ export default function Simulator() {
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
 
-    const scaleLength = scaleNotes.length;
-    const scaleIndex = orbitIndex % scaleLength;
-    const octave = Math.floor(orbitIndex / scaleLength);
-    const { frequency } = scaleNotes[scaleIndex];
-
-    // Adjust frequency for the correct octave
-    const adjustedFrequency = frequency * Math.pow(2, octave);
+    const frequencies = generateScaleFrequencies(scaleType, rootNote);
+    const frequency = frequencies[orbitIndex % frequencies.length];
 
     oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(adjustedFrequency, context.currentTime);
+    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
 
     gainNode.gain.setValueAtTime(0, context.currentTime);
     gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
@@ -273,7 +226,6 @@ export default function Simulator() {
                 scale={1}
                 periods={periods}
                 onTopReached={playSimulatorSound}
-                orbitColors={orbitColors}
               />
             </div>
           </Card>

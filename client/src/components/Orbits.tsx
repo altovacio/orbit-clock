@@ -1,19 +1,6 @@
 import { useEffect, useRef } from "react";
 import { select } from "d3-selection";
-import * as d3 from 'd3';
 import { useOrbitalAnimation } from "@/hooks/useOrbitalAnimation";
-
-// Helper function to convert color to RGB string
-const getRGBString = (colorVal: string) => {
-  const col = d3.color(colorVal);
-  return col ? `${col.r},${col.g},${col.b}` : "255,255,255";
-};
-
-// Helper function to get computed fill color
-const getComputedColor = (element: SVGElement) => {
-  const style = window.getComputedStyle(element);
-  return style.fill;
-};
 
 interface OrbitProps {
   type: string;
@@ -21,12 +8,7 @@ interface OrbitProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
-  orbitColors?: {
-    core: string;
-    mid: string;
-    glow: string;
-    note?: string;
-  }[];
+  orbitColors?: ("default" | "blue" | "red")[];
 }
 
 export default function Orbits({
@@ -62,6 +44,16 @@ export default function Orbits({
     }
   }
 
+  const { startAnimation, stopAnimation } = useOrbitalAnimation({
+    svgRef,
+    type,
+    numOrbits,
+    scale,
+    periods,
+    onTopReached,
+    orbitColors
+  });
+
   useEffect(() => {
     if (!svgRef.current) return;
 
@@ -83,7 +75,28 @@ export default function Orbits({
 
     for (let i = 0; i < orbits; i++) {
       const radius = baseRadius * ((i + 1) / orbits);
-      const color = orbitColors?.[i] || { core: "#ffffff", mid: "#ffd700", glow: "#ff8c00" };
+      const color = orbitColors?.[i] || "default";
+
+      // Color schemes
+      const colorSchemes = {
+        default: {
+          core: "#ffffff",
+          mid: "#ffd700",
+          glow: "#ff8c00"
+        },
+        blue: {
+          core: "#ffffff",
+          mid: "#4facfe",
+          glow: "#0066ff"
+        },
+        red: {
+          core: "#ffffff",
+          mid: "#ff6b6b",
+          glow: "#ff0844"
+        }
+      };
+
+      const colors = colorSchemes[color];
 
       // Create gradient for orbit path
       const gradientId = `orbitGradient${i}`;
@@ -95,12 +108,12 @@ export default function Orbits({
       gradient
         .append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", `rgba(${getRGBString(color.mid)}, 0.6)`);
+        .attr("stop-color", `rgba(${color === 'blue' ? '79, 172, 254' : color === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.6)`);
 
       gradient
         .append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", `rgba(${getRGBString(color.mid)}, 0.2)`);
+        .attr("stop-color", `rgba(${color === 'blue' ? '79, 172, 254' : color === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.2)`);
 
       // Create radial gradient for the neon star effect
       const ballGradientId = `ballGradient${i}`;
@@ -115,28 +128,28 @@ export default function Orbits({
       ballGradient
         .append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", color.core);
+        .attr("stop-color", colors.core);
 
       ballGradient
         .append("stop")
         .attr("offset", "40%")
-        .attr("stop-color", color.core);
+        .attr("stop-color", colors.core);
 
       ballGradient
         .append("stop")
         .attr("offset", "60%")
-        .attr("stop-color", color.mid);
+        .attr("stop-color", colors.mid);
 
       ballGradient
         .append("stop")
         .attr("offset", "85%")
-        .attr("stop-color", color.glow)
+        .attr("stop-color", colors.glow)
         .attr("stop-opacity", "0.6");
 
       ballGradient
         .append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", color.glow)
+        .attr("stop-color", colors.glow)
         .attr("stop-opacity", "0.1");
 
       const filterGlow = defs
@@ -184,79 +197,19 @@ export default function Orbits({
         .attr("fill", "none")
         .attr("class", `orbit-path-${i}`);
 
-      // Draw vertical line at top of orbit
       svg
         .append("line")
         .attr("x1", centerX)
         .attr("y1", centerY - radius - 2.5)
         .attr("x2", centerX)
         .attr("y2", centerY - radius + 2.5)
-        .attr("stroke", color.glow)
+        .attr("stroke", colors.glow)
         .attr("stroke-width", 0.6);
-
-      // Create a group for the ball and its label
-      const ballGroup = svg
-        .append("g")
-        .attr("class", `orbit${i + 1}`);
-
-      // Add the ball
-      const ball = ballGroup.append("circle")
-        .attr("class", "ball-core")
-        .attr("r", 7)
-        .attr("fill", `url(#ballGradient${i})`)
-        .attr("filter", `url(#simple-glow-${i})`);
-
-      // Add the highlight
-      ballGroup.append("circle")
-        .attr("class", "ball-highlight")
-        .attr("r", 4)
-        .attr("cx", -1)
-        .attr("cy", -1)
-        .attr("fill", "rgba(255, 255, 255, 0.9)");
-
-      // Add debug text above the ball showing the actual RGB values
-      if (color.mid) {
-        console.log(`Creating ball ${i}:`, {
-          color: color.mid,
-          gradient: `url(#ballGradient${i})`,
-          orbitIndex: i,
-          colorObject: color
-        });
-
-        ballGroup.append("text")
-          .attr("class", "note-label")
-          .attr("y", -10)
-          .attr("text-anchor", "middle")
-          .attr("fill", "white")
-          .attr("font-size", "6px")
-          .attr("font-weight", "normal")
-          .text(color.mid); // Display the actual mid color value
-      }
     }
 
-    return () => {
-      if (svgRef.current) {
-        svgRef.current.innerHTML = '';
-      }
-    };
-  }, [type, numOrbits, scale, periods, orbitColors]);
-
-  const { startAnimation, stopAnimation } = useOrbitalAnimation({
-    svgRef,
-    type,
-    numOrbits,
-    scale,
-    periods,
-    onTopReached,
-    orbitColors
-  });
-
-  useEffect(() => {
-    if (!svgRef.current) return;
     startAnimation();
     return () => stopAnimation();
-  }, [startAnimation, stopAnimation]);
-
+  }, [type, numOrbits, scale, periods, orbitColors]);
 
   return (
     <svg
