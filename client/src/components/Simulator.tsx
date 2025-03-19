@@ -159,13 +159,15 @@ export default function Simulator() {
     const scaleIndex = i % scaleNotes.length;
     const octave = Math.floor(i / scaleNotes.length);
     const { note } = scaleNotes[scaleIndex];
-    // Get color based on the base note (without octave)
+    // Get base note and its color
     const baseNote = note.replace(/\d+$/, '') as keyof typeof NOTE_COLORS;
-    const color = NOTE_COLORS[baseNote];
+    const color = {...NOTE_COLORS[baseNote]}; // Create a new object to avoid reference issues
+
     return {
-      ...color,
-      // For debugging: show the color value instead of the note
-      note: color.mid
+      core: color.core,
+      mid: color.mid,
+      glow: color.glow,
+      note: `${color.mid}` // For debugging: show the color value
     };
   });
 
