@@ -4,6 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
+import { AudioProvider } from "./hooks/useAudioContext";
+import { MuteButton } from "@/components/MuteButton";
 
 function Router() {
   return (
@@ -17,8 +19,11 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
+      <AudioProvider>
+        <Router />
+        <MuteButton />
+        <Toaster />
+      </AudioProvider>
     </QueryClientProvider>
   );
 }

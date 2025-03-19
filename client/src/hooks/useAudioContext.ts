@@ -1,4 +1,5 @@
-import { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, createContext, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
 
 // Musical notes in the pentatonic scale (harmonious star-like sounds)
 const NOTES = [
@@ -14,12 +15,31 @@ const NOTES = [
   1760.00  // A6
 ];
 
-export function useAudioContext() {
+interface AudioContextType {
+  isMuted: boolean;
+  toggleMute: () => void;
+  playSound: (orbitIndex: number) => void;
+}
+
+const AudioContext = createContext<AudioContextType | null>(null);
+
+interface AudioProviderProps {
+  children: ReactNode;
+}
+
+export function AudioProvider({ children }: AudioProviderProps) {
   const audioContextRef = useRef<AudioContext>();
+  const [isMuted, setIsMuted] = useState(false);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted(prev => !prev);
+  }, []);
 
   const playSound = useCallback((orbitIndex: number) => {
+    if (isMuted) return;
+
     if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext();
+      audioContextRef.current = new window.AudioContext();
     }
 
     const context = audioContextRef.current;
@@ -42,7 +62,21 @@ export function useAudioContext() {
 
     oscillator.start();
     oscillator.stop(context.currentTime + 0.5);
-  }, []);
+  }, [isMuted]);
 
-  return { playSound };
+  const value = {
+    isMuted,
+    toggleMute,
+    playSound
+  };
+
+  return React.createElement(AudioContext.Provider, { value }, children);
+}
+
+export function useAudioContext() {
+  const context = useContext(AudioContext);
+  if (!context) {
+    throw new Error('useAudioContext must be used within an AudioProvider');
+  }
+  return context;
 }

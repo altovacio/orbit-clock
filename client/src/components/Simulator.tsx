@@ -13,7 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import PianoKeys from "./PianoKeys"; // Import PianoKeys component
+import PianoKeys from "./PianoKeys";
+import { useAudioContext } from "@/hooks/useAudioContext"; // Fixed import path
 
 // Preset configurations
 interface PresetConfig {
@@ -117,7 +118,6 @@ export default function Simulator() {
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
   const [activePreset, setActivePreset] = useState<number>(0);
-  const audioContextRef = useRef<AudioContext>();
   const ref = useRef(null);
 
   const isInView = useInView(ref, {
@@ -154,32 +154,11 @@ export default function Simulator() {
     setMaxPeriod(3);
   };
 
+  const { playSound } = useAudioContext();
+
   const playSimulatorSound = (orbitIndex: number) => {
     if (!isInView) return;
-
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext();
-    }
-
-    const context = audioContextRef.current;
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-
-    const frequencies = generateScaleFrequencies(scaleType, rootNote);
-    const frequency = frequencies[orbitIndex % frequencies.length];
-
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
-
-    gainNode.gain.setValueAtTime(0, context.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.5);
+    playSound(orbitIndex);
   };
 
   return (
