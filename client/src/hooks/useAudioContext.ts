@@ -47,8 +47,8 @@ export function AudioProvider({ children }: AudioProviderProps) {
       const oscillator = context.createOscillator();
       const gainNode = context.createGain();
 
-      // Use pentatonic scale notes based on orbit index
-      const freq = 440 * Math.pow(2, orbitIndex / 12); // Simple frequency calculation
+      // Use pentatonic scale notes
+      const freq = NOTES[orbitIndex % NOTES.length];
 
       oscillator.type = 'sine';
       oscillator.frequency.setValueAtTime(freq, context.currentTime);
