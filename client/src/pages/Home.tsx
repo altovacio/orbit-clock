@@ -6,19 +6,19 @@ const sections = [
   {
     id: 'intro',
     title: 'What is an Orbital Period?',
-    content: 'Just like a clock hand, an orbiting object follows a circular path. The time it takes to complete one full circle is called its period.',
+    content: 'In circular motion, the period \( T \) is defined as the time taken to complete one full revolution. In this example, \( T = 1s \).',
     type: 'single'
   },
   {
     id: 'two-orbits',
     title: 'When Two Orbits Meet',
-    content: 'Here we have two objects: one takes 1 second to orbit, the other takes 2 seconds. They will meet at the same point every 2 seconds - this is called their synchronization period.',
+    content: 'In this scenario, one body completes its orbit in 1 second, while the other takes 2 seconds. They will realign to their initial positions at the top after the smaller orbit has completed two full cycles, which occurs after 2 seconds.',
     type: 'double'
   },
   {
     id: 'three-orbits',
     title: 'Three-Body Dance',
-    content: 'With three objects (periods of 1, 2, and 3 seconds), the pattern becomes more complex. All three align every 6 seconds - this is the least common multiple of their periods.',
+    content: 'With three objects (periods of 1, 2, and 3 seconds), the pattern becomes a little more complex. When will they all align again at the top?',
     type: 'multi'
   }
 ];
