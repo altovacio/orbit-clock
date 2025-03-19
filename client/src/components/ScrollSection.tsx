@@ -4,6 +4,7 @@ import Orbits from './Orbits';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import OrbitalGraph from './OrbitalGraph';
+import { useAudioContext } from '@/hooks/useAudioContext';
 
 // Musical notes for scroll sections (C major scale)
 const SCROLL_NOTES = [
@@ -26,7 +27,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
   const ref = useRef(null);
   const mathRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { amount: 0.5 });
-  const audioContextRef = useRef<AudioContext>();
+  const { playSound } = useAudioContext();
 
   useEffect(() => {
     if (isInView) {
@@ -54,31 +55,10 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
 
   const playScrollSound = (orbitIndex: number) => {
     if (!isInView) return;
-
-    if (!audioContextRef.current) {
-      audioContextRef.current = new AudioContext();
-    }
-
-    const context = audioContextRef.current;
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-
     const sectionIndex = parseInt(id.replace(/\D/g, '')) || 0;
     const baseNote = SCROLL_NOTES[sectionIndex % SCROLL_NOTES.length];
     const note = baseNote * (1 + (orbitIndex * 0.5));
-
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(note, context.currentTime);
-
-    gainNode.gain.setValueAtTime(0, context.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.5);
+    playSound(orbitIndex);
   };
 
   const getMathExplanation = () => {
