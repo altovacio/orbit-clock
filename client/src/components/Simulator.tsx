@@ -48,7 +48,7 @@ const PRESETS: PresetConfig[] = [
   },
   {
     title: "10 Note Madness",
-    subtitle: "1.304e10y ⚠️",
+    subtitle: "1.304e10y ⚠️(Age of the universe)",
     minPeriod: 1,
     maxPeriod: 2.1,
     numOrbits: 10,
