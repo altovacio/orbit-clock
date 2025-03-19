@@ -3,6 +3,7 @@ import { motion, useAnimation, useInView } from 'framer-motion';
 import Orbits from './Orbits';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
+import OrbitalGraph from './OrbitalGraph';
 
 // Musical notes for scroll sections (C major scale)
 const SCROLL_NOTES = [
@@ -120,6 +121,50 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
     }
   };
 
+  const getOrbitalGraphs = () => {
+    switch (id) {
+      case 'intro':
+        return (
+          <div className="mt-4 space-y-2">
+            <p className="text-sm text-gray-400">Y-position over time (1 period)</p>
+            <OrbitalGraph period={1} numPeriods={1} isRunning={isInView} />
+          </div>
+        );
+      case 'two-orbits':
+        return (
+          <div className="mt-4 space-y-4">
+            <div className="space-y-2">
+              <p className="text-sm text-gray-400">First orbit (1 period)</p>
+              <OrbitalGraph period={1} numPeriods={2} isRunning={isInView} />
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-400">Second orbit (2 periods)</p>
+              <OrbitalGraph period={2} numPeriods={1} isRunning={isInView} />
+            </div>
+          </div>
+        );
+      case 'three-orbits':
+        return (
+          <div className="mt-4 space-y-4">
+            <div className="space-y-2">
+              <p className="text-sm text-gray-400">First orbit (6 periods)</p>
+              <OrbitalGraph period={1} numPeriods={6} isRunning={isInView} />
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-400">Second orbit (3 periods)</p>
+              <OrbitalGraph period={2} numPeriods={3} isRunning={isInView} />
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-400">Third orbit (2 periods)</p>
+              <OrbitalGraph period={3} numPeriods={2} isRunning={isInView} />
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div
       ref={ref}
@@ -143,6 +188,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
             {content}
           </p>
           {getMathExplanation()}
+          {getOrbitalGraphs()}
         </motion.div>
 
         <motion.div
