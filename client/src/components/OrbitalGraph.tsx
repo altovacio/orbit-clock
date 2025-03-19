@@ -19,9 +19,9 @@ export default function OrbitalGraph({
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const width = 200;
+    const width = 300; // Increased overall width to accommodate larger margin
     const height = 60;
-    const margin = { top: 10, right: 10, bottom: 10, left: 90 }; // Increased left margin for orbit
+    const margin = { top: 10, right: 10, bottom: 10, left: 120 }; // Increased left margin for orbit
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -126,7 +126,7 @@ export default function OrbitalGraph({
 
     // Create a small orbit visualization on the left
     const orbitRadius = 12;
-    const orbitCenterX = -60; // Moved further left
+    const orbitCenterX = -80; // Moved further left
     const orbitCenterY = innerHeight/2;
 
     // Draw orbit path
