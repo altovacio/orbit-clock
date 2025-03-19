@@ -1,10 +1,20 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import OrbitalBall from "./OrbitalBall";
+import ReactDOMServer from "react-dom/server";
 
 interface OrbitalGraphProps {
   period: number;
   numPeriods: number;
   isRunning?: boolean;
+}
+
+// Helper function to create SVG element from React component
+function createSVGNode(component: JSX.Element): SVGGElement {
+  const markup = ReactDOMServer.renderToStaticMarkup(component);
+  const template = document.createElement('template');
+  template.innerHTML = markup.trim();
+  return template.content.firstChild as SVGGElement;
 }
 
 export default function OrbitalGraph({
@@ -19,13 +29,12 @@ export default function OrbitalGraph({
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const width = 300; // Increased overall width to accommodate larger margin
+    const width = 300;
     const height = 60;
-    const margin = { top: 10, right: 10, bottom: 10, left: 120 }; // Increased left margin for orbit
+    const margin = { top: 10, right: 10, bottom: 10, left: 120 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    // Clear previous content
     d3.select(svgRef.current).selectAll("*").remove();
 
     const svg = d3
@@ -34,7 +43,6 @@ export default function OrbitalGraph({
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Create scales
     const xScale = d3
       .scaleLinear()
       .domain([0, numPeriods * 2 * Math.PI])
@@ -42,10 +50,9 @@ export default function OrbitalGraph({
 
     const yScale = d3.scaleLinear().domain([-1, 1]).range([innerHeight, 0]);
 
-    // Create gradients and filters
+    // Create arrow markers
     const defs = svg.append("defs");
 
-    // Add arrow markers for the double-headed arrow
     defs.append("marker")
       .attr("id", `arrow-left-${period}`)
       .attr("viewBox", "0 -5 10 10")
@@ -70,64 +77,9 @@ export default function OrbitalGraph({
       .attr("d", "M 0,-5 L 10,0 L 0,5")
       .attr("fill", "rgba(255, 255, 255, 0.5)");
 
-    // Ball gradient
-    const ballGradient = defs
-      .append("radialGradient")
-      .attr("id", `ballGradient-${period}`)
-      .attr("gradientUnits", "objectBoundingBox")
-      .attr("cx", "0.5")
-      .attr("cy", "0.5")
-      .attr("r", "0.6");
-
-    ballGradient
-      .append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", "#ffffff");
-
-    ballGradient
-      .append("stop")
-      .attr("offset", "40%")
-      .attr("stop-color", "#ffffff");
-
-    ballGradient
-      .append("stop")
-      .attr("offset", "60%")
-      .attr("stop-color", "#ffd700");
-
-    ballGradient
-      .append("stop")
-      .attr("offset", "85%")
-      .attr("stop-color", "#ff8c00")
-      .attr("stop-opacity", "0.6");
-
-    ballGradient
-      .append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", "#ff8c00")
-      .attr("stop-opacity", "0.1");
-
-    // Glow filter
-    const glowFilter = defs
-      .append("filter")
-      .attr("id", `glow-${period}`)
-      .attr("x", "-50%")
-      .attr("y", "-50%")
-      .attr("width", "200%")
-      .attr("height", "200%");
-
-    glowFilter
-      .append("feGaussianBlur")
-      .attr("stdDeviation", "2")
-      .attr("result", "coloredBlur");
-
-    const feMerge = glowFilter.append("feMerge");
-    feMerge.append("feMergeNode").attr("in", "coloredBlur");
-    feMerge.append("feMergeNode").attr("in", "SourceGraphic");
-
-    // Create a small orbit visualization on the left
     const orbitRadius = 12;
-    const orbitCenterX = -80; // Moved further left
-    const orbitCenterY = innerHeight/2;
+    const orbitCenterX = -80;
+    const orbitCenterY = innerHeight / 2;
 
     // Draw orbit path
     svg
@@ -140,11 +92,11 @@ export default function OrbitalGraph({
       .attr("stroke-dasharray", "2,2")
       .attr("fill", "none");
 
-    // Draw double-headed arrow
+    // Add connecting arrow
     svg.append("line")
       .attr("x1", orbitCenterX + orbitRadius + 5)
       .attr("y1", orbitCenterY)
-      .attr("x2", -10) // Stop before the graph starts
+      .attr("x2", -10)
       .attr("y2", orbitCenterY)
       .attr("stroke", "rgba(255, 255, 255, 0.5)")
       .attr("stroke-width", 1)
@@ -154,36 +106,25 @@ export default function OrbitalGraph({
     // Create orbit ball group
     const orbitBall = svg
       .append("g")
-      .attr("class", "orbit-ball");
+      .attr("class", "orbit-ball")
+      .node();
 
-    // Add the core glow
-    orbitBall
-      .append("circle")
-      .attr("r", 4)
-      .attr("fill", `url(#ballGradient-${period})`)
-      .attr("filter", `url(#glow-${period})`);
+    if (orbitBall) {
+      orbitBall.appendChild(createSVGNode(<OrbitalBall radius={4} highlightRadius={2} />));
+    }
 
-    // Add the highlight
-    orbitBall
-      .append("circle")
-      .attr("r", 2)
-      .attr("cx", -0.5)
-      .attr("cy", -0.5)
-      .attr("fill", "rgba(255, 255, 255, 0.9)");
-
-    // Generate sine wave data
+    // Generate sine wave points
     const wavePoints = Array.from({ length: 100 }, (_, i) => {
       const x = (i / 99) * numPeriods * 2 * Math.PI;
       return [x, Math.cos(x)];
     });
 
-    // Create line generator
+    // Create sine wave path
     const line = d3
       .line<[number, number]>()
       .x(d => xScale(d[0]))
       .y(d => yScale(d[1]));
 
-    // Draw the sine wave path with a gradient
     const waveGradient = defs
       .append("linearGradient")
       .attr("id", `cosineGradient-${period}`)
@@ -203,7 +144,6 @@ export default function OrbitalGraph({
       .attr("offset", "100%")
       .attr("stop-color", "rgba(255, 255, 255, 0.1)");
 
-    // Draw the sine wave
     svg
       .append("path")
       .datum(wavePoints)
@@ -212,14 +152,16 @@ export default function OrbitalGraph({
       .attr("stroke-width", 1)
       .attr("d", line);
 
-    // Create the moving dot on the wave
-    const dot = svg
-      .append("circle")
-      .attr("r", 3)
-      .attr("fill", "#FFD700")
-      .attr("filter", `url(#glow-${period})`);
+    // Create wave dot group
+    const dotGroup = svg
+      .append("g")
+      .attr("class", "wave-dot")
+      .node();
 
-    // Animation function
+    if (dotGroup) {
+      dotGroup.appendChild(createSVGNode(<OrbitalBall radius={3} highlightRadius={1.5} />));
+    }
+
     function animate(timestamp: number) {
       if (!isRunning) return;
 
@@ -231,14 +173,12 @@ export default function OrbitalGraph({
       const x = ((elapsed / period) * 2 * Math.PI) % (numPeriods * 2 * Math.PI);
       const y = Math.cos(x);
 
-      // Update wave dot
-      dot.attr("cx", xScale(x)).attr("cy", yScale(y));
+      d3.select(dotGroup).attr("transform", `translate(${xScale(x)},${yScale(y)})`);
 
-      // Update orbit ball position
-      const angle = -Math.PI/2 + (elapsed * 2 * Math.PI / period);
+      const angle = -Math.PI / 2 + (elapsed * 2 * Math.PI / period);
       const orbitX = orbitCenterX + Math.cos(angle) * orbitRadius;
       const orbitY = orbitCenterY + Math.sin(angle) * orbitRadius;
-      orbitBall.attr("transform", `translate(${orbitX},${orbitY})`);
+      d3.select(orbitBall).attr("transform", `translate(${orbitX},${orbitY})`);
 
       frameRef.current = requestAnimationFrame(animate);
     }
