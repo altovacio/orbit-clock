@@ -98,23 +98,28 @@ const SCALE_PATTERNS: Record<ScaleType, number[]> = {
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
 };
 
+// Get note name from semitone offset
+function getNoteNameFromSemitones(rootNote: keyof typeof BASE_NOTES, semitones: number): string {
+  const notes = Object.keys(BASE_NOTES);
+  const rootIndex = notes.indexOf(rootNote);
+  return notes[(rootIndex + semitones) % 12];
+}
+
 function generateScaleFrequencies(
   scaleType: ScaleType,
   rootNote: keyof typeof BASE_NOTES,
 ): { frequency: number; note: string }[] {
   const pattern = SCALE_PATTERNS[scaleType];
   const rootFreq = BASE_NOTES[rootNote];
-  const notes = Object.keys(BASE_NOTES);
-  const rootIndex = notes.indexOf(rootNote);
   const frequencies: { frequency: number; note: string }[] = [];
 
   // Generate one octave of the scale
   for (const semitones of pattern) {
     const freq = rootFreq * Math.pow(2, semitones / 12);
-    const noteIndex = (rootIndex + semitones) % 12;
+    const note = getNoteNameFromSemitones(rootNote, semitones);
     frequencies.push({
       frequency: freq,
-      note: notes[noteIndex],
+      note: note,
     });
   }
 
@@ -156,7 +161,8 @@ export default function Simulator() {
 
   // Generate colors for each orbit based on its corresponding note in the scale
   const orbitColors = Array(numOrbits).fill(0).map((_, i) => {
-    const noteData = scaleFrequencies[i % scaleFrequencies.length];
+    const scaleIndex = i % scaleFrequencies.length;
+    const noteData = scaleFrequencies[scaleIndex];
     return NOTE_COLORS[noteData.note as keyof typeof NOTE_COLORS];
   });
 
@@ -198,9 +204,9 @@ export default function Simulator() {
     const gainNode = context.createGain();
 
     const scaleLength = scaleFrequencies.length;
+    const scaleIndex = orbitIndex % scaleLength;
     const octave = Math.floor(orbitIndex / scaleLength);
-    const noteInScale = orbitIndex % scaleLength;
-    const noteData = scaleFrequencies[noteInScale];
+    const noteData = scaleFrequencies[scaleIndex];
 
     // Adjust frequency for the correct octave
     const frequency = noteData.frequency * Math.pow(2, octave);
