@@ -1,6 +1,13 @@
 import { useEffect, useRef } from "react";
 import { select } from "d3-selection";
+import * as d3 from 'd3';
 import { useOrbitalAnimation } from "@/hooks/useOrbitalAnimation";
+
+// Helper function to convert color to RGB string
+const getRGBString = (colorVal: string) => {
+  const col = d3.color(colorVal);
+  return col ? `${col.r},${col.g},${col.b}` : "255,255,255";
+};
 
 interface OrbitProps {
   type: string;
@@ -8,7 +15,11 @@ interface OrbitProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
-  orbitColors?: ("default" | "blue" | "red")[];
+  orbitColors?: {
+    core: string;
+    mid: string;
+    glow: string;
+  }[];
 }
 
 export default function Orbits({
@@ -75,28 +86,7 @@ export default function Orbits({
 
     for (let i = 0; i < orbits; i++) {
       const radius = baseRadius * ((i + 1) / orbits);
-      const color = orbitColors?.[i] || "default";
-
-      // Color schemes
-      const colorSchemes = {
-        default: {
-          core: "#ffffff",
-          mid: "#ffd700",
-          glow: "#ff8c00"
-        },
-        blue: {
-          core: "#ffffff",
-          mid: "#4facfe",
-          glow: "#0066ff"
-        },
-        red: {
-          core: "#ffffff",
-          mid: "#ff6b6b",
-          glow: "#ff0844"
-        }
-      };
-
-      const colors = colorSchemes[color];
+      const color = orbitColors?.[i] || { core: "#ffffff", mid: "#ffd700", glow: "#ff8c00" };
 
       // Create gradient for orbit path
       const gradientId = `orbitGradient${i}`;
@@ -108,12 +98,12 @@ export default function Orbits({
       gradient
         .append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", `rgba(${color === 'blue' ? '79, 172, 254' : color === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.6)`);
+        .attr("stop-color", `rgba(${getRGBString(color.mid)}, 0.6)`);
 
       gradient
         .append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", `rgba(${color === 'blue' ? '79, 172, 254' : color === 'red' ? '255, 107, 107' : '255, 255, 255'}, 0.2)`);
+        .attr("stop-color", `rgba(${getRGBString(color.mid)}, 0.2)`);
 
       // Create radial gradient for the neon star effect
       const ballGradientId = `ballGradient${i}`;
@@ -128,28 +118,28 @@ export default function Orbits({
       ballGradient
         .append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", colors.core);
+        .attr("stop-color", color.core);
 
       ballGradient
         .append("stop")
         .attr("offset", "40%")
-        .attr("stop-color", colors.core);
+        .attr("stop-color", color.core);
 
       ballGradient
         .append("stop")
         .attr("offset", "60%")
-        .attr("stop-color", colors.mid);
+        .attr("stop-color", color.mid);
 
       ballGradient
         .append("stop")
         .attr("offset", "85%")
-        .attr("stop-color", colors.glow)
+        .attr("stop-color", color.glow)
         .attr("stop-opacity", "0.6");
 
       ballGradient
         .append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", colors.glow)
+        .attr("stop-color", color.glow)
         .attr("stop-opacity", "0.1");
 
       const filterGlow = defs
@@ -203,7 +193,7 @@ export default function Orbits({
         .attr("y1", centerY - radius - 2.5)
         .attr("x2", centerX)
         .attr("y2", centerY - radius + 2.5)
-        .attr("stroke", colors.glow)
+        .attr("stroke", color.glow)
         .attr("stroke-width", 0.6);
     }
 

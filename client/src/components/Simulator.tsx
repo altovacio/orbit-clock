@@ -15,6 +15,22 @@ import {
 } from "@/components/ui/select";
 import PianoKeys from "./PianoKeys"; // Import PianoKeys component
 
+// Color mapping for musical notes
+const NOTE_COLORS = {
+  C: { core: "#ffffff", mid: "#FF6B6B", glow: "#FF0844" },      // Red
+  "C#": { core: "#ffffff", mid: "#FF9F6B", glow: "#FF4908" },   // Orange-Red
+  D: { core: "#ffffff", mid: "#FFD76B", glow: "#FFB108" },      // Orange
+  "D#": { core: "#ffffff", mid: "#FFEB6B", glow: "#FFD908" },   // Yellow-Orange
+  E: { core: "#ffffff", mid: "#C4FF6B", glow: "#96FF08" },      // Yellow-Green
+  F: { core: "#ffffff", mid: "#6BFF7C", glow: "#08FF2B" },      // Green
+  "F#": { core: "#ffffff", mid: "#6BFFC4", glow: "#08FF96" },   // Blue-Green
+  G: { core: "#ffffff", mid: "#6BC4FF", glow: "#0896FF" },      // Light Blue
+  "G#": { core: "#ffffff", mid: "#6B8CFF", glow: "#083DFF" },   // Blue
+  A: { core: "#ffffff", mid: "#966BFF", glow: "#5908FF" },      // Purple
+  "A#": { core: "#ffffff", mid: "#C46BFF", glow: "#9608FF" },   // Purple-Pink
+  B: { core: "#ffffff", mid: "#FF6BC4", glow: "#FF0896" }       // Pink
+};
+
 // Preset configurations
 interface PresetConfig {
   title: string;
@@ -86,15 +102,20 @@ function generateScaleFrequencies(
   scaleType: ScaleType,
   rootNote: keyof typeof BASE_NOTES,
   octaves: number = 8,
-): number[] {
+): { frequency: number; note: string }[] {
   const pattern = SCALE_PATTERNS[scaleType];
   const rootFreq = BASE_NOTES[rootNote];
-  const frequencies: number[] = [];
+  const notes = Object.keys(BASE_NOTES);
+  const frequencies: { frequency: number; note: string }[] = [];
 
   for (let octave = 0; octave < octaves; octave++) {
     for (const semitones of pattern) {
       const freq = rootFreq * Math.pow(2, (octave * 12 + semitones) / 12);
-      frequencies.push(freq);
+      const noteIndex = (notes.indexOf(rootNote) + semitones) % 12;
+      frequencies.push({
+        frequency: freq,
+        note: notes[noteIndex],
+      });
     }
   }
 
@@ -132,6 +153,13 @@ export default function Simulator() {
 
   // Calculate interpolated periods based on min and max
   const periods = interpolateValues(minPeriod, maxPeriod, numOrbits);
+  const frequencies = generateScaleFrequencies(scaleType, rootNote);
+
+  // Generate colors for each orbit based on its corresponding note
+  const orbitColors = Array(numOrbits).fill(0).map((_, i) => {
+    const noteData = frequencies[i % frequencies.length];
+    return NOTE_COLORS[noteData.note as keyof typeof NOTE_COLORS];
+  });
 
   const applyPreset = (presetIndex: number) => {
     const preset = PRESETS[presetIndex];
@@ -170,11 +198,9 @@ export default function Simulator() {
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
 
-    const frequencies = generateScaleFrequencies(scaleType, rootNote);
-    const frequency = frequencies[orbitIndex % frequencies.length];
-
+    const noteData = frequencies[orbitIndex % frequencies.length];
     oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+    oscillator.frequency.setValueAtTime(noteData.frequency, context.currentTime);
 
     gainNode.gain.setValueAtTime(0, context.currentTime);
     gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
@@ -226,6 +252,7 @@ export default function Simulator() {
                 scale={1}
                 periods={periods}
                 onTopReached={playSimulatorSound}
+                orbitColors={orbitColors}
               />
             </div>
           </Card>
