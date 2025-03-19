@@ -45,23 +45,60 @@ export default function OrbitalGraph({ period, numPeriods, isRunning = true }: O
 
     const points = d3.range(0, numPeriods * 2 * Math.PI + 0.1, 0.1).map(x => [x, Math.sin(x)]);
 
+    // Draw the sine wave path with a gradient
+    const gradient = svg.append("defs")
+      .append("linearGradient")
+      .attr("id", `sineGradient-${period}`)
+      .attr("gradientUnits", "userSpaceOnUse")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "100%")
+      .attr("y2", "0%");
+
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "rgba(255, 255, 255, 0.4)");
+
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "rgba(255, 255, 255, 0.1)");
+
     // Draw the sine wave
     svg.append("path")
       .datum(points)
       .attr("fill", "none")
-      .attr("stroke", "rgba(255, 255, 255, 0.2)")
+      .attr("stroke", `url(#sineGradient-${period})`)
       .attr("stroke-width", 1)
       .attr("d", line);
 
-    // Create the moving dot
+    // Create the moving dot with glow effect
+    const glowFilter = svg.append("defs")
+      .append("filter")
+      .attr("id", `glow-${period}`)
+      .attr("x", "-50%")
+      .attr("y", "-50%")
+      .attr("width", "200%")
+      .attr("height", "200%");
+
+    glowFilter.append("feGaussianBlur")
+      .attr("stdDeviation", "2")
+      .attr("result", "coloredBlur");
+
+    const feMerge = glowFilter.append("feMerge");
+    feMerge.append("feMergeNode")
+      .attr("in", "coloredBlur");
+    feMerge.append("feMergeNode")
+      .attr("in", "SourceGraphic");
+
     const dot = svg.append("circle")
       .attr("r", 3)
-      .attr("fill", "#FFD700");
+      .attr("fill", "#FFD700")
+      .attr("filter", `url(#glow-${period})`);
 
     // Animation function
     function animate(timestamp: number) {
       if (!isRunning) return;
-      
+
       if (startTimeRef.current === 0) {
         startTimeRef.current = timestamp;
       }
@@ -77,7 +114,9 @@ export default function OrbitalGraph({ period, numPeriods, isRunning = true }: O
       frameRef.current = requestAnimationFrame(animate);
     }
 
+    // Reset start time when visibility changes
     if (isRunning) {
+      startTimeRef.current = 0;
       frameRef.current = requestAnimationFrame(animate);
     }
 

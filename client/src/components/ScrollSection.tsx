@@ -85,61 +85,58 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
     switch (id) {
       case 'intro':
         return (
-          <div className="mt-4 space-y-4">
-            <div className="p-4 bg-blue-950/50 rounded-lg border border-blue-500/30">
-              <div ref={mathRef} className="space-y-4">
+          <div className="mt-4">
+            <div className="p-6 bg-blue-950/50 rounded-lg border border-blue-500/30">
+              <div ref={mathRef} className="mb-6">
                 <div className="latex" data-formula="T = \text{Time for one revolution}" />
               </div>
-            </div>
-            {/* Graph placed right after equation */}
-            <div className="space-y-2">
-              <p className="text-sm text-gray-400">Y-position over time (1 period)</p>
-              <OrbitalGraph period={1} numPeriods={1} isRunning={isInView} />
+              <div className="border-t border-blue-500/30 pt-4">
+                <p className="text-sm text-gray-400 mb-2">Y-position over time (1 period)</p>
+                <OrbitalGraph period={1} numPeriods={1} isRunning={isInView} />
+              </div>
             </div>
           </div>
         );
       case 'two-orbits':
         return (
-          <div className="mt-4 space-y-4">
-            <div className="p-4 bg-blue-950/50 rounded-lg border border-blue-500/30">
-              <div ref={mathRef} className="space-y-4">
+          <div className="mt-4">
+            <div className="p-6 bg-blue-950/50 rounded-lg border border-blue-500/30">
+              <div ref={mathRef} className="mb-6">
                 <div className="latex" data-formula="T_1 = 1s, T_2 = 2s" />
               </div>
-            </div>
-            {/* Graphs for two orbits */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-sm text-gray-400">First orbit (1 period)</p>
-                <OrbitalGraph period={1} numPeriods={2} isRunning={isInView} />
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm text-gray-400">Second orbit (2 periods)</p>
-                <OrbitalGraph period={2} numPeriods={1} isRunning={isInView} />
+              <div className="border-t border-blue-500/30 pt-4 space-y-4">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">First orbit (1 period)</p>
+                  <OrbitalGraph period={1} numPeriods={2} isRunning={isInView} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Second orbit (2 periods)</p>
+                  <OrbitalGraph period={2} numPeriods={1} isRunning={isInView} />
+                </div>
               </div>
             </div>
           </div>
         );
       case 'three-orbits':
         return (
-          <div className="mt-4 space-y-4">
-            <div className="p-4 bg-blue-950/50 rounded-lg border border-blue-500/30">
-              <div ref={mathRef} className="space-y-4">
+          <div className="mt-4">
+            <div className="p-6 bg-blue-950/50 rounded-lg border border-blue-500/30">
+              <div ref={mathRef} className="mb-6">
                 <div className="latex" data-formula="T_1 = 1s, T_2 = 2s, T_3 = 3s" />
               </div>
-            </div>
-            {/* Graphs for three orbits */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-sm text-gray-400">First orbit (6 periods)</p>
-                <OrbitalGraph period={1} numPeriods={6} isRunning={isInView} />
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm text-gray-400">Second orbit (3 periods)</p>
-                <OrbitalGraph period={2} numPeriods={3} isRunning={isInView} />
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm text-gray-400">Third orbit (2 periods)</p>
-                <OrbitalGraph period={3} numPeriods={2} isRunning={isInView} />
+              <div className="border-t border-blue-500/30 pt-4 space-y-4">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">First orbit (6 periods)</p>
+                  <OrbitalGraph period={1} numPeriods={6} isRunning={isInView} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Second orbit (3 periods)</p>
+                  <OrbitalGraph period={2} numPeriods={3} isRunning={isInView} />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Third orbit (2 periods)</p>
+                  <OrbitalGraph period={3} numPeriods={2} isRunning={isInView} />
+                </div>
               </div>
             </div>
           </div>
