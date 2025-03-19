@@ -21,7 +21,7 @@ export default function OrbitalGraph({
 
     const width = 200;
     const height = 60;
-    const margin = { top: 10, right: 35, bottom: 10, left: 10 }; // Increased right margin for the ball
+    const margin = { top: 10, right: 50, bottom: 10, left: 10 }; // Increased right margin for orbit
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -42,7 +42,7 @@ export default function OrbitalGraph({
 
     const yScale = d3.scaleLinear().domain([-1, 1]).range([innerHeight, 0]);
 
-    // Create gradients and filters for the ball
+    // Create gradients and filters
     const defs = svg.append("defs");
 
     // Ball gradient
@@ -81,7 +81,7 @@ export default function OrbitalGraph({
       .attr("stop-color", "#ff8c00")
       .attr("stop-opacity", "0.1");
 
-    // Glow filter for the ball
+    // Glow filter
     const glowFilter = defs
       .append("filter")
       .attr("id", `glow-${period}`)
@@ -140,25 +140,43 @@ export default function OrbitalGraph({
       .attr("stroke-width", 1)
       .attr("d", line);
 
-    // Add static ball on the right side
-    const staticBallGroup = svg
-      .append("g")
-      .attr("transform", `translate(${innerWidth + 20},${innerHeight / 2})`);
+    // Create a small orbit visualization on the right
+    const orbitRadius = 12;
+    const orbitCenterX = innerWidth + margin.right/2;
+    const orbitCenterY = innerHeight/2;
 
-    staticBallGroup
+    // Draw orbit path
+    svg
       .append("circle")
-      .attr("r", 6)
+      .attr("cx", orbitCenterX)
+      .attr("cy", orbitCenterY)
+      .attr("r", orbitRadius)
+      .attr("stroke", "rgba(255, 255, 255, 0.3)")
+      .attr("stroke-width", 0.6)
+      .attr("stroke-dasharray", "2,2")
+      .attr("fill", "none");
+
+    // Create orbit ball group
+    const orbitBall = svg
+      .append("g")
+      .attr("class", "orbit-ball");
+
+    // Add the core glow
+    orbitBall
+      .append("circle")
+      .attr("r", 4)
       .attr("fill", `url(#ballGradient-${period})`)
       .attr("filter", `url(#glow-${period})`);
 
-    staticBallGroup
+    // Add the highlight
+    orbitBall
       .append("circle")
-      .attr("r", 3)
-      .attr("cx", -1)
-      .attr("cy", -1)
+      .attr("r", 2)
+      .attr("cx", -0.5)
+      .attr("cy", -0.5)
       .attr("fill", "rgba(255, 255, 255, 0.9)");
 
-    // Create the moving dot with glow effect
+    // Create the moving dot on the wave
     const dot = svg
       .append("circle")
       .attr("r", 3)
@@ -177,12 +195,18 @@ export default function OrbitalGraph({
       const x = ((elapsed / period) * 2 * Math.PI) % (numPeriods * 2 * Math.PI);
       const y = Math.cos(x);
 
+      // Update wave dot
       dot.attr("cx", xScale(x)).attr("cy", yScale(y));
+
+      // Update orbit ball position
+      const angle = -Math.PI/2 + (elapsed * 2 * Math.PI / period);
+      const orbitX = orbitCenterX + Math.cos(angle) * orbitRadius;
+      const orbitY = orbitCenterY + Math.sin(angle) * orbitRadius;
+      orbitBall.attr("transform", `translate(${orbitX},${orbitY})`);
 
       frameRef.current = requestAnimationFrame(animate);
     }
 
-    // Reset start time when visibility changes
     if (isRunning) {
       startTimeRef.current = 0;
       frameRef.current = requestAnimationFrame(animate);
