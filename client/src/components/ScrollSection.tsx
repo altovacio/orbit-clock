@@ -5,6 +5,7 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import OrbitalGraph from './OrbitalGraph';
 import { useAudioContext } from '@/hooks/useAudioContext';
+import { useTime } from '@/contexts/TimeContext';
 
 interface ScrollSectionProps {
   id: string;
@@ -19,12 +20,21 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
   const mathRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { amount: 0.5 });
   const { playSound } = useAudioContext();
+  const { elapsedTime } = useTime();
 
   useEffect(() => {
     if (isInView) {
-      controls.start('visible');
+      controls.start({
+        opacity: 1,
+        x: 0,
+        transition: { duration: 0.5, ease: "easeOut" }
+      });
     } else {
-      controls.start('hidden');
+      controls.start({
+        opacity: 0,
+        x: -50,
+        transition: { duration: 0.3 }
+      });
     }
   }, [controls, isInView]);
 
@@ -117,6 +127,12 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
     }
   };
 
+  useEffect(() => {
+    return () => {
+      controls.stop(); // Cleanup animations on unmount
+    };
+  }, [controls]);
+
   return (
     <div
       ref={ref}
@@ -153,7 +169,8 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
           className="aspect-square relative"
         >
           <Orbits 
-            type={type} 
+            type={type}
+            numOrbits={type === 'single' ? 1 : type === 'double' ? 2 : 3}
             onTopReached={playScrollSound}
           />
         </motion.div>

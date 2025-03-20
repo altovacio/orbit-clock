@@ -2,6 +2,7 @@ import { useRef, useCallback } from 'react';
 import { select } from 'd3-selection';
 import { BALL_GRADIENTS, BALL_FILTERS, BALL_SIZES } from "@/config/orbitConfig";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useTime } from '@/contexts/TimeContext';
 
 interface UseOrbitalAnimationProps {
   svgRef: React.RefObject<SVGSVGElement>;
@@ -24,8 +25,9 @@ export function useOrbitalAnimation({
   const startTimeRef = useRef<number>(0);
   const lastTopRef = useRef<boolean[]>([]);
   const { starSize, colorScheme } = useSettings();
+  const { elapsedTime } = useTime();
 
-  const animate = useCallback((timestamp: number) => {
+  const animate = useCallback(() => {
     if (!svgRef.current) return;
 
     const svg = select(svgRef.current);
@@ -38,9 +40,8 @@ export function useOrbitalAnimation({
 
     // Initialize time reference
     if (startTimeRef.current === 0) {
-      startTimeRef.current = timestamp;
+      startTimeRef.current = elapsedTime;
     }
-    const elapsedTime = (timestamp - startTimeRef.current) / 1000; // Convert to seconds
 
     // Initialize lastTopRef if needed
     if (lastTopRef.current.length !== numOrbits) {
@@ -50,12 +51,9 @@ export function useOrbitalAnimation({
     const orbits = type === 'single' || type === 'single-timer' ? 1 : numOrbits;
 
     for (let i = 0; i < orbits; i++) {
-      const period = periods[i] || 3 + i; // Default period if not specified
-      const radius = baseRadius * ((i + 1) / orbits);
-
-      // Calculate angle based on period (angular velocity = 2π/period)
-      // Start from north position (-π/2) and move clockwise
+      const period = periods[i] || 3 + i;
       const angle = -Math.PI / 2 + (elapsedTime * (2 * Math.PI) / period) % (2 * Math.PI);
+      const radius = baseRadius * ((i + 1) / orbits);
 
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
@@ -95,13 +93,14 @@ export function useOrbitalAnimation({
       }
       lastTopRef.current[i] = isAtTop;
     }
-
-    frameRef.current = requestAnimationFrame(animate);
-  }, [type, numOrbits, scale, periods, onTopReached, starSize, colorScheme]);
+  }, [type, numOrbits, scale, periods, starSize, colorScheme, onTopReached]);
 
   const startAnimation = useCallback(() => {
-    startTimeRef.current = 0;
-    frameRef.current = requestAnimationFrame(animate);
+    const loop = () => {
+      animate();
+      frameRef.current = requestAnimationFrame(loop);
+    };
+    frameRef.current = requestAnimationFrame(loop);
   }, [animate]);
 
   const stopAnimation = useCallback(() => {

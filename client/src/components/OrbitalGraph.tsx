@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { useTime } from '@/contexts/TimeContext';
 
 interface OrbitalGraphProps {
   period: number;
@@ -15,6 +16,7 @@ export default function OrbitalGraph({
   const svgRef = useRef<SVGSVGElement>(null);
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
+  const { elapsedTime, isRunning: globalIsRunning } = useTime();
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -254,40 +256,16 @@ export default function OrbitalGraph({
       .attr("fill", "rgba(255, 255, 255, 0.9)");
 
     // Animation function
-    function animate(timestamp: number) {
-      if (!isRunning) return;
-
-      if (startTimeRef.current === 0) {
-        startTimeRef.current = timestamp;
-      }
-
-      const elapsed = (timestamp - startTimeRef.current) / 1000;
-      const x = ((elapsed / period) * 2 * Math.PI) % (numPeriods * 2 * Math.PI);
-      const y = Math.cos(x);
-
-      // Update wave ball
-      waveBall.attr("transform", `translate(${xScale(x)},${yScale(y)})`);
-
-      // Update orbit ball position
-      const angle = -Math.PI / 2 + (elapsed * 2 * Math.PI) / period;
-      const orbitX = orbitCenterX + Math.cos(angle) * orbitRadius;
-      const orbitY = orbitCenterY + Math.sin(angle) * orbitRadius;
-      orbitBall.attr("transform", `translate(${orbitX},${orbitY})`);
-
-      frameRef.current = requestAnimationFrame(animate);
-    }
-
-    if (isRunning) {
-      startTimeRef.current = 0;
-      frameRef.current = requestAnimationFrame(animate);
-    }
-
-    return () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-      }
-    };
-  }, [period, numPeriods, isRunning]);
+    const x = (elapsedTime * (2 * Math.PI) / period) % (numPeriods * 2 * Math.PI);
+    const y = Math.cos(x);
+    
+    // Update positions directly
+    waveBall.attr("transform", `translate(${xScale(x)},${yScale(y)})`);
+    const angle = -Math.PI / 2 + (elapsedTime * (2 * Math.PI) / period);
+    const orbitX = orbitCenterX + Math.cos(angle) * orbitRadius;
+    const orbitY = orbitCenterY + Math.sin(angle) * orbitRadius;
+    orbitBall.attr("transform", `translate(${orbitX},${orbitY})`);
+  }, [elapsedTime, isRunning]);
 
   return <svg ref={svgRef} className="w-full" style={{ maxHeight: "60px" }} />;
 }

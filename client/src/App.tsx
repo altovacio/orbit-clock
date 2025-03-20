@@ -8,6 +8,7 @@ import { AudioProvider } from "./hooks/useAudioContext";
 import { MuteButton } from "@/components/MuteButton";
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { SettingsButton } from '@/components/SettingsButton';
+import { TimeProvider } from '@/contexts/TimeContext';
 
 function Router() {
   return (
@@ -21,14 +22,16 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <SettingsProvider>
-        <AudioProvider>
-          <Router />
-          <MuteButton />
-          <SettingsButton />
-          <Toaster />
-        </AudioProvider>
-      </SettingsProvider>
+      <TimeProvider>
+        <SettingsProvider>
+          <AudioProvider>
+            <Router />
+            <MuteButton />
+            <SettingsButton />
+            <Toaster />
+          </AudioProvider>
+        </SettingsProvider>
+      </TimeProvider>
     </QueryClientProvider>
   );
 }

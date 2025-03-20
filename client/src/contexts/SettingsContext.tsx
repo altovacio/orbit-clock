@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useMemo } from 'react';
 
 type SettingsContextType = {
   starSize: number;
@@ -18,7 +18,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SettingsContext.Provider value={{ starSize, setStarSize, colorScheme, toggleColorScheme }}>
+    <SettingsContext.Provider 
+      value={useMemo(() => ({
+        starSize, 
+        setStarSize,
+        colorScheme,
+        toggleColorScheme
+      }), [starSize, colorScheme])}
+    >
       {children}
     </SettingsContext.Provider>
   );

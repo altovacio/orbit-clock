@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import {
 import PianoKeys from "./PianoKeys";
 import { useAudioContext } from "@/hooks/useAudioContext"; // Fixed import path
 import { BASE_NOTES, SCALE_PATTERNS, ScaleType, BaseNote } from '@/config/orbitConfig';
+import { useTime } from '@/contexts/TimeContext';
 
 // Preset configurations
 interface PresetConfig {
@@ -80,6 +81,9 @@ export default function Simulator() {
   const [rootNote, setRootNote] = useState<BaseNote>("C");
   const [activePreset, setActivePreset] = useState<number>(0);
   const ref = useRef(null);
+  
+  // Correct placement of useRef
+  const lastPlayedRef = useRef<number[]>([]);
 
   const isInView = useInView(ref, {
     amount: 0.3,
@@ -109,7 +113,10 @@ export default function Simulator() {
     }
   };
 
+  const { elapsedTime, isRunning, resetTime: contextResetTime } = useTime();
+
   const resetSimulation = () => {
+    contextResetTime();
     setNumOrbits(3);
     setMinPeriod(1.5);
     setMaxPeriod(3);
@@ -117,10 +124,16 @@ export default function Simulator() {
 
   const { playSound, setScale, currentScale } = useAudioContext();
 
-  const playSimulatorSound = (orbitIndex: number) => {
+  const playSimulatorSound = useCallback((orbitIndex: number) => {
     if (!isInView) return;
-    playSound(orbitIndex);
-  };
+    
+    // Sound cooldown of 100ms per orbit
+    const now = Date.now();
+    if (!lastPlayedRef.current[orbitIndex] || now - lastPlayedRef.current[orbitIndex] > 100) {
+      playSound(orbitIndex);
+      lastPlayedRef.current[orbitIndex] = now;
+    }
+  }, [isInView, playSound]);
 
   const handleNoteChange = (noteWithOctave: string) => {
     setScale(noteWithOctave, currentScale.scaleType);
@@ -174,7 +187,9 @@ export default function Simulator() {
               {/* Time Displays */}
               <div className="absolute bottom-2 left-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
                 <div className="text-xs text-gray-400">Elapsed Time</div>
-                <div className="text-lg font-mono text-emerald-400">0:00</div>
+                <div className="text-lg font-mono text-emerald-400">
+                  {Math.floor(elapsedTime / 60)}:{Math.floor(elapsedTime % 60).toString().padStart(2, '0')}
+                </div>
               </div>
               
               <div className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm">

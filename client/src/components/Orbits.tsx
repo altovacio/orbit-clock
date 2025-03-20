@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { select } from "d3-selection";
 import { useOrbitalAnimation } from "@/hooks/useOrbitalAnimation";
 import { BALL_GRADIENTS, BALL_FILTERS, BALL_SIZES, BALL_COLORS } from "@/config/orbitConfig";
@@ -22,28 +22,26 @@ export default function Orbits({
   const svgRef = useRef<SVGSVGElement>(null);
   const { colorScheme, starSize } = useSettings();
 
-  // Set demonstration periods based on type
-  let periods = customPeriods;
-  if (!periods) {
+  // Memoize periods calculation
+  const periods = useMemo(() => {
+    if (customPeriods) return customPeriods;
+    // Existing period calculation logic...
     switch (type) {
       case "single":
         numOrbits = 1;
-        periods = [1];
-        break;
+        return [1];
       case "double":
         numOrbits = 2;
-        periods = [1, 2];
-        break;
+        return [1, 2];
       case "multi":
         numOrbits = 3;
-        periods = [1, 2, 3];
-        break;
+        return [1, 2, 3];
       default:
-        periods = Array(numOrbits)
+        return Array(numOrbits)
           .fill(0)
           .map((_, i) => 1 + i * 0.2);
     }
-  }
+  }, [type, numOrbits, customPeriods]);
 
   const { startAnimation, stopAnimation } = useOrbitalAnimation({
     svgRef,
@@ -198,9 +196,17 @@ export default function Orbits({
         .attr("stroke-width", 0.6);
     }
 
+    // Start the animation
     startAnimation();
-    return () => stopAnimation();
-  }, [type, numOrbits, scale, periods, colorScheme, starSize]);
+    
+    return () => {
+      // Clear all SVG elements and stop animation
+      if (svgRef.current) {
+        select(svgRef.current).selectAll("*").remove();
+      }
+      stopAnimation();
+    };
+  }, [type, numOrbits, scale, periods, colorScheme, starSize, startAnimation, stopAnimation]);
 
   return (
     <svg
