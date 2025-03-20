@@ -1,5 +1,6 @@
 import { useRef, useCallback } from 'react';
 import { select } from 'd3-selection';
+import { BALL_GRADIENTS, BALL_FILTERS } from "@/config/orbitConfig";
 
 interface UseOrbitalAnimationProps {
   svgRef: React.RefObject<SVGSVGElement>;
@@ -62,16 +63,7 @@ export function useOrbitalAnimation({
         .attr('class', `orbit${i + 1}`)
         .attr('transform', `translate(${x},${y})`)
         .call(g => {
-          // Core glow
-          g.selectAll('circle.ball-core')
-            .data([null])
-            .join('circle')
-            .attr('class', 'ball-core')
-            .attr('r', 7)
-            .attr('fill', `url(#ballGradient${i})`)
-            .attr('filter', `url(#neon-glow-${i})`);
-
-          // Center highlight
+          // White highlight at the back
           g.selectAll('circle.ball-highlight')
             .data([null])
             .join('circle')
@@ -80,6 +72,15 @@ export function useOrbitalAnimation({
             .attr('cx', -1)
             .attr('cy', -1)
             .attr('fill', 'rgba(255, 255, 255, 0.9)');
+
+          // Glowing core in front
+          g.selectAll('circle.ball-core')
+            .data([null])
+            .join('circle')
+            .attr('class', 'ball-core')
+            .attr('r', 7)
+            .attr('fill', `url(#${BALL_GRADIENTS.default.id(i)})`)
+            .attr('filter', `url(#${BALL_FILTERS.simpleGlow.id(i)})`);
         });
 
       // Check if ball is at the north position (top)

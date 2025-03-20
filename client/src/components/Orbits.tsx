@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { select } from "d3-selection";
 import { useOrbitalAnimation } from "@/hooks/useOrbitalAnimation";
+import { BALL_GRADIENTS, BALL_FILTERS } from "@/config/orbitConfig";
 
 interface OrbitProps {
   type: string;
@@ -91,46 +92,7 @@ export default function Orbits({
         .attr("stop-color", "rgba(255, 255, 255, 0.2)");
 
       // Create radial gradient for the neon star effect
-      const ballGradientId = `ballGradient${i}`;
-      const ballGradient = defs
-        .append("radialGradient")
-        .attr("id", ballGradientId)
-        .attr("gradientUnits", "objectBoundingBox")
-        .attr("cx", "0.5")
-        .attr("cy", "0.5")
-        .attr("r", "0.6"); // Reduced glow radius
-
-      // White hot core (larger)
-      ballGradient
-        .append("stop")
-        .attr("offset", "0%")
-        .attr("stop-color", "#ffffff");
-
-      // Expanded white area
-      ballGradient
-        .append("stop")
-        .attr("offset", "40%")
-        .attr("stop-color", "#ffffff");
-
-      // Yellow-orange transition
-      ballGradient
-        .append("stop")
-        .attr("offset", "60%")
-        .attr("stop-color", "#ffd700");
-
-      // Orange glow
-      ballGradient
-        .append("stop")
-        .attr("offset", "85%")
-        .attr("stop-color", "#ff8c00")
-        .attr("stop-opacity", "0.6");
-
-      // Soft outer glow
-      ballGradient
-        .append("stop")
-        .attr("offset", "100%")
-        .attr("stop-color", "#ff8c00")
-        .attr("stop-opacity", "0.1");
+      BALL_GRADIENTS.default.create(defs, i);
 
       const filterGlow = defs
         .append("filter")
@@ -185,6 +147,11 @@ export default function Orbits({
         .attr("y2", centerY - radius + 5) // Length of the vertical line
         .attr("stroke", "#ff8c00") // Color of the line
         .attr("stroke-width", 0.6); // Width of the line
+    }
+
+    // Add gradients and filters using config
+    for (let i = 0; i < orbits; i++) {
+      BALL_FILTERS.simpleGlow.create(defs, i);
     }
 
     startAnimation();
