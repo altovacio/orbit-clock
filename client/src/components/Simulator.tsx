@@ -32,7 +32,7 @@ const PRESETS: PresetConfig[] = [
   {
     title: "Three-Orbit Dance",
     subtitle: "6s recurrence",
-    minPeriod: 1500,
+    minPeriod: 1000,
     maxPeriod: 3000,
     numOrbits: 3,
   },
@@ -76,7 +76,7 @@ function interpolateValues(
 
 export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
-  const [minPeriod, setMinPeriod] = useState(1500); // 1.5s in milliseconds
+  const [minPeriod, setMinPeriod] = useState(1000); // 1.5s in milliseconds
   const [maxPeriod, setMaxPeriod] = useState(3000); // 3s in milliseconds
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<BaseNote>("C");
@@ -163,7 +163,7 @@ export default function Simulator() {
   const resetSimulation = () => {
     contextResetTime();
     setNumOrbits(3);
-    setMinPeriod(1500);
+    setMinPeriod(1000);
     setMaxPeriod(3000);
     setActivePreset(0);
   };
