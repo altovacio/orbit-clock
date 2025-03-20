@@ -1,15 +1,20 @@
 import { useTime } from '@/contexts/TimeContext';
 import { calculateNextReset } from '@/utils/periodMath';
 
-export function useResetTimer(periods: number[]) {
+export function useResetTimer(periods: number[], nextReset: number) {
   const { elapsedTime } = useTime();
-  
-  // Keep time in milliseconds
-  const nextReset = calculateNextReset(elapsedTime, periods);
-  
+
+  // Adjust elapsedTime if it exceeds nextReset
+  let adjustedElapsedTime = elapsedTime;
+  while (adjustedElapsedTime > nextReset) {
+    adjustedElapsedTime -= nextReset;
+  }
+
+  const timeToNextReset = nextReset - adjustedElapsedTime;
+
   return {
-    nextReset,
-    formattedReset: formatResetTime(nextReset)
+    timeToNextReset,
+    formattedReset: formatResetTime(timeToNextReset)
   };
 }
 

@@ -35,15 +35,16 @@ export function predictSystemRestart(numOrbits: number, minPeriod: number, maxPe
 }
 
 // Revised calculateNextReset that uses only periods array
-export function calculateNextReset(currentTime: number, periods: number[]): number {
+export function calculateNextReset(periods: number[]): number {
   if (periods.length === 0) return 0;
   
   // Derive parameters from periods array
   const numOrbits = periods.length;
   const minPeriod = Math.min(...periods);
   const maxPeriod = Math.max(...periods);
-  
   const uniformLCM = predictSystemRestart(numOrbits, minPeriod, maxPeriod);
-  const currentPosition = currentTime % uniformLCM;
-  return uniformLCM - currentPosition;
+  if (uniformLCM === null) {
+    throw new Error("Unable to predict system restart: invalid parameters.");
+  }
+  return uniformLCM;
 } 

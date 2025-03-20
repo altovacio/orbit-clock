@@ -18,7 +18,7 @@ import { useAudioContext } from "@/hooks/useAudioContext"; // Fixed import path
 import { BASE_NOTES, SCALE_PATTERNS, ScaleType, BaseNote } from '@/config/orbitConfig';
 import { useTime } from '@/contexts/TimeContext';
 import { useResetTimer } from '@/hooks/useResetTimer';
-
+import { calculateNextReset } from '@/utils/periodMath';
 // Preset configurations
 interface PresetConfig {
   title: string;
@@ -94,11 +94,13 @@ export default function Simulator() {
   // Calculate interpolated periods based on min and max
   const periods = interpolateValues(minPeriod, maxPeriod, numOrbits);
 
+  const nextReset = calculateNextReset(periods);
+
   const { elapsedTime, isRunning, resetTime: contextResetTime } = useTime();
 
   const { playSound, setScale, currentScale } = useAudioContext();
 
-  const { formattedReset } = useResetTimer(periods);
+  const { formattedReset } = useResetTimer(periods, nextReset);
 
   // Add this useEffect hook
   useEffect(() => {
