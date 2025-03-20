@@ -18,7 +18,7 @@ export function useOrbitalAnimation({
   type,
   numOrbits = 2,
   scale = 1,
-  periods = [3, 5],
+  periods = [3000, 5000],
   onTopReached
 }: UseOrbitalAnimationProps) {
   const frameRef = useRef<number>();
@@ -51,7 +51,7 @@ export function useOrbitalAnimation({
     const orbits = type === 'single' || type === 'single-timer' ? 1 : numOrbits;
 
     for (let i = 0; i < orbits; i++) {
-      const period = periods[i] || 3 + i;
+      const period = periods[i] || 3000 + i*1000;
       const angle = -Math.PI / 2 + (elapsedTime * (2 * Math.PI) / period) % (2 * Math.PI);
       const radius = baseRadius * ((i + 1) / orbits);
 

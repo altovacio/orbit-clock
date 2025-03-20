@@ -73,7 +73,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               </div>
               <div className="border-t border-blue-500/30 pt-4">
                 <p className="text-sm text-gray-400 mb-2">Y-position over time (1 period)</p>
-                <OrbitalGraph period={1} numPeriods={1} isRunning={isInView} />
+                <OrbitalGraph period={1500} numPeriods={1} isRunning={isInView} />
               </div>
             </div>
           </div>
@@ -88,11 +88,11 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
                   <p className="text-sm text-gray-400 mb-2">First orbit (1 period)</p>
-                  <OrbitalGraph period={1} numPeriods={2} isRunning={isInView} />
+                  <OrbitalGraph period={1000} numPeriods={2} isRunning={isInView} />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Second orbit (2 periods)</p>
-                  <OrbitalGraph period={2} numPeriods={1} isRunning={isInView} />
+                  <OrbitalGraph period={2000} numPeriods={1} isRunning={isInView} />
                 </div>
               </div>
             </div>
@@ -108,15 +108,15 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
                   <p className="text-sm text-gray-400 mb-2">First orbit (6 periods)</p>
-                  <OrbitalGraph period={1} numPeriods={6} isRunning={isInView} />
+                  <OrbitalGraph period={1000} numPeriods={6} isRunning={isInView} />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Second orbit (3 periods)</p>
-                  <OrbitalGraph period={2} numPeriods={3} isRunning={isInView} />
+                  <OrbitalGraph period={2000} numPeriods={3} isRunning={isInView} />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Third orbit (2 periods)</p>
-                  <OrbitalGraph period={3} numPeriods={2} isRunning={isInView} />
+                  <OrbitalGraph period={3000} numPeriods={2} isRunning={isInView} />
                 </div>
               </div>
             </div>

@@ -29,13 +29,13 @@ export default function Orbits({
     switch (type) {
       case "single":
         numOrbits = 1;
-        return [1];
+        return [1000];
       case "double":
         numOrbits = 2;
-        return [1, 2];
+        return [1000, 2000];
       case "multi":
         numOrbits = 3;
-        return [1, 2, 3];
+        return [1000, 2000, 3000];
       default:
         return Array(numOrbits)
           .fill(0)

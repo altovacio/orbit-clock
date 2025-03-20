@@ -22,7 +22,7 @@ export function TimeProvider({ children }: { children: React.ReactNode }) {
     if (isRunning) {
       const delta = time - lastTimeRef.current;
       accumulatedTimeRef.current += delta;
-      setElapsedTime(prev => prev + delta / 1000);
+      setElapsedTime(accumulatedTimeRef.current);
     }
     lastTimeRef.current = time;
     animationRef.current = requestAnimationFrame(animate);

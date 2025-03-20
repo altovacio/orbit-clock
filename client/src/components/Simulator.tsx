@@ -17,6 +17,7 @@ import PianoKeys from "./PianoKeys";
 import { useAudioContext } from "@/hooks/useAudioContext"; // Fixed import path
 import { BASE_NOTES, SCALE_PATTERNS, ScaleType, BaseNote } from '@/config/orbitConfig';
 import { useTime } from '@/contexts/TimeContext';
+import { useResetTimer } from '@/hooks/useResetTimer';
 
 // Preset configurations
 interface PresetConfig {
@@ -31,29 +32,29 @@ const PRESETS: PresetConfig[] = [
   {
     title: "Three-Orbit Dance",
     subtitle: "6s recurrence",
-    minPeriod: 1.5,
-    maxPeriod: 3,
+    minPeriod: 1500,
+    maxPeriod: 3000,
     numOrbits: 3,
   },
   {
     title: "Four Notes Melody",
     subtitle: "20s recurrence",
-    minPeriod: 1,
-    maxPeriod: 2,
+    minPeriod: 1000,
+    maxPeriod: 2000,
     numOrbits: 4,
   },
   {
     title: "Seven Note Rhythm",
     subtitle: "3m30s recurrence",
-    minPeriod: 0.5,
-    maxPeriod: 2,
+    minPeriod: 500,
+    maxPeriod: 2000,
     numOrbits: 7,
   },
   {
     title: "10 Note Madness",
     subtitle: "1.304e10y ⚠️(Age of the universe)",
-    minPeriod: 1,
-    maxPeriod: 2.1,
+    minPeriod: 1000,
+    maxPeriod: 2100,
     numOrbits: 10,
   },
 ];
@@ -75,8 +76,8 @@ function interpolateValues(
 
 export default function Simulator() {
   const [numOrbits, setNumOrbits] = useState(3);
-  const [minPeriod, setMinPeriod] = useState(1.5);
-  const [maxPeriod, setMaxPeriod] = useState(3);
+  const [minPeriod, setMinPeriod] = useState(1500); // 1.5s in milliseconds
+  const [maxPeriod, setMaxPeriod] = useState(3000); // 3s in milliseconds
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
   const [rootNote, setRootNote] = useState<BaseNote>("C");
   const [activePreset, setActivePreset] = useState<number>(0);
@@ -96,6 +97,8 @@ export default function Simulator() {
   const { elapsedTime, isRunning, resetTime: contextResetTime } = useTime();
 
   const { playSound, setScale, currentScale } = useAudioContext();
+
+  const { formattedReset } = useResetTimer(periods);
 
   // Add this useEffect hook
   useEffect(() => {
@@ -160,8 +163,8 @@ export default function Simulator() {
   const resetSimulation = () => {
     contextResetTime();
     setNumOrbits(3);
-    setMinPeriod(1.5);
-    setMaxPeriod(3);
+    setMinPeriod(1500);
+    setMaxPeriod(3000);
     setActivePreset(0);
   };
 
@@ -210,13 +213,16 @@ export default function Simulator() {
               <div className="absolute bottom-2 left-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
                 <div className="text-xs text-gray-400">Elapsed Time</div>
                 <div className="text-lg font-mono text-emerald-400">
-                  {Math.floor(elapsedTime / 60)}:{Math.floor(elapsedTime % 60).toString().padStart(2, '0')}
+                  {Math.floor(elapsedTime / 60000)}:{(Math.floor(elapsedTime / 1000) % 60).toString().padStart(2, '0')}
+                  <span className="text-sm">.{(Math.floor(elapsedTime % 1000 / 10)).toString().padStart(2, '0')}</span>
                 </div>
               </div>
               
               <div className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
                 <div className="text-xs text-gray-400">Next Reset In</div>
-                <div className="text-lg font-mono text-amber-400">0:00</div>
+                <div className="text-lg font-mono text-amber-400">
+                  {formattedReset}
+                </div>
               </div>
             </div>
           </Card>
@@ -253,14 +259,14 @@ export default function Simulator() {
                   <Label htmlFor="min-period">Minimum Period (seconds)</Label>
                   <Slider
                     id="min-period"
-                    value={[minPeriod]}
-                    onValueChange={([value]) => handleMinPeriodChange(value)}
+                    value={[minPeriod / 1000]}
+                    onValueChange={([value]) => handleMinPeriodChange(Math.round(value * 1000))}
                     min={0.5}
                     max={5}
                     step={0.1}
                   />
                   <div className="text-sm text-gray-400">
-                    Min Period: {minPeriod.toFixed(1)}s
+                    Min Period: {(minPeriod / 1000).toFixed(1)}s
                   </div>
                 </div>
 
@@ -268,14 +274,14 @@ export default function Simulator() {
                   <Label htmlFor="max-period">Maximum Period (seconds)</Label>
                   <Slider
                     id="max-period"
-                    value={[maxPeriod]}
-                    onValueChange={([value]) => handleMaxPeriodChange(value)}
+                    value={[maxPeriod / 1000]}
+                    onValueChange={([value]) => handleMaxPeriodChange(Math.round(value * 1000))}
                     min={1}
                     max={10}
                     step={0.1}
                   />
                   <div className="text-sm text-gray-400">
-                    Max Period: {maxPeriod.toFixed(1)}s
+                    Max Period: {(maxPeriod / 1000).toFixed(1)}s
                   </div>
                 </div>
 

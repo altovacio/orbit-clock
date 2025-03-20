@@ -184,7 +184,7 @@ export default function OrbitalGraph({
       .attr("fill", "rgba(255, 255, 255, 0.9)");
 
     // Generate sine wave data
-    const wavePoints = Array.from({ length: 100 }, (_, i) => {
+    const wavePoints: [number, number][] = Array.from({ length: 100 }, (_, i) => {
       const x = (i / 99) * numPeriods * 2 * Math.PI;
       return [x, Math.cos(x)];
     });
