@@ -14,7 +14,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [colorScheme, setColorScheme] = useState<'single' | 'variable'>('variable');
 
   const toggleColorScheme = () => {
-    setColorScheme(prev => prev === 'single' ? 'variable' : 'single');
+    setColorScheme(prev => {
+      const newScheme = prev === 'single' ? 'variable' : 'single';
+      return newScheme;
+    });
   };
 
   return (

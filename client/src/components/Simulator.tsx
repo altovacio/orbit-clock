@@ -93,36 +93,38 @@ export default function Simulator() {
   // Calculate interpolated periods based on min and max
   const periods = interpolateValues(minPeriod, maxPeriod, numOrbits);
 
+  const { elapsedTime, isRunning, resetTime: contextResetTime } = useTime();
+
+  const { playSound, setScale, currentScale } = useAudioContext();
+
+  // Add this useEffect hook
+  useEffect(() => {
+    // Reset timer when orbit parameters change
+    contextResetTime();
+  }, [numOrbits, minPeriod, maxPeriod, activePreset]); // Add these dependencies
+
   const applyPreset = (presetIndex: number) => {
     const preset = PRESETS[presetIndex];
     setNumOrbits(preset.numOrbits);
     setMinPeriod(preset.minPeriod);
     setMaxPeriod(preset.maxPeriod);
     setActivePreset(presetIndex);
+    contextResetTime(); // Explicit reset when presets change
   };
 
   const addOrbit = () => {
     if (numOrbits < 50) {
       setNumOrbits(numOrbits + 1);
+      contextResetTime(); // Reset when adding orbits
     }
   };
 
   const removeOrbit = () => {
     if (numOrbits > 2) {
       setNumOrbits(numOrbits - 1);
+      contextResetTime(); // Reset when removing orbits
     }
   };
-
-  const { elapsedTime, isRunning, resetTime: contextResetTime } = useTime();
-
-  const resetSimulation = () => {
-    contextResetTime();
-    setNumOrbits(3);
-    setMinPeriod(1.5);
-    setMaxPeriod(3);
-  };
-
-  const { playSound, setScale, currentScale } = useAudioContext();
 
   const playSimulatorSound = useCallback((orbitIndex: number) => {
     if (!isInView) return;
@@ -141,6 +143,26 @@ export default function Simulator() {
 
   const handleScaleTypeChange = (value: ScaleType) => {
     setScale(currentScale.rootNote, value);
+  };
+
+  // Update the slider handlers
+  const handleMinPeriodChange = (value: number) => {
+    setMinPeriod(value);
+    contextResetTime(); // Reset when period changes
+  };
+
+  const handleMaxPeriodChange = (value: number) => {
+    setMaxPeriod(value);
+    contextResetTime(); // Reset when period changes
+  };
+
+  // Add this function inside the Simulator component
+  const resetSimulation = () => {
+    contextResetTime();
+    setNumOrbits(3);
+    setMinPeriod(1.5);
+    setMaxPeriod(3);
+    setActivePreset(0);
   };
 
   return (
@@ -232,7 +254,7 @@ export default function Simulator() {
                   <Slider
                     id="min-period"
                     value={[minPeriod]}
-                    onValueChange={([value]) => setMinPeriod(value)}
+                    onValueChange={([value]) => handleMinPeriodChange(value)}
                     min={0.5}
                     max={5}
                     step={0.1}
@@ -247,7 +269,7 @@ export default function Simulator() {
                   <Slider
                     id="max-period"
                     value={[maxPeriod]}
-                    onValueChange={([value]) => setMaxPeriod(value)}
+                    onValueChange={([value]) => handleMaxPeriodChange(value)}
                     min={1}
                     max={10}
                     step={0.1}

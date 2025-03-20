@@ -45,8 +45,10 @@ export function TimeProvider({ children }: { children: React.ReactNode }) {
   const stopTime = () => setIsRunning(false);
   
   const resetTime = () => {
-    accumulatedTimeRef.current = 0;
-    setElapsedTime(0);
+    if (accumulatedTimeRef.current > 0) {
+      accumulatedTimeRef.current = 0;
+      setElapsedTime(0);
+    }
   };
 
   const toggleRunning = () => setIsRunning(prev => !prev);
