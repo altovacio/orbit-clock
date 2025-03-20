@@ -339,28 +339,6 @@ export default function Simulator() {
                     onNoteChange={handleNoteChange}
                   />
                 </div>
-
-                <div className="space-y-4">
-                  <Label htmlFor="octave">Octave</Label>
-                  <Select
-                    value={localScale.rootNote.split(/(\d+)/)[1]}
-                    onValueChange={(value) => {
-                      handleNoteChange(localScale.rootNote.replace(/\d+/, value));
-                    }}
-                  >
-                    <SelectTrigger id="octave">
-                      <SelectValue placeholder="Select octave" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 8 }, (_, i) => (
-                        <SelectItem key={i + 4} value={(i + 4).toString()}>
-                          Octave {i + 4}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 <div className="p-4 bg-gray-800/50 rounded-lg">
                   <p className="text-sm text-gray-400">
                     Each orbit creates a unique note when reaching the top.
