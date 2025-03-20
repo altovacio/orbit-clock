@@ -14,16 +14,45 @@ export function useResetTimer(periods: number[]) {
   };
 }
 
-// Update the formatResetTime function to handle large values
-const formatResetTime = (ms: number) => {
-  if (ms > 1e12) { // More than ~31,000 years
-    return "∞";
-  }
-  
-  const totalSeconds = ms / 1000;
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = Math.floor(totalSeconds % 60);
-  const remainingMs = Math.floor(ms % 1000 / 10);
+// Update the formatResetTime function
+function formatResetTime(durationMs: number) {
+  const MINUTE = 60 * 1000;
+  const HOUR = 60 * MINUTE;
+  const DAY = 24 * HOUR;
+  const YEAR = 365 * DAY;
 
-  return `${minutes}:${seconds.toString().padStart(2, '0')}.${remainingMs.toString().padStart(2, '0')}`;
-}; 
+  // Sanity check for durations that stretch the imagination
+
+  if (durationMs > 1e10 * YEAR) {
+    return '⚠️ Astronomical!';
+  }
+
+  if (durationMs > 1000 * YEAR) {
+    return '🚀 More than a millennium!';
+  }
+  if (durationMs > YEAR) {
+    return '⏳ Over a year! ';
+  }
+
+  if (durationMs > DAY) {
+    const days = Math.floor(durationMs / DAY);
+    const hours = Math.floor((durationMs % DAY) / HOUR);
+    return `${days}d ${hours}h ⏳`;
+  }
+
+  if (durationMs > HOUR) {
+    const hours = Math.floor(durationMs / HOUR);
+    const minutes = Math.floor((durationMs % HOUR) / MINUTE);
+    return `${hours}h ${minutes}m ⏳`;
+  }
+
+  if (durationMs > MINUTE) {
+    const minutes = Math.floor(durationMs / MINUTE);
+    const seconds = Math.floor((durationMs % MINUTE) / 1000);
+    return `${minutes}m ${seconds}s`;
+  }
+
+  const seconds = Math.floor(durationMs / 1000);
+  const milliseconds = Math.floor(durationMs % 1000);
+  return `${seconds}.${Math.floor(milliseconds/10).toString().padStart(2, '0')}s`;
+} 
