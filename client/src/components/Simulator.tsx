@@ -52,7 +52,7 @@ const PRESETS: PresetConfig[] = [
   },
   {
     title: "10 Note Madness",
-    subtitle: "1.304e10y ⚠️(Age of the universe)",
+    subtitle: "1.304e10y ⚠️(cosmic time)",
     minPeriod: 1000,
     maxPeriod: 2100,
     numOrbits: 10,

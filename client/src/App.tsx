@@ -9,6 +9,8 @@ import { MuteButton } from "@/components/MuteButton";
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { SettingsButton } from '@/components/SettingsButton';
 import { TimeProvider } from '@/contexts/TimeContext';
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from 'react';
 
 function Router() {
   return (
@@ -20,6 +22,20 @@ function Router() {
 }
 
 function App() {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const hasShown = localStorage.getItem('hasShownAudioToast');
+    if (!hasShown) {
+      toast({
+        title: "🎧 For the best experience",
+        description: "We recommend enabling audio. Use the mute button in the top right to control sound.", // Updated position
+        duration: 5000, // 5 seconds
+      });
+      localStorage.setItem('hasShownAudioToast', 'true');
+    }
+  }, [toast]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TimeProvider>
