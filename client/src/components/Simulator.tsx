@@ -210,7 +210,7 @@ export default function Simulator() {
               />
               
               {/* Time Displays */}
-              <div className="absolute bottom-2 left-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
+              <div className="absolute bottom-1 left-1 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
                 <div className="text-xs text-gray-400">Elapsed Time</div>
                 <div className="text-lg font-mono text-emerald-400">
                   {Math.floor(elapsedTime / 60000)}:{(Math.floor(elapsedTime / 1000) % 60).toString().padStart(2, '0')}
@@ -218,7 +218,7 @@ export default function Simulator() {
                 </div>
               </div>
               
-              <div className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
+              <div className="absolute bottom-1 right-1 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
                 <div className="text-xs text-gray-400">Next Reset In</div>
                 <div className="text-lg font-mono text-amber-400">
                   {formattedReset}

@@ -5,22 +5,45 @@ function gcd(a: number, b: number): number {
 
 // Least Common Multiple for two numbers
 function lcm(a: number, b: number): number {
-  return (a * b) / gcd(a, b);
+  return (a / gcd(a, b)) * b;
 }
 
-// LCM for array of periods (in milliseconds)
-export function calculateLCM(periods: number[]): number {
-  if (periods.length === 0) return 0;
-  return periods.reduce((a, b) => lcm(a, b));
+// Add new utility functions
+function computeSeriesLCM(start: number, steps: number, increment = 1): number {
+  if (steps < 1) return start;
+  
+  let result = start;
+  for (let i = 1; i < steps; i++) {
+    const nextNum = start + (i * increment);
+    result = lcm(result, nextNum);
+  }
+  return result;
 }
 
-// Calculate time until next alignment
+// Update the predictSystemRestart function with proper naming
+export function predictSystemRestart(numOrbits: number, minPeriod: number, maxPeriod: number): number | null {
+  if (numOrbits < 2) return null;
+  
+  const k = numOrbits - 1;
+  const Tmin = minPeriod;
+  const Tmax = maxPeriod;
+  const deltaT = Tmax - Tmin;
+  const Bk = k * Tmin;
+
+  const lcmResult = computeSeriesLCM(Bk, k + 1, deltaT);
+  return lcmResult / k;
+}
+
+// Revised calculateNextReset that uses only periods array
 export function calculateNextReset(currentTime: number, periods: number[]): number {
   if (periods.length === 0) return 0;
   
-  const lcmValue = calculateLCM(periods);
-  if (lcmValue === 0) return 0;
+  // Derive parameters from periods array
+  const numOrbits = periods.length;
+  const minPeriod = Math.min(...periods);
+  const maxPeriod = Math.max(...periods);
   
-  const currentPosition = currentTime % lcmValue;
-  return lcmValue - currentPosition;
+  const uniformLCM = predictSystemRestart(numOrbits, minPeriod, maxPeriod);
+  const currentPosition = currentTime % uniformLCM;
+  return uniformLCM - currentPosition;
 } 
