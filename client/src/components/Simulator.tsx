@@ -57,7 +57,7 @@ const PRESETS: PresetConfig[] = [
 ];
 
 // Scale types
-type ScaleType = "majorPentatonic" | "major" | "naturalMinor" | "chromatic";
+type ScaleType = "majorPentatonic" | "major" | "naturalMinor" | "chromatic" | "harmonicMinor" | "melodicMinor" | "blues";
 
 // Base frequencies for notes (C4 to B4)
 const BASE_NOTES = {
@@ -76,6 +76,9 @@ const SCALE_PATTERNS: Record<ScaleType, number[]> = {
   major: [0, 2, 4, 5, 7, 9, 11], // C, D, E, F, G, A, B
   naturalMinor: [0, 2, 3, 5, 7, 8, 10], // C, D, Eb, F, G, Ab, Bb
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], // All 12 semitones
+  harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
+  melodicMinor: [0, 2, 3, 5, 7, 9, 11],
+  blues: [0, 3, 5, 6, 7, 10],
 };
 
 function generateScaleFrequencies(
@@ -161,11 +164,30 @@ export default function Simulator() {
     playSound(orbitIndex);
   };
 
-  // Add this useEffect to sync scale changes with audio context
-  useEffect(() => {
-    // Assuming rootNote and scaleType are defined in component state
-    setScale(rootNote, scaleType);
-  }, [rootNote, scaleType, setScale]);
+  const { setScale: audioContextSetScale } = useAudioContext();
+  const [localScale, setLocalScale] = useState({
+    rootNote: 'C4',
+    scaleType: 'majorPentatonic' as keyof typeof SCALE_PATTERNS,
+  });
+
+  const handleNoteChange = (noteWithOctave: string) => {
+    setLocalScale(prev => {
+      const newState = {...prev, rootNote: noteWithOctave};
+      setScale(newState.rootNote, newState.scaleType);
+      return newState;
+    });
+  };
+
+  const handleScaleTypeChange = (value: string) => {
+    setLocalScale(prev => {
+      const newState = {
+        ...prev,
+        scaleType: value as keyof typeof SCALE_PATTERNS
+      };
+      setScale(newState.rootNote, newState.scaleType);
+      return newState;
+    });
+  };
 
   return (
     <div ref={ref} className="min-h-screen p-8">
@@ -288,51 +310,55 @@ export default function Simulator() {
 
                 <div className="space-y-4">
                   <Label htmlFor="scale-type">Scale Type</Label>
-                  <Select
-                    value={scaleType}
-                    onValueChange={(value) => setScaleType(value as ScaleType)}
+                  <select
+                    value={localScale.scaleType}
+                    onChange={(e) => {
+                      setLocalScale(prev => ({
+                        ...prev,
+                        scaleType: e.target.value as keyof typeof SCALE_PATTERNS
+                      }));
+                      setScale(localScale.rootNote, e.target.value as any);
+                    }}
+                    className="bg-background border rounded-md p-2"
                   >
-                    <SelectTrigger id="scale-type">
-                      <SelectValue placeholder="Select scale type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="majorPentatonic">
-                        Major Pentatonic
-                      </SelectItem>
-                      <SelectItem value="major">Major</SelectItem>
-                      <SelectItem value="naturalMinor">
-                        Natural Minor
-                      </SelectItem>
-                      <SelectItem value="chromatic">Chromatic</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <option value="majorPentatonic">Major Pentatonic</option>
+                    <option value="minorPentatonic">Minor Pentatonic</option>
+                    <option value="major">Major</option>
+                    <option value="naturalMinor">Natural Minor</option>
+                    <option value="harmonicMinor">Harmonic Minor</option>
+                    <option value="blues">Blues</option>
+                    <option value="chromatic">Chromatic</option>
+                  </select>
                 </div>
 
                 <div className="space-y-4">
                   <Label htmlFor="root-note">Root Note</Label>
+                  <PianoKeys
+                    rootNote={localScale.rootNote}
+                    scaleType={localScale.scaleType}
+                    onNoteChange={handleNoteChange}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <Label htmlFor="octave">Octave</Label>
                   <Select
-                    value={rootNote}
-                    onValueChange={(value) =>
-                      setRootNote(value as keyof typeof BASE_NOTES)
-                    }
+                    value={localScale.rootNote.split(/(\d+)/)[1]}
+                    onValueChange={(value) => {
+                      handleNoteChange(localScale.rootNote.replace(/\d+/, value));
+                    }}
                   >
-                    <SelectTrigger id="root-note">
-                      <SelectValue placeholder="Select root note" />
+                    <SelectTrigger id="octave">
+                      <SelectValue placeholder="Select octave" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.keys(BASE_NOTES).map((note) => (
-                        <SelectItem key={note} value={note}>
-                          {note}
+                      {Array.from({ length: 8 }, (_, i) => (
+                        <SelectItem key={i + 4} value={(i + 4).toString()}>
+                          Octave {i + 4}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-
-                {/* Piano Visualization */}
-                <div className="space-y-2">
-                  <Label>Scale Notes</Label>
-                  <PianoKeys rootNote={rootNote} scaleType={scaleType} />
                 </div>
 
                 <div className="p-4 bg-gray-800/50 rounded-lg">

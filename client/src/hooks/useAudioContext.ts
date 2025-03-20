@@ -4,36 +4,51 @@ import type { ReactNode } from 'react';
 // Base note frequencies (C4 to B4)
 const BASE_NOTES = {
   C: 261.63,
+  CSharp: 277.18,
   D: 293.66,
+  DSharp: 311.13,
   E: 329.63,
   F: 349.23,
+  FSharp: 369.99,
   G: 392.0,
+  GSharp: 415.30,
   A: 440.0,
+  ASharp: 466.16,
   B: 493.88,
 };
 
 // Scale patterns (semitone intervals from root)
 const SCALE_PATTERNS = {
   majorPentatonic: [0, 2, 4, 7, 9],
+  minorPentatonic: [0, 3, 5, 7, 10],
   major: [0, 2, 4, 5, 7, 9, 11],
   naturalMinor: [0, 2, 3, 5, 7, 8, 10],
+  harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
+  blues: [0, 3, 5, 6, 7, 10],
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 };
 
 function generateScaleFrequencies(
-  rootNote: keyof typeof BASE_NOTES,
-  scaleType: keyof typeof SCALE_PATTERNS
+  rootNote: string,
+  scaleType: keyof typeof SCALE_PATTERNS,
+  octaves: number = 3
 ): number[] {
+  // Split note into name and octave (e.g. "C#4" -> ["C#", "4"])
+  const [notePart, octaveStr] = rootNote.split(/(\d+)/);
+  const octave = parseInt(octaveStr) || 4;
+  
+  // Convert note name to match BASE_NOTES keys (C# -> CSharp)
+  const noteName = notePart.replace(/#/g, 'Sharp') as keyof typeof BASE_NOTES;
+  const baseFreq = BASE_NOTES[noteName] * Math.pow(2, octave - 4);
+  
   const pattern = SCALE_PATTERNS[scaleType];
-  const rootFreq = BASE_NOTES[rootNote as keyof typeof BASE_NOTES];
-  const octaves = 3; // Generate 3 octaves
   const frequencies: number[] = [];
 
   for (let octave = 0; octave < octaves; octave++) {
     pattern.forEach(interval => {
       // Add 12 semitones for each octave
       const totalInterval = interval + (12 * octave);
-      frequencies.push(rootFreq * Math.pow(2, totalInterval / 12));
+      frequencies.push(baseFreq * Math.pow(2, totalInterval / 12));
     });
   }
 
@@ -44,7 +59,7 @@ interface AudioContextType {
   isMuted: boolean;
   toggleMute: () => void;
   playSound: (orbitIndex: number) => void;
-  setScale: (rootNote: keyof typeof BASE_NOTES, scaleType: keyof typeof SCALE_PATTERNS) => void;
+  setScale: (rootNote: string, scaleType: keyof typeof SCALE_PATTERNS) => void;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -57,8 +72,8 @@ export function AudioProvider({ children }: AudioProviderProps) {
   const audioContextRef = useRef<AudioContext>();
   const [isMuted, setIsMuted] = useState(true);
   const [currentScale, setCurrentScale] = useState({
-    rootNote: 'C' as keyof typeof BASE_NOTES,
-    scaleType: 'majorPentatonic' as keyof typeof SCALE_PATTERNS
+    rootNote: 'C4',
+    scaleType: 'majorPentatonic' as keyof typeof SCALE_PATTERNS,
   });
 
   // Initialize audio context on mount
@@ -80,17 +95,29 @@ export function AudioProvider({ children }: AudioProviderProps) {
     if (isMuted || !audioContextRef.current) return;
 
     try {
-      // Resume context if suspended (required by some browsers)
-      if (audioContextRef.current.state === 'suspended') {
-        await audioContextRef.current.resume();
+      const context = audioContextRef.current;
+      const frequencies = generateScaleFrequencies(currentScale.rootNote, currentScale.scaleType, 3);
+      
+      // Add safety checks
+      if (!frequencies.length) {
+        console.error('No frequencies generated for current scale');
+        return;
       }
 
-      const context = audioContextRef.current;
+      const freq = frequencies[orbitIndex % frequencies.length];
+      
+      if (typeof freq !== 'number' || !isFinite(freq)) {
+        console.error('Invalid frequency value:', freq);
+        return;
+      }
+
+      // Resume context if suspended (required by some browsers)
+      if (context.state === 'suspended') {
+        await context.resume();
+      }
+
       const oscillator = context.createOscillator();
       const gainNode = context.createGain();
-
-      const frequencies = generateScaleFrequencies(currentScale.rootNote, currentScale.scaleType);
-      const freq = frequencies[orbitIndex % frequencies.length];
 
       oscillator.type = 'sine';
       oscillator.frequency.setValueAtTime(freq, context.currentTime);
@@ -116,7 +143,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
     }
   }, [isMuted, currentScale]);
 
-  const setScale = useCallback((rootNote: keyof typeof BASE_NOTES, scaleType: keyof typeof SCALE_PATTERNS) => {
+  const setScale = useCallback((rootNote: string, scaleType: keyof typeof SCALE_PATTERNS) => {
     setCurrentScale({ rootNote, scaleType });
   }, []);
 
