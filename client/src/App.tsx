@@ -6,6 +6,8 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import { AudioProvider } from "./hooks/useAudioContext";
 import { MuteButton } from "@/components/MuteButton";
+import { SettingsProvider } from '@/contexts/SettingsContext';
+import { SettingsButton } from '@/components/SettingsButton';
 
 function Router() {
   return (
@@ -19,11 +21,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AudioProvider>
-        <Router />
-        <MuteButton />
-        <Toaster />
-      </AudioProvider>
+      <SettingsProvider>
+        <AudioProvider>
+          <Router />
+          <MuteButton />
+          <SettingsButton />
+          <Toaster />
+        </AudioProvider>
+      </SettingsProvider>
     </QueryClientProvider>
   );
 }

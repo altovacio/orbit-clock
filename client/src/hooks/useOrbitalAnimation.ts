@@ -1,6 +1,7 @@
 import { useRef, useCallback } from 'react';
 import { select } from 'd3-selection';
-import { BALL_GRADIENTS, BALL_FILTERS } from "@/config/orbitConfig";
+import { BALL_GRADIENTS, BALL_FILTERS, BALL_SIZES } from "@/config/orbitConfig";
+import { useSettings } from "@/contexts/SettingsContext";
 
 interface UseOrbitalAnimationProps {
   svgRef: React.RefObject<SVGSVGElement>;
@@ -22,6 +23,7 @@ export function useOrbitalAnimation({
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
   const lastTopRef = useRef<boolean[]>([]);
+  const { starSize, colorScheme } = useSettings();
 
   const animate = useCallback((timestamp: number) => {
     if (!svgRef.current) return;
@@ -31,6 +33,8 @@ export function useOrbitalAnimation({
     const centerX = width / 2;
     const centerY = width / 2;
     const baseRadius = (width * 0.35) * scale;
+    const baseSize = BALL_SIZES.base * starSize;
+    const highlightSize = BALL_SIZES.highlight * starSize;
 
     // Initialize time reference
     if (startTimeRef.current === 0) {
@@ -68,19 +72,19 @@ export function useOrbitalAnimation({
             .data([null])
             .join('circle')
             .attr('class', 'ball-highlight')
-            .attr('r', 4)
+            .attr('r', highlightSize)
             .attr('cx', -1)
             .attr('cy', -1)
-            .attr('fill', 'rgba(255, 255, 255, 0.9)');
+            .attr('fill', colorScheme === 'single' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.9)');
 
           // Glowing core in front
           g.selectAll('circle.ball-core')
             .data([null])
             .join('circle')
             .attr('class', 'ball-core')
-            .attr('r', 7)
-            .attr('fill', `url(#${BALL_GRADIENTS.default.id(i)})`)
-            .attr('filter', `url(#${BALL_FILTERS.simpleGlow.id(i)})`);
+            .attr('r', baseSize)
+            .attr('fill', `url(#ballGradient-${i}-${colorScheme})`)
+            .attr('filter', `url(#simple-glow-${i}-${colorScheme})`);
         });
 
       // Check if ball is at the north position (top)
@@ -93,7 +97,7 @@ export function useOrbitalAnimation({
     }
 
     frameRef.current = requestAnimationFrame(animate);
-  }, [type, numOrbits, scale, periods, onTopReached]);
+  }, [type, numOrbits, scale, periods, onTopReached, starSize, colorScheme]);
 
   const startAnimation = useCallback(() => {
     startTimeRef.current = 0;

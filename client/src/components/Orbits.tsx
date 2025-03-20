@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { select } from "d3-selection";
 import { useOrbitalAnimation } from "@/hooks/useOrbitalAnimation";
-import { BALL_GRADIENTS, BALL_FILTERS } from "@/config/orbitConfig";
+import { BALL_GRADIENTS, BALL_FILTERS, BALL_SIZES, BALL_COLORS } from "@/config/orbitConfig";
+import { useSettings } from "@/contexts/SettingsContext";
 
 interface OrbitProps {
   type: string;
@@ -19,6 +20,7 @@ export default function Orbits({
   onTopReached,
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const { colorScheme, starSize } = useSettings();
 
   // Set demonstration periods based on type
   let periods = customPeriods;
@@ -74,58 +76,99 @@ export default function Orbits({
     for (let i = 0; i < orbits; i++) {
       const radius = baseRadius * ((i + 1) / orbits);
 
-      // Create gradient for orbit path
-      const gradientId = `orbitGradient${i}`;
-      const gradient = defs
+      // Create orbit gradient
+      const orbitGradient = defs
         .append("linearGradient")
-        .attr("id", gradientId)
+        .attr("id", `orbitGradient-${i}`)
         .attr("gradientUnits", "userSpaceOnUse");
 
-      gradient
+      orbitGradient
         .append("stop")
         .attr("offset", "0%")
-        .attr("stop-color", "rgba(255, 255, 255, 0.6)");
+        .attr("stop-color", "rgba(255, 255, 255, 0.4)");
 
-      gradient
+      orbitGradient
         .append("stop")
         .attr("offset", "100%")
-        .attr("stop-color", "rgba(255, 255, 255, 0.2)");
+        .attr("stop-color", "rgba(255, 255, 255, 0.1)");
+
+      // Create ball gradient based on color scheme
+      const ballGradient = defs
+        .append("radialGradient")
+        .attr("id", `ballGradient-${i}-${colorScheme}`)
+        .attr("gradientUnits", "userSpaceOnUse");
+
+      if (colorScheme === 'single') {
+        ballGradient
+        .append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#ffffff");
+
+      ballGradient
+        .append("stop")
+        .attr("offset", "40%")
+        .attr("stop-color", "#ffffff");
+
+      ballGradient
+        .append("stop")
+        .attr("offset", "60%")
+        .attr("stop-color", '#ffd700');
+
+      ballGradient
+        .append("stop")
+        .attr("offset", "85%")
+        .attr("stop-color", '#ff8c00')
+        .attr("stop-opacity", "0.6");
+
+      ballGradient
+        .append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", '#ff8c00')
+        .attr("stop-opacity", "0.1");
+      } else {
+        ballGradient
+          .append("stop")
+          .attr("offset", "0%")
+          .attr("stop-color", "#ffffff");
+
+        ballGradient
+          .append("stop")
+          .attr("offset", "40%")
+          .attr("stop-color", "#ffffff");
+
+        ballGradient
+          .append("stop")
+          .attr("offset", "60%")
+          .attr("stop-color", BALL_COLORS[i % BALL_COLORS.length].secondary);
+
+        ballGradient
+          .append("stop")
+          .attr("offset", "85%")
+          .attr("stop-color", BALL_COLORS[i % BALL_COLORS.length].secondary)
+          .attr("stop-opacity", "0.6");
+
+        ballGradient
+          .append("stop")
+          .attr("offset", "100%")
+          .attr("stop-color", BALL_COLORS[i % BALL_COLORS.length].tertiary)
+          .attr("stop-opacity", "0.1");
+      }
 
       // Create radial gradient for the neon star effect
-      BALL_GRADIENTS.default.create(defs, i);
+      BALL_GRADIENTS.default.create(defs, i, colorScheme);
 
       const filterGlow = defs
         .append("filter")
-        .attr("id", `simple-glow-${i}`)
-        .attr("x", "-50%")
-        .attr("y", "-50%")
-        .attr("width", "200%")
-        .attr("height", "200%");
-
+        .attr("id", `simple-glow-${i}-${colorScheme}`);
+      
       filterGlow
         .append("feGaussianBlur")
-        .attr("in", "SourceAlpha")
-        .attr("stdDeviation", "2") // Reduced blur for a simpler glow
-        .attr("result", "blur");
-
-      filterGlow
-        .append("feFlood")
-        .attr("flood-color", "rgba(255, 255, 255, 0.5)") // White glow
-        .attr("result", "color");
-
-      filterGlow
-        .append("feComposite")
-        .attr("in2", "blur")
-        .attr("operator", "in")
+        .attr("stdDeviation", "2")
         .attr("result", "coloredBlur");
 
-      filterGlow
-        .append("feMerge")
-        .selectAll("feMergeNode")
-        .data(["coloredBlur", "SourceGraphic"])
-        .enter()
-        .append("feMergeNode")
-        .attr("in", (d) => d);
+      const feMerge = filterGlow.append("feMerge");
+      feMerge.append("feMergeNode").attr("in", "coloredBlur");
+      feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
       // Draw orbit path with dash pattern
       svg
@@ -133,30 +176,31 @@ export default function Orbits({
         .attr("cx", centerX)
         .attr("cy", centerY)
         .attr("r", radius)
-        .attr("stroke", `url(#${gradientId})`)
+        .attr("stroke", `url(#orbitGradient-${i})`)
         .attr("stroke-width", 0.6)
         .attr("stroke-dasharray", "4,4")
         .attr("fill", "none")
         .attr("class", `orbit-path-${i}`);
 
+      // Update color reference for vertical line
+      const { primary, secondary } = colorScheme === 'variable' 
+        ? BALL_COLORS[i % BALL_COLORS.length]
+        : { primary: '#4f46e5', secondary: '#6366f1' };
+
+      // In the vertical line drawing:
       svg
         .append("line")
         .attr("x1", centerX)
         .attr("y1", centerY - radius - 5)
         .attr("x2", centerX)
-        .attr("y2", centerY - radius + 5) // Length of the vertical line
-        .attr("stroke", "#ff8c00") // Color of the line
-        .attr("stroke-width", 0.6); // Width of the line
-    }
-
-    // Add gradients and filters using config
-    for (let i = 0; i < orbits; i++) {
-      BALL_FILTERS.simpleGlow.create(defs, i);
+        .attr("y2", centerY - radius + 5)
+        .attr("stroke", colorScheme === 'variable' ? primary : '#ff8c00') // Now uses BALL_COLORS
+        .attr("stroke-width", 0.6);
     }
 
     startAnimation();
     return () => stopAnimation();
-  }, [type, numOrbits, scale, periods]);
+  }, [type, numOrbits, scale, periods, colorScheme, starSize]);
 
   return (
     <svg
