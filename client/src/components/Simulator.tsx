@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import PianoKeys from "./PianoKeys";
 import { useAudioContext } from "@/hooks/useAudioContext"; // Fixed import path
+import { BASE_NOTES, SCALE_PATTERNS, ScaleType, BaseNote } from '@/config/orbitConfig';
 
 // Preset configurations
 interface PresetConfig {
@@ -76,7 +77,7 @@ export default function Simulator() {
   const [minPeriod, setMinPeriod] = useState(1.5);
   const [maxPeriod, setMaxPeriod] = useState(3);
   const [scaleType, setScaleType] = useState<ScaleType>("majorPentatonic");
-  const [rootNote, setRootNote] = useState<keyof typeof BASE_NOTES>("C");
+  const [rootNote, setRootNote] = useState<BaseNote>("C");
   const [activePreset, setActivePreset] = useState<number>(0);
   const ref = useRef(null);
 
@@ -114,36 +115,19 @@ export default function Simulator() {
     setMaxPeriod(3);
   };
 
-  const { playSound, setScale } = useAudioContext();
+  const { playSound, setScale, currentScale } = useAudioContext();
 
   const playSimulatorSound = (orbitIndex: number) => {
     if (!isInView) return;
     playSound(orbitIndex);
   };
 
-  const { setScale: audioContextSetScale } = useAudioContext();
-  const [localScale, setLocalScale] = useState({
-    rootNote: 'C4',
-    scaleType: 'majorPentatonic' as keyof typeof SCALE_PATTERNS,
-  });
-
   const handleNoteChange = (noteWithOctave: string) => {
-    setLocalScale(prev => {
-      const newState = {...prev, rootNote: noteWithOctave};
-      setScale(newState.rootNote, newState.scaleType);
-      return newState;
-    });
+    setScale(noteWithOctave, currentScale.scaleType);
   };
 
-  const handleScaleTypeChange = (value: string) => {
-    setLocalScale(prev => {
-      const newState = {
-        ...prev,
-        scaleType: value as keyof typeof SCALE_PATTERNS
-      };
-      setScale(newState.rootNote, newState.scaleType);
-      return newState;
-    });
+  const handleScaleTypeChange = (value: ScaleType) => {
+    setScale(currentScale.rootNote, value);
   };
 
   return (
@@ -229,14 +213,13 @@ export default function Simulator() {
                 </div>
 
                 <div className="space-y-4">
-                  <Label>Minimum Period (seconds)</Label>
+                  <Label htmlFor="min-period">Minimum Period (seconds)</Label>
                   <Slider
+                    id="min-period"
                     value={[minPeriod]}
-                    onValueChange={([value]) =>
-                      setMinPeriod(Math.min(value, maxPeriod))
-                    }
-                    min={0.1}
-                    max={10}
+                    onValueChange={([value]) => setMinPeriod(value)}
+                    min={0.5}
+                    max={5}
                     step={0.1}
                   />
                   <div className="text-sm text-gray-400">
@@ -245,13 +228,12 @@ export default function Simulator() {
                 </div>
 
                 <div className="space-y-4">
-                  <Label>Maximum Period (seconds)</Label>
+                  <Label htmlFor="max-period">Maximum Period (seconds)</Label>
                   <Slider
+                    id="max-period"
                     value={[maxPeriod]}
-                    onValueChange={([value]) =>
-                      setMaxPeriod(Math.max(value, minPeriod))
-                    }
-                    min={0.1}
+                    onValueChange={([value]) => setMaxPeriod(value)}
+                    min={1}
                     max={10}
                     step={0.1}
                   />
@@ -277,33 +259,29 @@ export default function Simulator() {
                 <h3 className="font-semibold">Sound Settings</h3>
 
                 <div className="space-y-4">
-                  <Label htmlFor="scale-type">Scale Type</Label>
-                  <select
-                    value={localScale.scaleType}
-                    onChange={(e) => {
-                      setLocalScale(prev => ({
-                        ...prev,
-                        scaleType: e.target.value as keyof typeof SCALE_PATTERNS
-                      }));
-                      setScale(localScale.rootNote, e.target.value as any);
-                    }}
-                    className="bg-background border rounded-md p-2"
-                  >
-                    <option value="majorPentatonic">Major Pentatonic</option>
-                    <option value="minorPentatonic">Minor Pentatonic</option>
-                    <option value="major">Major</option>
-                    <option value="naturalMinor">Natural Minor</option>
-                    <option value="harmonicMinor">Harmonic Minor</option>
-                    <option value="blues">Blues</option>
-                    <option value="chromatic">Chromatic</option>
-                  </select>
+                  <div className="flex gap-2 items-center">
+                    <Label htmlFor="scale-type-select">Scale Type</Label>
+                    <select
+                      value={currentScale.scaleType}
+                      onChange={(e) => handleScaleTypeChange(e.target.value as ScaleType)}
+                      className="bg-background border rounded-md p-2"
+                      id="scale-type-select"
+                      name="scaleType"
+                    >
+                      {Object.keys(SCALE_PATTERNS).map(scale => (
+                        <option key={scale} value={scale}>
+                          {scale.replace(/([A-Z])/g, ' $1').trim()} {/* Format camelCase to spaced */}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
-                  <Label htmlFor="root-note">Root Note</Label>
+                  <Label htmlFor="root-note-select">Root Note</Label>
                   <PianoKeys
-                    rootNote={localScale.rootNote}
-                    scaleType={localScale.scaleType}
+                    rootNote={currentScale.rootNote}
+                    scaleType={currentScale.scaleType}
                     onNoteChange={handleNoteChange}
                   />
                 </div>

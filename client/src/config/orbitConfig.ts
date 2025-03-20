@@ -75,3 +75,31 @@ export const BALL_COLORS = [
     { primary: '#e3f2fd', secondary: '#64b5f6', tertiary: '#1976d2' }, // Blue Giant Star
     { primary: '#fbe9f9', secondary: '#e1bee7', tertiary: '#9c27b0' }  // Violet Pulse Star
 ];
+
+export type ScaleType = keyof typeof SCALE_PATTERNS;
+export type BaseNote = keyof typeof BASE_NOTES;
+
+export const BASE_NOTES = {
+  C: 261.63,
+  CSharp: 277.18,
+  D: 293.66,
+  DSharp: 311.13,
+  E: 329.63,
+  F: 349.23,
+  FSharp: 369.99,
+  G: 392.0,
+  GSharp: 415.30,
+  A: 440.0,
+  ASharp: 466.16,
+  B: 493.88,
+} as const;
+
+export const SCALE_PATTERNS = {
+  majorPentatonic: [0, 2, 4, 7, 9],
+  minorPentatonic: [0, 3, 5, 7, 10],
+  major: [0, 2, 4, 5, 7, 9, 11],
+  naturalMinor: [0, 2, 3, 5, 7, 8, 10],
+  harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
+  blues: [0, 3, 5, 6, 7, 10],
+  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+} as const;

@@ -1,32 +1,6 @@
 import React, { useRef, useCallback, createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-
-// Base note frequencies (C4 to B4)
-const BASE_NOTES = {
-  C: 261.63,
-  CSharp: 277.18,
-  D: 293.66,
-  DSharp: 311.13,
-  E: 329.63,
-  F: 349.23,
-  FSharp: 369.99,
-  G: 392.0,
-  GSharp: 415.30,
-  A: 440.0,
-  ASharp: 466.16,
-  B: 493.88,
-};
-
-// Scale patterns (semitone intervals from root)
-const SCALE_PATTERNS = {
-  majorPentatonic: [0, 2, 4, 7, 9],
-  minorPentatonic: [0, 3, 5, 7, 10],
-  major: [0, 2, 4, 5, 7, 9, 11],
-  naturalMinor: [0, 2, 3, 5, 7, 8, 10],
-  harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
-  blues: [0, 3, 5, 6, 7, 10],
-  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-};
+import { BASE_NOTES, SCALE_PATTERNS } from "@/config/orbitConfig";
 
 function generateScaleFrequencies(
   rootNote: string,
@@ -60,6 +34,10 @@ interface AudioContextType {
   toggleMute: () => void;
   playSound: (orbitIndex: number) => void;
   setScale: (rootNote: string, scaleType: keyof typeof SCALE_PATTERNS) => void;
+  currentScale: {
+    rootNote: string;
+    scaleType: keyof typeof SCALE_PATTERNS;
+  };
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -78,7 +56,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
 
   // Initialize audio context on mount
   useEffect(() => {
-    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     
     return () => {
       if (audioContextRef.current) {
@@ -152,6 +130,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
     toggleMute,
     playSound,
     setScale,
+    currentScale,
   };
 
   return React.createElement(AudioContext.Provider, { value }, children);

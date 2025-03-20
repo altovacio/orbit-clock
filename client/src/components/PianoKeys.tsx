@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { ScaleType, SCALE_PATTERNS } from "@/config/orbitConfig";
 
 interface PianoKeysProps {
   rootNote: string;
-  scaleType: string;
+  scaleType: ScaleType;
   onNoteChange: (note: string) => void;
 }
 
@@ -10,17 +11,6 @@ interface PianoKeysProps {
 const ALL_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const WHITE_NOTES = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 const OCTAVES = [3, 4, 5];
-
-// Scale patterns (semitone intervals from root)
-const SCALE_PATTERNS = {
-  majorPentatonic: [0, 2, 4, 7, 9],
-  minorPentatonic: [0, 3, 5, 7, 10],
-  major: [0, 2, 4, 5, 7, 9, 11],
-  naturalMinor: [0, 2, 3, 5, 7, 8, 10],
-  harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
-  blues: [0, 3, 5, 6, 7, 10],
-  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-};
 
 export default function PianoKeys({ rootNote, scaleType, onNoteChange }: PianoKeysProps) {
   const [currentNote, setCurrentNote] = useState('C');
@@ -43,7 +33,7 @@ export default function PianoKeys({ rootNote, scaleType, onNoteChange }: PianoKe
 
   // Calculate which notes are in the scale
   const rootIndex = ALL_NOTES.indexOf(currentNote);
-  const pattern = SCALE_PATTERNS[scaleType as keyof typeof SCALE_PATTERNS] || [];
+  const pattern = SCALE_PATTERNS[scaleType];
   const scaleNotes = pattern.map(interval => 
     ALL_NOTES[(rootIndex + interval) % 12]
   );
@@ -55,6 +45,8 @@ export default function PianoKeys({ rootNote, scaleType, onNoteChange }: PianoKe
           value={currentNote}
           onChange={(e) => handleNoteChange(e.target.value)}
           className="bg-background border rounded-md p-2"
+          id="root-note-select"
+          name="rootNote"
         >
           {ALL_NOTES.map(note => (
             <option key={note} value={note}>{note}</option>
@@ -65,6 +57,8 @@ export default function PianoKeys({ rootNote, scaleType, onNoteChange }: PianoKe
           value={currentOctave}
           onChange={(e) => handleOctaveChange(Number(e.target.value))}
           className="bg-background border rounded-md p-2"
+          id="octave-select"
+          name="octave"
         >
           {OCTAVES.map(octave => (
             <option key={octave} value={octave}>Octave {octave}</option>
