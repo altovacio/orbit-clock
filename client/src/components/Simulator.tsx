@@ -56,49 +56,6 @@ const PRESETS: PresetConfig[] = [
   },
 ];
 
-// Scale types
-type ScaleType = "majorPentatonic" | "major" | "naturalMinor" | "chromatic" | "harmonicMinor" | "melodicMinor" | "blues";
-
-// Base frequencies for notes (C4 to B4)
-const BASE_NOTES = {
-  C: 261.63,
-  D: 293.66,
-  E: 329.63,
-  F: 349.23,
-  G: 392.0,
-  A: 440.0,
-  B: 493.88,
-};
-
-// Scale patterns (semitone intervals from root)
-const SCALE_PATTERNS: Record<ScaleType, number[]> = {
-  majorPentatonic: [0, 2, 4, 7, 9], // C, D, E, G, A
-  major: [0, 2, 4, 5, 7, 9, 11], // C, D, E, F, G, A, B
-  naturalMinor: [0, 2, 3, 5, 7, 8, 10], // C, D, Eb, F, G, Ab, Bb
-  chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], // All 12 semitones
-  harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
-  melodicMinor: [0, 2, 3, 5, 7, 9, 11],
-  blues: [0, 3, 5, 6, 7, 10],
-};
-
-function generateScaleFrequencies(
-  scaleType: ScaleType,
-  rootNote: keyof typeof BASE_NOTES,
-  octaves: number = 8,
-): number[] {
-  const pattern = SCALE_PATTERNS[scaleType];
-  const rootFreq = BASE_NOTES[rootNote];
-  const frequencies: number[] = [];
-
-  for (let octave = 0; octave < octaves; octave++) {
-    for (const semitones of pattern) {
-      const freq = rootFreq * Math.pow(2, (octave * 12 + semitones) / 12);
-      frequencies.push(freq);
-    }
-  }
-
-  return frequencies;
-}
 
 // Linear interpolation helper function
 function interpolateValues(
@@ -221,7 +178,7 @@ export default function Simulator() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Card className="p-6 col-span-2 bg-gray-900/50 border-gray-800">
-            <div className="aspect-square">
+            <div className="aspect-square relative">
               <Orbits
                 type="double"
                 numOrbits={numOrbits}
@@ -229,6 +186,17 @@ export default function Simulator() {
                 periods={periods}
                 onTopReached={playSimulatorSound}
               />
+              
+              {/* Time Displays */}
+              <div className="absolute bottom-2 left-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
+                <div className="text-xs text-gray-400">Elapsed Time</div>
+                <div className="text-lg font-mono text-emerald-400">0:00</div>
+              </div>
+              
+              <div className="absolute bottom-2 right-2 p-2 bg-black/50 rounded-lg backdrop-blur-sm">
+                <div className="text-xs text-gray-400">Next Reset In</div>
+                <div className="text-lg font-mono text-amber-400">0:00</div>
+              </div>
             </div>
           </Card>
 
