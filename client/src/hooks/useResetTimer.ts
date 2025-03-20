@@ -4,9 +4,8 @@ import { calculateNextReset } from '@/utils/periodMath';
 export function useResetTimer(periods: number[]) {
   const { elapsedTime } = useTime();
   
-  // Convert milliseconds to seconds with 3 decimal places
-  const currentTimeSeconds = elapsedTime;
-  const nextReset = calculateNextReset(currentTimeSeconds, periods);
+  // Keep time in milliseconds
+  const nextReset = calculateNextReset(elapsedTime, periods);
   
   return {
     nextReset,
@@ -24,7 +23,7 @@ function formatResetTime(durationMs: number) {
   // Sanity check for durations that stretch the imagination
 
   if (durationMs > 1e10 * YEAR) {
-    return '⚠️ Astronomical!';
+    return '🌌 Cosmic Scale Time';
   }
 
   if (durationMs > 1000 * YEAR) {

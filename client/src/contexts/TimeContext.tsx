@@ -70,7 +70,15 @@ export function TimeProvider({ children }: { children: React.ReactNode }) {
 export function useTime() {
   const context = useContext(TimeContext);
   if (!context) {
-    throw new Error('useTime must be used within a TimeProvider');
+    // Return default values instead of throwing during initial load
+    return { 
+      elapsedTime: 0,
+      isRunning: false,
+      startTime: () => {},
+      stopTime: () => {},
+      resetTime: () => {},
+      toggleRunning: () => {}
+    };
   }
   return context;
 } 
