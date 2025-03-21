@@ -10,7 +10,7 @@ export function SettingsButton() {
         <Button
           variant="ghost"
           size="icon"
-          className="fixed top-4 right-16 z-50 bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-all duration-200"
+          className="fixed top-16 right-4 z-50 bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-all duration-200"
           title="Settings"
         >
           <SlidersHorizontal className="h-5 w-5" />
