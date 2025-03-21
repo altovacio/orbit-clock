@@ -3,7 +3,7 @@ export const BALL_GRADIENTS = {
     id: (index: number, colorScheme: 'highQuality' | 'lowQuality') => `ballGradient-${index}-${colorScheme}`,
     create: (defs: d3.Selection<SVGDefsElement, unknown, null, undefined>, index: number, colorScheme: 'highQuality' | 'lowQuality', colorMode: 'monochrome' | 'multicolor') => {
       const colors = colorMode === 'monochrome' 
-        ? CELESTIAL_YELLOW
+        ? STAR_COLOR
         : BALL_COLORS(colorMode)[index % 12];
       
       if (colorScheme === 'lowQuality') {
@@ -43,7 +43,7 @@ export const BALL_FILTERS = {
       if (colorScheme === 'lowQuality') return null;
       
       const color = colorMode === 'monochrome' 
-        ? CELESTIAL_YELLOW.primary 
+        ? STAR_COLOR.primary 
         : BALL_COLORS(colorMode)[index % 12].primary;
 
       return defs.append('filter')
@@ -68,21 +68,21 @@ export const BALL_FILTERS = {
 };
 
 export const BALL_SIZES = {
-  base: 8,       // Increased base size
-  highlight: 6,  // Same as base for symmetry
+  base: 6,
+  highlight: 4,  
   coreOpacity: 1,
   glowIntensity: 0.8
 };
 
-export const CELESTIAL_YELLOW = {
-  primary: '#FFD700',  // Gold
-  secondary: '#FFAA00', // Amber
-  tertiary: '#FF8000'  // Orange
+export const STAR_COLOR = {
+  primary: '#E0F7FA',  // Light Cyan
+  secondary: '#B2EBF2', // Light Blue
+  tertiary: '#80DEEA'  // Cyan
 };
 
 export const BALL_COLORS = (colorMode: 'monochrome' | 'multicolor') => 
   colorMode === 'monochrome' 
-    ? Array(12).fill(CELESTIAL_YELLOW)
+    ? Array(12).fill(STAR_COLOR)
     : [
         { primary: '#f8e8ff', secondary: '#c79df2', tertiary: '#8e5de4' }, // Ethereal Lavender Star
         { primary: '#e0f7fa', secondary: '#7ddce5', tertiary: '#3aaec4' }, // Aqua Borealis Star

@@ -3,7 +3,7 @@ import { select } from "d3-selection";
 import { useOrbitalAnimation } from "@/hooks/useOrbitalAnimation";
 import { BALL_GRADIENTS, BALL_FILTERS, BALL_SIZES, BALL_COLORS } from "@/config/orbitConfig";
 import { useSettings } from "@/contexts/SettingsContext";
-import { CELESTIAL_YELLOW } from "@/config/orbitConfig";
+import { STAR_COLOR } from "@/config/orbitConfig";
 
 interface OrbitProps {
   type: string;
@@ -109,7 +109,7 @@ export default function Orbits({
 
       // Vertical line color using config
       const lineColor = colorMode === 'monochrome' 
-        ? CELESTIAL_YELLOW.primary
+        ? STAR_COLOR.primary
         : (colorScheme === 'highQuality' 
           ? BALL_COLORS(colorMode)[i % BALL_COLORS(colorMode).length].primary
           : '#ff8c00');
