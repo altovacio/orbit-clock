@@ -3,6 +3,7 @@ import { select } from "d3-selection";
 import { useOrbitalAnimation } from "@/hooks/useOrbitalAnimation";
 import { BALL_GRADIENTS, BALL_FILTERS, BALL_SIZES, BALL_COLORS } from "@/config/orbitConfig";
 import { useSettings } from "@/contexts/SettingsContext";
+import { CELESTIAL_YELLOW } from "@/config/orbitConfig";
 
 interface OrbitProps {
   type: string;
@@ -20,7 +21,7 @@ export default function Orbits({
   onTopReached,
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const { colorScheme, starSize } = useSettings();
+  const { colorScheme, starSize, colorMode } = useSettings();
 
   // Memoize periods calculation
   const periods = useMemo(() => {
@@ -58,8 +59,13 @@ export default function Orbits({
     const svg = select(svgRef.current);
     svg.selectAll("*").remove();
 
-    // Add definitions for gradients and filters
     const defs = svg.append("defs");
+
+    // Create gradients and filters using config
+    for (let i = 0; i < numOrbits; i++) {
+      BALL_GRADIENTS.default.create(defs, i, colorScheme, colorMode);
+      BALL_FILTERS.glow.create(defs, i, colorScheme, colorMode);
+    }
 
     // Setup SVG
     const width = 400;
@@ -89,85 +95,6 @@ export default function Orbits({
         .append("stop")
         .attr("offset", "100%")
         .attr("stop-color", "rgba(255, 255, 255, 0.1)");
-
-      // Create ball gradient based on color scheme
-      const ballGradient = defs
-        .append("radialGradient")
-        .attr("id", `ballGradient-${i}-${colorScheme}`)
-        .attr("gradientUnits", "userSpaceOnUse");
-
-      if (colorScheme === 'single') {
-        ballGradient
-        .append("stop")
-        .attr("offset", "0%")
-        .attr("stop-color", "#ffffff");
-
-      ballGradient
-        .append("stop")
-        .attr("offset", "40%")
-        .attr("stop-color", "#ffffff");
-
-      ballGradient
-        .append("stop")
-        .attr("offset", "60%")
-        .attr("stop-color", '#ffd700');
-
-      ballGradient
-        .append("stop")
-        .attr("offset", "85%")
-        .attr("stop-color", '#ff8c00')
-        .attr("stop-opacity", "0.6");
-
-      ballGradient
-        .append("stop")
-        .attr("offset", "100%")
-        .attr("stop-color", '#ff8c00')
-        .attr("stop-opacity", "0.1");
-      } else {
-        ballGradient
-          .append("stop")
-          .attr("offset", "0%")
-          .attr("stop-color", "#ffffff");
-
-        ballGradient
-          .append("stop")
-          .attr("offset", "40%")
-          .attr("stop-color", "#ffffff");
-
-        ballGradient
-          .append("stop")
-          .attr("offset", "60%")
-          .attr("stop-color", BALL_COLORS[i % BALL_COLORS.length].secondary);
-
-        ballGradient
-          .append("stop")
-          .attr("offset", "85%")
-          .attr("stop-color", BALL_COLORS[i % BALL_COLORS.length].secondary)
-          .attr("stop-opacity", "0.6");
-
-        ballGradient
-          .append("stop")
-          .attr("offset", "100%")
-          .attr("stop-color", BALL_COLORS[i % BALL_COLORS.length].tertiary)
-          .attr("stop-opacity", "0.1");
-      }
-
-      // Create radial gradient for the neon star effect
-      BALL_GRADIENTS.default.create(defs, i, colorScheme);
-
-      const filterGlow = defs
-        .append("filter")
-        .attr("id", `simple-glow-${i}-${colorScheme}`);
-      
-      filterGlow
-        .append("feGaussianBlur")
-        .attr("stdDeviation", "2")
-        .attr("result", "coloredBlur");
-
-      const feMerge = filterGlow.append("feMerge");
-      feMerge.append("feMergeNode").attr("in", "coloredBlur");
-      feMerge.append("feMergeNode").attr("in", "SourceGraphic");
-
       // Draw orbit path with dash pattern
       svg
         .append("circle")
@@ -180,19 +107,19 @@ export default function Orbits({
         .attr("fill", "none")
         .attr("class", `orbit-path-${i}`);
 
-      // Update color reference for vertical line
-      const { primary, secondary } = colorScheme === 'variable' 
-        ? BALL_COLORS[i % BALL_COLORS.length]
-        : { primary: '#4f46e5', secondary: '#6366f1' };
+      // Vertical line color using config
+      const lineColor = colorMode === 'monochrome' 
+        ? CELESTIAL_YELLOW.primary
+        : (colorScheme === 'highQuality' 
+          ? BALL_COLORS(colorMode)[i % BALL_COLORS(colorMode).length].primary
+          : '#ff8c00');
 
-      // In the vertical line drawing:
-      svg
-        .append("line")
+      svg.append("line")
         .attr("x1", centerX)
         .attr("y1", centerY - radius - 5)
         .attr("x2", centerX)
         .attr("y2", centerY - radius + 5)
-        .attr("stroke", colorScheme === 'variable' ? primary : '#ff8c00') // Now uses BALL_COLORS
+        .attr("stroke", lineColor)
         .attr("stroke-width", 0.6);
     }
 

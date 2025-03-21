@@ -3,21 +3,25 @@ import React, { createContext, useContext, useState, useMemo } from 'react';
 type SettingsContextType = {
   starSize: number;
   setStarSize: (size: number) => void;
-  colorScheme: 'single' | 'variable';
+  colorScheme: 'highQuality' | 'lowQuality';
+  colorMode: 'monochrome' | 'multicolor';
   toggleColorScheme: () => void;
+  toggleColorMode: () => void;
 };
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [starSize, setStarSize] = useState(1);
-  const [colorScheme, setColorScheme] = useState<'single' | 'variable'>('variable');
+  const [colorScheme, setColorScheme] = useState<'highQuality' | 'lowQuality'>('highQuality');
+  const [colorMode, setColorMode] = useState<'monochrome' | 'multicolor'>('monochrome');
 
   const toggleColorScheme = () => {
-    setColorScheme(prev => {
-      const newScheme = prev === 'single' ? 'variable' : 'single';
-      return newScheme;
-    });
+    setColorScheme(prev => prev === 'highQuality' ? 'lowQuality' : 'highQuality');
+  };
+
+  const toggleColorMode = () => {
+    setColorMode(prev => prev === 'monochrome' ? 'multicolor' : 'monochrome');
   };
 
   return (
@@ -26,8 +30,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         starSize, 
         setStarSize,
         colorScheme,
-        toggleColorScheme
-      }), [starSize, colorScheme])}
+        colorMode,
+        toggleColorScheme,
+        toggleColorMode
+      }), [starSize, colorScheme, colorMode])}
     >
       {children}
     </SettingsContext.Provider>

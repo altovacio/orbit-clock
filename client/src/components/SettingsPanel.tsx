@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export function SettingsPanel() {
-  const { starSize, setStarSize, colorScheme, toggleColorScheme } = useSettings();
+  const { starSize, setStarSize, colorScheme, toggleColorScheme, colorMode, toggleColorMode } = useSettings();
 
   return (
     <div className="space-y-6">
@@ -31,11 +31,20 @@ export function SettingsPanel() {
         </div>
 
         <div className="flex items-center justify-between space-x-4">
-          <Label htmlFor="color-scheme">Variable Colors</Label>
+          <Label htmlFor="color-scheme">High Quality Colors</Label>
           <Switch
             id="color-scheme"
-            checked={colorScheme === 'variable'}
+            checked={colorScheme === 'highQuality'}
             onCheckedChange={toggleColorScheme}
+          />
+        </div>
+
+        <div className="flex items-center justify-between space-x-4">
+          <Label htmlFor="color-mode">Colorful Mode</Label>
+          <Switch
+            id="color-mode"
+            checked={colorMode === 'multicolor'}
+            onCheckedChange={toggleColorMode}
           />
         </div>
       </div>

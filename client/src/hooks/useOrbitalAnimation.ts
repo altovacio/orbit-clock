@@ -3,6 +3,8 @@ import { select } from 'd3-selection';
 import { BALL_GRADIENTS, BALL_FILTERS, BALL_SIZES } from "@/config/orbitConfig";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useTime } from '@/contexts/TimeContext';
+import { BALL_COLORS } from "@/config/orbitConfig";
+import { getBallSize, getHighlightSize } from "@/config/orbitConfig";
 
 interface UseOrbitalAnimationProps {
   svgRef: React.RefObject<SVGSVGElement>;
@@ -24,7 +26,7 @@ export function useOrbitalAnimation({
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
   const lastTopRef = useRef<boolean[]>([]);
-  const { starSize, colorScheme } = useSettings();
+  const { starSize, colorScheme, colorMode } = useSettings();
   const { elapsedTime } = useTime();
 
   const animate = useCallback(() => {
@@ -35,8 +37,8 @@ export function useOrbitalAnimation({
     const centerX = width / 2;
     const centerY = width / 2;
     const baseRadius = (width * 0.35) * scale;
-    const baseSize = BALL_SIZES.base * starSize;
-    const highlightSize = BALL_SIZES.highlight * starSize;
+    const baseSize = getBallSize(starSize);
+    const highlightSize = getHighlightSize(starSize);
 
     // Initialize time reference
     if (startTimeRef.current === 0) {
@@ -58,31 +60,40 @@ export function useOrbitalAnimation({
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
 
-      // Create or update the ball with neon fire effect
+      // Get colors from config based on current mode
+      const colors = BALL_COLORS(colorMode)[i % BALL_COLORS(colorMode).length];
+
+      // Create or update the ball using config values
       svg.selectAll(`.orbit${i + 1}`)
         .data([null])
         .join('g')
         .attr('class', `orbit${i + 1}`)
         .attr('transform', `translate(${x},${y})`)
         .call(g => {
-          // White highlight at the back
-          g.selectAll('circle.ball-highlight')
-            .data([null])
-            .join('circle')
-            .attr('class', 'ball-highlight')
-            .attr('r', highlightSize)
-            .attr('cx', -1)
-            .attr('cy', -1)
-            .attr('fill', colorScheme === 'single' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.9)');
+          // Highlight layer (only in high quality)
+          if (colorScheme === 'highQuality') {
+            g.selectAll('circle.ball-highlight')
+              .data([null])
+              .join('circle')
+              .attr('class', 'ball-highlight')
+              .attr('r', BALL_SIZES.highlight * starSize)
+              .attr('fill', colors.secondary)
+              .attr('opacity', 0.4);
+          }
 
-          // Glowing core in front
+          // Core layer
           g.selectAll('circle.ball-core')
             .data([null])
             .join('circle')
             .attr('class', 'ball-core')
-            .attr('r', baseSize)
-            .attr('fill', `url(#ballGradient-${i}-${colorScheme})`)
-            .attr('filter', `url(#simple-glow-${i}-${colorScheme})`);
+            .attr('r', BALL_SIZES.base * starSize)
+            .attr('fill', colorScheme === 'highQuality' 
+              ? `url(#${BALL_GRADIENTS.default.id(i, colorScheme)})` 
+              : colors.primary)
+            .attr('filter', colorScheme === 'highQuality' 
+              ? `url(#${BALL_FILTERS.glow.id(i, colorScheme)})` 
+              : null)
+            .attr('opacity', BALL_SIZES.coreOpacity);
         });
 
       // Check if ball is at the north position (top)
@@ -93,7 +104,7 @@ export function useOrbitalAnimation({
       }
       lastTopRef.current[i] = isAtTop;
     }
-  }, [type, numOrbits, scale, periods, starSize, colorScheme, onTopReached]);
+  }, [type, numOrbits, scale, periods, starSize, colorScheme, colorMode, onTopReached]);
 
   const startAnimation = useCallback(() => {
     const loop = () => {
