@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import Orbits from './Orbits';
 import katex from 'katex';
@@ -12,15 +12,18 @@ interface ScrollSectionProps {
   title: string;
   content: string;
   type: string;
+  nextSectionId?: string;
+  onVisibilityChange?: (isVisible: boolean, intersectionRatio: number) => void;
 }
 
-export default function ScrollSection({ id, title, content, type }: ScrollSectionProps) {
+export default function ScrollSection({ id, title, content, type, nextSectionId, onVisibilityChange }: ScrollSectionProps) {
   const controls = useAnimation();
   const ref = useRef(null);
   const mathRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { amount: 0.5 });
   const { playSound } = useAudioContext();
   const { elapsedTime } = useTime();
+  const [isFullyInView, setIsFullyInView] = useState(false);
 
   useEffect(() => {
     if (isInView) {
@@ -73,7 +76,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
               </div>
               <div className="border-t border-blue-500/30 pt-4">
                 <p className="text-sm text-gray-400 mb-2">Y-position over time (1 period)</p>
-                <OrbitalGraph period={1500} numPeriods={1} isRunning={isInView} />
+                <OrbitalGraph period={1000} numPeriods={1} isRunning={isInView} />
               </div>
             </div>
           </div>
@@ -128,6 +131,26 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
   };
 
   useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const isVisible = entry.isIntersecting;
+        const ratio = entry.intersectionRatio;
+        onVisibilityChange?.(isVisible, ratio);
+      },
+      {
+        threshold: [0, 0.1, 0.5, 0.9, 1],
+        rootMargin: '-50% 0px -50% 0px' // Track center 50% of viewport
+      }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [onVisibilityChange]);
+
+  useEffect(() => {
     return () => {
       controls.stop(); // Cleanup animations on unmount
     };
@@ -136,9 +159,10 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
   return (
     <div
       ref={ref}
-      className="min-h-screen flex items-center justify-center relative"
+      className="min-h-screen flex items-center justify-center relative pb-20 md:pb-8"
+      id={id}
     >
-      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 items-center h-full">
         <motion.div
           initial="hidden"
           animate={controls}
@@ -147,7 +171,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
             visible: { opacity: 1, x: 0 }
           }}
           transition={{ duration: 0.5 }}
-          className="space-y-6"
+          className="space-y-6 z-50"
         >
           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             {title}
@@ -166,7 +190,7 @@ export default function ScrollSection({ id, title, content, type }: ScrollSectio
             visible: { opacity: 1, scale: 1 }
           }}
           transition={{ duration: 0.5 }}
-          className="aspect-square relative"
+          className="aspect-square relative z-40"
         >
           <Orbits 
             type={type}
