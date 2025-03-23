@@ -7,6 +7,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const sections = [
   {
     id: 'intro',
+    title: 'Celestial Harmony',
+    content: 'Explore the rhythmic dance of orbital bodies...',
+    type: 'intro',
+    nextSectionId: 'one-orbit'
+  },
+  {
+    id: 'one-orbit',
     title: 'What is an Orbital Period?',
     content: 'In circular motion, the period \( T \) is defined as the time taken to complete one full revolution. In this example, \( T = 1s \).',
     type: 'single',

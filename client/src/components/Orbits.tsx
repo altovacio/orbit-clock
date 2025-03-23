@@ -26,8 +26,11 @@ export default function Orbits({
   // Memoize periods calculation
   const periods = useMemo(() => {
     if (customPeriods) return customPeriods;
-    // Existing period calculation logic...
+    
     switch (type) {
+      case "intro":  // Intro configuration
+        numOrbits = 3; // Number of orbits for intro
+        return [1000, 2000, 3000]; // Periods for each orbit
       case "single":
         numOrbits = 1;
         return [1000];
