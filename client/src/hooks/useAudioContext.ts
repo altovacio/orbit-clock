@@ -47,22 +47,32 @@ interface AudioProviderProps {
 }
 
 export function AudioProvider({ children }: AudioProviderProps) {
+  const [isContextReady, setIsContextReady] = useState(false);
   const audioContextRef = useRef<AudioContext>();
   const [isMuted, setIsMuted] = useState(true);
   const [currentScale, setCurrentScale] = useState({
     rootNote: 'C4',
     scaleType: 'majorPentatonic' as keyof typeof SCALE_PATTERNS,
   });
-  const [isContextReady, setIsContextReady] = useState(false);
 
-  // Initialize audio context on first user interaction
+  // Move initializeAudioContext to the top of the component
   const initializeAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       setIsContextReady(true);
+      
+      // Create and connect a silent oscillator
+      const oscillator = audioContextRef.current.createOscillator();
+      const gainNode = audioContextRef.current.createGain();
+      gainNode.gain.value = 0;
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContextRef.current.destination);
+      oscillator.start();
+      setTimeout(() => oscillator.stop(), 100);
     }
   }, []);
 
+  // Then define toggleMute that uses it
   const toggleMute = useCallback(() => {
     // Initialize context on first mute toggle
     if (!audioContextRef.current) {
@@ -71,15 +81,30 @@ export function AudioProvider({ children }: AudioProviderProps) {
     setIsMuted(prev => !prev);
   }, [initializeAudioContext]);
 
-  const playSound = useCallback(async (orbitIndex: number) => {
-    if (isMuted || !audioContextRef.current) return;
+  // Then define the useEffect that uses initializeAudioContext
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      initializeAudioContext();
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('click', handleFirstInteraction);
+    };
 
+    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
+    window.addEventListener('click', handleFirstInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('click', handleFirstInteraction);
+    };
+  }, [initializeAudioContext]);
+
+  const playSound = useCallback(async (orbitIndex: number) => {
+    if (!audioContextRef.current) return;
+    
     try {
-      const context = audioContextRef.current;
-      
-      // iOS requires we check the state on every play
-      if (context.state === 'suspended') {
-        await context.resume();
+      // Always check context state
+      if (audioContextRef.current.state === 'suspended') {
+        await audioContextRef.current.resume();
       }
 
       const frequencies = generateScaleFrequencies(currentScale.rootNote, currentScale.scaleType, 3);
@@ -97,22 +122,22 @@ export function AudioProvider({ children }: AudioProviderProps) {
         return;
       }
 
-      const oscillator = context.createOscillator();
-      const gainNode = context.createGain();
+      const oscillator = audioContextRef.current.createOscillator();
+      const gainNode = audioContextRef.current.createGain();
 
       oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(freq, context.currentTime);
+      oscillator.frequency.setValueAtTime(freq, audioContextRef.current.currentTime);
 
       // Quick attack, slow release for a star-like shimmer
-      gainNode.gain.setValueAtTime(0, context.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.15, context.currentTime + 0.02);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+      gainNode.gain.setValueAtTime(0, audioContextRef.current.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.15, audioContextRef.current.currentTime + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.5);
 
       oscillator.connect(gainNode);
-      gainNode.connect(context.destination);
+      gainNode.connect(audioContextRef.current.destination);
 
       oscillator.start();
-      oscillator.stop(context.currentTime + 0.5);
+      oscillator.stop(audioContextRef.current.currentTime + 0.5);
 
       // Cleanup connections
       setTimeout(() => {

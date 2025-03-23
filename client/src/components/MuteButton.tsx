@@ -3,21 +3,12 @@ import { Button } from "@/components/ui/button";
 import { useAudioContext } from "@/hooks/useAudioContext";
 
 export function MuteButton() {
-  const { isMuted, toggleMute } = useAudioContext();
+  const { isMuted, toggleMute, playSound } = useAudioContext();
 
   const handleClick = () => {
-    // Create a temporary click sound to unlock audio
-    const context = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = context.createOscillator();
-    oscillator.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.001);
-    
-    // Then toggle mute state
+    // Play a barely audible click at 1Hz to initialize audio context
+    playSound(0); // Use lowest frequency
     toggleMute();
-    
-    // Close the temporary context
-    setTimeout(() => context.close(), 1000);
   };
 
   return (
