@@ -232,10 +232,13 @@ export default function Simulator() {
             {/* Orbit Controls Card */}
             <Card className="p-6 bg-gray-900/50 border-gray-800">
               <div className="space-y-6">
+                <h3 className="font-semibold">
+                  Orbit Controls
+                </h3>
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">
+                  <Label className="font-semibold">
                     Number of Orbits: {numOrbits}
-                  </h3>
+                  </Label>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
