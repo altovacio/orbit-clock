@@ -255,24 +255,6 @@ export default function UIComponents() {
                     Yes. It adheres to the WAI-ARIA design pattern.
                   </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="item-2">
-                  <AccordionTrigger>Accordion Item 2</AccordionTrigger>
-                  <AccordionContent>
-                    This is the content for the second accordion item.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3">
-                  <AccordionTrigger>Accordion Item 3</AccordionTrigger>
-                  <AccordionContent>
-                    Here is some information related to the third item.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-4">
-                  <AccordionTrigger>Accordion Item 4</AccordionTrigger>
-                  <AccordionContent>
-                    The fourth item contains additional details.
-                  </AccordionContent>
-                </AccordionItem>
               </Accordion>
 
               <Alert variant="destructive">
