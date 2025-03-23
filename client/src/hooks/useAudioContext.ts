@@ -53,27 +53,35 @@ export function AudioProvider({ children }: AudioProviderProps) {
     rootNote: 'C4',
     scaleType: 'majorPentatonic' as keyof typeof SCALE_PATTERNS,
   });
+  const [isContextReady, setIsContextReady] = useState(false);
 
-  // Initialize audio context on mount
-  useEffect(() => {
-    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    
-    return () => {
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
+  // Initialize audio context on first user interaction
+  const initializeAudioContext = useCallback(() => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      setIsContextReady(true);
+    }
   }, []);
 
   const toggleMute = useCallback(() => {
+    // Initialize context on first mute toggle
+    if (!audioContextRef.current) {
+      initializeAudioContext();
+    }
     setIsMuted(prev => !prev);
-  }, []);
+  }, [initializeAudioContext]);
 
   const playSound = useCallback(async (orbitIndex: number) => {
     if (isMuted || !audioContextRef.current) return;
 
     try {
       const context = audioContextRef.current;
+      
+      // iOS requires we check the state on every play
+      if (context.state === 'suspended') {
+        await context.resume();
+      }
+
       const frequencies = generateScaleFrequencies(currentScale.rootNote, currentScale.scaleType, 3);
       
       // Add safety checks
@@ -87,11 +95,6 @@ export function AudioProvider({ children }: AudioProviderProps) {
       if (typeof freq !== 'number' || !isFinite(freq)) {
         console.error('Invalid frequency value:', freq);
         return;
-      }
-
-      // Resume context if suspended (required by some browsers)
-      if (context.state === 'suspended') {
-        await context.resume();
       }
 
       const oscillator = context.createOscillator();
