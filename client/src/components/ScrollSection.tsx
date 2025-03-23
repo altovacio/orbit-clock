@@ -190,7 +190,7 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
             visible: { opacity: 1, scale: 1 }
           }}
           transition={{ duration: 0.5 }}
-          className="aspect-square relative z-40"
+          className="aspect-square relative z-40 opacity-0 h-0 md:opacity-100 md:h-auto pointer-events-none md:pointer-events-auto"
         >
           <Orbits 
             type={type}
