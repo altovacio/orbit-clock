@@ -15,7 +15,7 @@ export function MuteButton() {
     <Button
       variant="ghost"
       size="icon"
-      className="fixed top-4 right-4 z-50 bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-all duration-200"
+      className="fixed top-2 right-2 z-50 bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-all duration-200 shadow-lg hover:shadow-xl"
       onClick={handleClick}
       title={isMuted ? "Unmute" : "Mute"}
     >

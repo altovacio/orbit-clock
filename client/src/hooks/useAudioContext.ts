@@ -74,12 +74,20 @@ export function AudioProvider({ children }: AudioProviderProps) {
 
   // Then define toggleMute that uses it
   const toggleMute = useCallback(() => {
-    // Initialize context on first mute toggle
     if (!audioContextRef.current) {
       initializeAudioContext();
+      setIsMuted(false); // Initialize as unmuted when creating context
+      return;
     }
-    setIsMuted(prev => !prev);
-  }, [initializeAudioContext]);
+    
+    // Suspend/resume audio context instead of just toggling state
+    if (isMuted) {
+      audioContextRef.current.resume();
+    } else {
+      audioContextRef.current.suspend();
+    }
+    setIsMuted(!isMuted);
+  }, [initializeAudioContext, isMuted]);
 
   // Then define the useEffect that uses initializeAudioContext
   useEffect(() => {
@@ -99,7 +107,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
   }, [initializeAudioContext]);
 
   const playSound = useCallback(async (orbitIndex: number) => {
-    if (!audioContextRef.current) return;
+    if (!audioContextRef.current || isMuted) return;
     
     try {
       // Always check context state

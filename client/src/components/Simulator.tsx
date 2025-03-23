@@ -215,7 +215,11 @@ export default function Simulator() {
 
           {/* Accordion controls */}
           <div className="lg:w-[380px] w-full">
-            <Accordion type="multiple" defaultValue={['presets', 'sound', 'visual-presets']} className="space-y-4">
+            <Accordion 
+              type="multiple" 
+              defaultValue={['presets']}
+              className="space-y-4"
+            >
               {/* Presets Accordion Item */}
               <AccordionItem value="presets" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
@@ -236,43 +240,6 @@ export default function Simulator() {
                         <span className="ml-1 text-blue-300/70 text-xs">{preset.subtitle}</span>
                       </Button>
                     ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* Sound Settings Accordion Item */}
-              <AccordionItem value="sound" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
-                  <span className="bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-                    🎵 Sonic Parameters
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="scale-select">Musical Scale</Label>
-                      <select
-                        id="scale-select"
-                        value={currentScale.scaleType}
-                        onChange={(e) => handleScaleTypeChange(e.target.value as ScaleType)}
-                        className="bg-gray-800/50 border border-gray-700 rounded-md p-2 w-full text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                      >
-                        {Object.keys(SCALE_PATTERNS).map((scale) => (
-                          <option key={scale} value={scale}>
-                            {scale.replace(/([A-Z])/g, ' $1').trim()}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="root-note-select">Root Note</Label>
-                      <PianoKeys
-                        rootNote={currentScale.rootNote}
-                        scaleType={currentScale.scaleType}
-                        onNoteChange={handleNoteChange}
-                      />
-                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -327,12 +294,49 @@ export default function Simulator() {
                   </div>
                 </AccordionContent>
               </AccordionItem>
+              
+              {/* Sound Settings Accordion Item */}
+              <AccordionItem value="sound" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
+                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
+                  <span className="bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+                    🎵 Sonic Parameters
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="scale-select">Musical Scale</Label>
+                      <select
+                        id="scale-select"
+                        value={currentScale.scaleType}
+                        onChange={(e) => handleScaleTypeChange(e.target.value as ScaleType)}
+                        className="bg-gray-800/50 border border-gray-700 rounded-md p-2 w-full text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                      >
+                        {Object.keys(SCALE_PATTERNS).map((scale) => (
+                          <option key={scale} value={scale}>
+                            {scale.replace(/([A-Z])/g, ' $1').trim()}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="root-note-select">Root Note</Label>
+                      <PianoKeys
+                        rootNote={currentScale.rootNote}
+                        scaleType={currentScale.scaleType}
+                        onNoteChange={handleNoteChange}
+                      />
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
 
               {/* Visual Presets Accordion Item */}
               <AccordionItem value="visual-presets" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
                   <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                    🌟 Visual Presets
+                    🎨 Visual Presets
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
