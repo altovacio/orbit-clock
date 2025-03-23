@@ -7,7 +7,6 @@ import Home from "@/pages/Home";
 import { AudioProvider } from "./hooks/useAudioContext";
 import { MuteButton } from "@/components/MuteButton";
 import { SettingsProvider } from '@/contexts/SettingsContext';
-import { SettingsButton } from '@/components/SettingsButton';
 import { TimeProvider } from '@/contexts/TimeContext';
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from 'react';
@@ -45,7 +44,6 @@ function App() {
           <AudioProvider>
             <Router />
             <MuteButton />
-            <SettingsButton />
             <Toaster />
           </AudioProvider>
         </SettingsProvider>

@@ -21,6 +21,8 @@ import { useResetTimer } from '@/hooks/useResetTimer';
 import { calculateNextReset } from '@/utils/periodMath';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { useSettings } from "@/contexts/SettingsContext";
 
 // Preset configurations
 interface PresetConfig {
@@ -104,6 +106,8 @@ export default function Simulator() {
   const { playSound, setScale, currentScale } = useAudioContext();
 
   const { formattedReset } = useResetTimer(periods, nextReset);
+
+  const { starSize, setStarSize, colorScheme, toggleColorScheme, colorMode, toggleColorMode } = useSettings();
 
   // Add this useEffect hook
   useEffect(() => {
@@ -211,7 +215,7 @@ export default function Simulator() {
 
           {/* Accordion controls */}
           <div className="lg:w-[380px] w-full">
-            <Accordion type="multiple" defaultValue={['presets', 'sound']} className="space-y-4">
+            <Accordion type="multiple" defaultValue={['presets', 'sound', 'visual-presets']} className="space-y-4">
               {/* Presets Accordion Item */}
               <AccordionItem value="presets" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
@@ -320,6 +324,49 @@ export default function Simulator() {
                         {(maxPeriod / 1000).toFixed(1)} seconds
                       </div>
                     </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Visual Presets Accordion Item */}
+              <AccordionItem value="visual-presets" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
+                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
+                  <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                    🌟 Visual Presets
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label htmlFor="star-size">Star Size</Label>
+                      <span className="text-sm text-muted-foreground">{starSize}x</span>
+                    </div>
+                    <Slider
+                      id="star-size"
+                      value={[starSize]}
+                      onValueChange={([value]) => setStarSize(value)}
+                      min={0.5}
+                      max={2}
+                      step={0.1}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between space-x-4">
+                    <Label htmlFor="color-scheme">High Quality Colors</Label>
+                    <Switch
+                      id="color-scheme"
+                      checked={colorScheme === 'highQuality'}
+                      onCheckedChange={toggleColorScheme}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between space-x-4">
+                    <Label htmlFor="color-mode">Colorful Mode</Label>
+                    <Switch
+                      id="color-mode"
+                      checked={colorMode === 'multicolor'}
+                      onCheckedChange={toggleColorMode}
+                    />
                   </div>
                 </AccordionContent>
               </AccordionItem>
