@@ -19,6 +19,9 @@ import { BASE_NOTES, SCALE_PATTERNS, ScaleType, BaseNote } from '@/config/orbitC
 import { useTime } from '@/contexts/TimeContext';
 import { useResetTimer } from '@/hooks/useResetTimer';
 import { calculateNextReset } from '@/utils/periodMath';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
+
 // Preset configurations
 interface PresetConfig {
   title: string;
@@ -176,32 +179,10 @@ export default function Simulator() {
         <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Interactive Orbital Simulator
         </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <Card className="p-6 col-span-2 bg-transparent border-gray-800">
+        <div className="flex flex-col lg:flex-row gap-6 w-full">
+          {/* Simulation visualization */}
+          <div className="flex-1 h-[600px] relative">
             <div className="aspect-square relative">
-              {/* Preset Chips */}
-              <div className="flex flex-wrap gap-4 mb-8 justify-center">
-                {PRESETS.map((preset, index) => (
-                  <button
-                    key={index}
-                    onClick={() => applyPreset(index)}
-                    className={`
-                      px-2 py-1 rounded-lg text-left text-xs
-                      ${
-                        activePreset === index
-                          ? "bg-blue-500/30 border-blue-500"
-                          : "bg-gray-900/50 border-gray-800"
-                      }
-                      border transition-colors duration-200
-                      hover:border-blue-400
-                    `}
-                  >
-                    <div className="font-semibold">{preset.title}</div>
-                    <div className="text-xs text-gray-400">{preset.subtitle}</div>
-                  </button>
-                ))}
-              </div>
-
               <Orbits
                 type="double"
                 numOrbits={numOrbits}
@@ -226,121 +207,123 @@ export default function Simulator() {
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
 
-          <div className="space-y-8">
-            {/* Orbit Controls Card */}
-            <Card className="p-6 bg-gray-900/50 border-gray-800">
-              <div className="space-y-6">
-                <h3 className="font-semibold">
-                  Orbit Controls
-                </h3>
-                <div className="flex items-center justify-between">
-                  <Label className="font-semibold">
-                    Number of Orbits: {numOrbits}
-                  </Label>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={removeOrbit}
-                      disabled={numOrbits <= 2}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={addOrbit}
-                      disabled={numOrbits >= 50}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
+          {/* Accordion controls */}
+          <div className="lg:w-[380px] w-full">
+            <Accordion type="multiple" defaultValue={['presets', 'sound']} className="space-y-4">
+              {/* Presets Accordion Item */}
+              <AccordionItem value="presets" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
+                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
+                  <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    🌟 Harmonic Presets
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 pt-2">
+                  <div className="flex flex-wrap gap-2">
+                    {PRESETS.map((preset, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        className="text-sm px-3 py-1 h-auto rounded-full border-blue-400/30 hover:border-blue-400/50 hover:bg-blue-400/10 transition-colors"
+                        onClick={() => applyPreset(index)}
+                      >
+                        {preset.title}
+                        <span className="ml-1 text-blue-300/70 text-xs">{preset.subtitle}</span>
+                      </Button>
+                    ))}
                   </div>
-                </div>
+                </AccordionContent>
+              </AccordionItem>
 
-                <div className="space-y-4">
-                  <Label htmlFor="min-period">Minimum Period (seconds)</Label>
-                  <Slider
-                    id="min-period"
-                    value={[minPeriod / 1000]}
-                    onValueChange={([value]) => handleMinPeriodChange(Math.round(value * 1000))}
-                    min={0.5}
-                    max={5}
-                    step={0.1}
-                  />
-                  <div className="text-sm text-gray-400">
-                    Min Period: {(minPeriod / 1000).toFixed(1)}s
+              {/* Sound Settings Accordion Item */}
+              <AccordionItem value="sound" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
+                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
+                  <span className="bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+                    🎵 Sonic Parameters
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="scale-select">Musical Scale</Label>
+                      <select
+                        id="scale-select"
+                        value={currentScale.scaleType}
+                        onChange={(e) => handleScaleTypeChange(e.target.value as ScaleType)}
+                        className="bg-gray-800/50 border border-gray-700 rounded-md p-2 w-full text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                      >
+                        {Object.keys(SCALE_PATTERNS).map((scale) => (
+                          <option key={scale} value={scale}>
+                            {scale.replace(/([A-Z])/g, ' $1').trim()}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="root-note-select">Root Note</Label>
+                      <PianoKeys
+                        rootNote={currentScale.rootNote}
+                        scaleType={currentScale.scaleType}
+                        onNoteChange={handleNoteChange}
+                      />
+                    </div>
                   </div>
-                </div>
+                </AccordionContent>
+              </AccordionItem>
 
-                <div className="space-y-4">
-                  <Label htmlFor="max-period">Maximum Period (seconds)</Label>
-                  <Slider
-                    id="max-period"
-                    value={[maxPeriod / 1000]}
-                    onValueChange={([value]) => handleMaxPeriodChange(Math.round(value * 1000))}
-                    min={1}
-                    max={10}
-                    step={0.1}
-                  />
-                  <div className="text-sm text-gray-400">
-                    Max Period: {(maxPeriod / 1000).toFixed(1)}s
+              {/* Orbit Controls Accordion Item */}
+              <AccordionItem value="orbits" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
+                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
+                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    🪐 Orbital Dynamics
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
+                  <div className="space-y-4">
+                    <div className="flex gap-2">
+                      <Button onClick={addOrbit} variant="outline" size="sm" className="flex-1">
+                        Add Orbit
+                      </Button>
+                      <Button onClick={removeOrbit} variant="outline" size="sm" className="flex-1">
+                        Remove Orbit
+                      </Button>
+                    </div>
+                    
+                    {/* Min Period Slider */}
+                    <div className="space-y-2">
+                      <Label>Minimum Orbital Period</Label>
+                      <Slider
+                        value={[minPeriod / 1000]}
+                        onValueChange={([value]) => handleMinPeriodChange(Math.round(value * 1000))}
+                        min={0.5}
+                        max={5}
+                        step={0.1}
+                      />
+                      <div className="text-sm text-muted-foreground">
+                        {(minPeriod / 1000).toFixed(1)} seconds
+                      </div>
+                    </div>
+
+                    {/* Max Period Slider */}
+                    <div className="space-y-2">
+                      <Label>Maximum Orbital Period</Label>
+                      <Slider
+                        value={[maxPeriod / 1000]}
+                        onValueChange={([value]) => handleMaxPeriodChange(Math.round(value * 1000))}
+                        min={1}
+                        max={10}
+                        step={0.1}
+                      />
+                      <div className="text-sm text-muted-foreground">
+                        {(maxPeriod / 1000).toFixed(1)} seconds
+                      </div>
+                    </div>
                   </div>
-                </div>
-
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={resetSimulation}
-                >
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                  Reset Simulation
-                </Button>
-              </div>
-            </Card>
-
-            {/* Sound Settings Card */}
-            <Card className="p-6 bg-gray-900/50 border-gray-800">
-              <div className="space-y-6">
-                <h3 className="font-semibold">Sound Settings</h3>
-
-                <div className="space-y-4">
-                  <div className="flex gap-2 items-center">
-                    <Label htmlFor="scale-type-select">Scale Type</Label>
-                    <select
-                      value={currentScale.scaleType}
-                      onChange={(e) => handleScaleTypeChange(e.target.value as ScaleType)}
-                      className="bg-background border rounded-md p-2"
-                      id="scale-type-select"
-                      name="scaleType"
-                    >
-                      {Object.keys(SCALE_PATTERNS).map(scale => (
-                        <option key={scale} value={scale}>
-                          {scale.replace(/([A-Z])/g, ' $1').trim()} {/* Format camelCase to spaced */}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <Label htmlFor="root-note-select">Root Note</Label>
-                  <PianoKeys
-                    rootNote={currentScale.rootNote}
-                    scaleType={currentScale.scaleType}
-                    onNoteChange={handleNoteChange}
-                  />
-                </div>
-                <div className="p-4 bg-gray-800/50 rounded-lg">
-                  <p className="text-sm text-gray-400">
-                    Each orbit creates a unique note when reaching the top.
-                    Adjust the scale and root note to create different musical
-                    patterns.
-                  </p>
-                </div>
-              </div>
-            </Card>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
       </div>
