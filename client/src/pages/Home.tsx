@@ -32,6 +32,8 @@ export default function Home() {
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const [sectionVisibilities, setSectionVisibilities] = useState<number[]>([]);
+  const [simulatorInView, setSimulatorInView] = useState(false);
+  const simulatorRef = useRef<HTMLDivElement>(null);
 
   // Update visibility tracking
   const handleVisibilityChange = useCallback((index: number, isVisible: boolean, ratio: number) => {
@@ -66,6 +68,26 @@ export default function Home() {
     }
   }, []);
 
+  // Add intersection observer for simulator section
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setSimulatorInView(entry.isIntersecting);
+      },
+      { threshold: 0.5 }
+    );
+
+    if (simulatorRef.current) {
+      observer.observe(simulatorRef.current);
+    }
+
+    return () => {
+      if (simulatorRef.current) {
+        observer.unobserve(simulatorRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div 
       ref={containerRef}
@@ -88,16 +110,22 @@ export default function Home() {
       </div>
 
       {/* Interactive simulator */}
-      <div className="min-h-screen relative z-10 bg-[#0a0a2a]/80 backdrop-blur-sm" id="simulator">
+      <div 
+        ref={simulatorRef}
+        className="min-h-screen relative z-10 bg-[#0a0a2a]/80 backdrop-blur-sm" 
+        id="simulator"
+      >
         <Simulator />
       </div>
 
-      {/* Single ArrowDown at the bottom */}
-      <ArrowDown targetSectionId={
-        activeSectionIndex < sections.length - 1 
-          ? sections[activeSectionIndex + 1].id 
-          : 'simulator'
-      } />
+      {/* Conditionally render ArrowDown */}
+      {!simulatorInView && (
+        <ArrowDown targetSectionId={
+          activeSectionIndex < sections.length - 1 
+            ? sections[activeSectionIndex + 1].id 
+            : 'simulator'
+        } />
+      )}
     </div>
   );
 }
