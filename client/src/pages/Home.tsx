@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import ScrollSection from '@/components/ScrollSection';
 import Simulator from '@/components/Simulator';
 import { ArrowDown } from '@/components/ui/ArrowDown';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const sections = [
   {
@@ -28,17 +29,20 @@ const sections = [
 ];
 
 export default function Home() {
+  const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const [sectionVisibilities, setSectionVisibilities] = useState<number[]>([]);
 
   // Update visibility tracking
   const handleVisibilityChange = useCallback((index: number, isVisible: boolean, ratio: number) => {
+    const effectiveRatio = isMobile ? ratio * 1.2 : ratio;
+    
     setSectionVisibilities(prev => {
       const newVisibilities = [...prev];
-      newVisibilities[index] = isVisible ? ratio : 0;
+      newVisibilities[index] = isVisible ? effectiveRatio : 0;
       return newVisibilities;
     });
-  }, []);
+  }, [isMobile]);
 
   // Find most visible section
   const activeSectionIndex = sectionVisibilities.reduce(

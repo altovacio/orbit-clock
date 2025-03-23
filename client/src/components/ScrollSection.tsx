@@ -6,6 +6,7 @@ import 'katex/dist/katex.min.css';
 import OrbitalGraph from './OrbitalGraph';
 import { useAudioContext } from '@/hooks/useAudioContext';
 import { useTime } from '@/contexts/TimeContext';
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ScrollSectionProps {
   id: string;
@@ -24,6 +25,7 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
   const { playSound } = useAudioContext();
   const { elapsedTime } = useTime();
   const [isFullyInView, setIsFullyInView] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (isInView) {
@@ -136,19 +138,17 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        const isVisible = entry.isIntersecting;
-        const ratio = entry.intersectionRatio;
-        onVisibilityChange?.(isVisible, ratio);
+        onVisibilityChange?.(entry.isIntersecting, entry.intersectionRatio);
       },
       {
         threshold: [0, 0.1, 0.5, 0.9, 1],
-        rootMargin: '-50% 0px -50% 0px' // Track center 50% of viewport
+        rootMargin: isMobile ? '-30% 0px -30% 0px' : '-50% 0px -50% 0px'
       }
     );
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [onVisibilityChange]);
+  }, [onVisibilityChange, isMobile]);
 
   useEffect(() => {
     return () => {

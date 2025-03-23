@@ -11,3 +11,13 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+@media (max-width: 768px) {
+  html {
+    touch-action: pan-y;
+  }
+  
+  .scroll-section {
+    scroll-snap-align: start;
+  }
+}
