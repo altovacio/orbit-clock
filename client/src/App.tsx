@@ -11,11 +11,13 @@ import { SettingsButton } from '@/components/SettingsButton';
 import { TimeProvider } from '@/contexts/TimeContext';
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from 'react';
+import UIComponents from "@/pages/UIComponents";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/ui-components" component={UIComponents} />
       <Route component={NotFound} />
     </Switch>
   );
