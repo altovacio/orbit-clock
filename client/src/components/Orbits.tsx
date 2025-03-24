@@ -16,7 +16,7 @@ interface OrbitProps {
 export default function Orbits({
   type,
   numOrbits = 2,
-  scale = 1,
+  scale = type === 'intro' ? 1.4 : 1,
   periods: customPeriods,
   onTopReached,
 }: OrbitProps) {
