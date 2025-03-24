@@ -205,7 +205,7 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
           transition={{ duration: 0.5 }}
           className={`aspect-square relative z-40 ${
             type === 'intro' 
-              ? 'opacity-100 h-auto pointer-events-auto' // Always visible for intro
+              ? 'opacity-100 h-auto pointer-events-auto'
               : 'opacity-0 h-0 md:opacity-100 md:h-auto pointer-events-none md:pointer-events-auto'
           }`}
         >
@@ -213,6 +213,7 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
             type={type}
             numOrbits={type === 'intro' ? 3 : (type === 'single' ? 1 : type === 'double' ? 2 : 3)}
             onTopReached={playScrollSound}
+            isVisible={isInView}
           />
         </motion.div>
       </div>

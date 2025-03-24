@@ -11,6 +11,7 @@ interface OrbitProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
+  isVisible?: boolean;
 }
 
 export default function Orbits({
@@ -19,6 +20,7 @@ export default function Orbits({
   scale = type === 'intro' ? 1.4 : 1,
   periods: customPeriods,
   onTopReached,
+  isVisible = true,
 }: OrbitProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const { colorScheme, starSize, colorMode } = useSettings();
@@ -54,6 +56,7 @@ export default function Orbits({
     scale,
     periods,
     onTopReached,
+    isVisible,
   });
 
   useEffect(() => {
@@ -137,6 +140,19 @@ export default function Orbits({
       stopAnimation();
     };
   }, [type, numOrbits, scale, periods, colorScheme, starSize, startAnimation, stopAnimation]);
+
+  // Add visibility effect
+  useEffect(() => {
+    if (!isVisible) {
+      stopAnimation();
+      if (svgRef.current) {
+        select(svgRef.current).selectAll("*").remove();
+      }
+    }
+    return () => {
+      stopAnimation();
+    };
+  }, [isVisible, stopAnimation, svgRef]);
 
   return (
     <svg

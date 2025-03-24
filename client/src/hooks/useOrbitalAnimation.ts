@@ -13,6 +13,7 @@ interface UseOrbitalAnimationProps {
   scale?: number;
   periods?: number[];
   onTopReached?: (orbitIndex: number) => void;
+  isVisible?: boolean;
 }
 
 export function useOrbitalAnimation({
@@ -21,7 +22,8 @@ export function useOrbitalAnimation({
   numOrbits = 2,
   scale = 1,
   periods = [3000, 5000],
-  onTopReached
+  onTopReached,
+  isVisible = true,
 }: UseOrbitalAnimationProps) {
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
@@ -30,7 +32,7 @@ export function useOrbitalAnimation({
   const { elapsedTime } = useTime();
 
   const animate = useCallback(() => {
-    if (!svgRef.current) return;
+    if (!isVisible || !svgRef.current) return;
 
     const svg = select(svgRef.current);
     const width = 400;
@@ -104,7 +106,7 @@ export function useOrbitalAnimation({
       }
       lastTopRef.current[i] = isAtTop;
     }
-  }, [type, numOrbits, scale, periods, starSize, colorScheme, colorMode, onTopReached]);
+  }, [isVisible, type, numOrbits, scale, periods, starSize, colorScheme, colorMode, onTopReached]);
 
   const startAnimation = useCallback(() => {
     const loop = () => {
