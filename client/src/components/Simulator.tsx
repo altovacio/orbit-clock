@@ -64,7 +64,6 @@ const PRESETS: PresetConfig[] = [
   },
 ];
 
-
 // Linear interpolation helper function
 function interpolateValues(
   start: number,
@@ -180,9 +179,12 @@ export default function Simulator() {
   return (
     <div ref={ref} className="min-h-screen p-8">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+        <h2 className="text-4xl font-bold mb-2 text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Interactive Orbital Simulator
         </h2>
+        <h3 className="text-xl font-semibold mb-8 text-center text-gray-300">
+          Have fun creating music and exploring the celestial rythms!
+        </h3>
         <div className="flex flex-col lg:flex-row gap-6 w-full">
           {/* Simulation visualization */}
           <div className="flex-1 h-[600px] relative">

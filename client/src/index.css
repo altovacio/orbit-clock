@@ -21,3 +21,14 @@
     scroll-snap-align: start;
   }
 }
+
+@layer utilities {
+  .animate-twinkle {
+    animation: twinkle 3s infinite ease-in-out;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; } /* Reduced max opacity */
+    50% { opacity: 0.6; }
+  }
+}

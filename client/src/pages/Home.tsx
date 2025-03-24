@@ -74,7 +74,7 @@ export default function Home() {
 
     for (let i = 0; i < 100; i++) {
       const star = document.createElement('div');
-      star.className = 'absolute w-1 h-1 bg-white rounded-full animate-twinkle';
+      star.className = 'absolute w-1 h-1 bg-white/30 rounded-full animate-twinkle'; // Reduced opacity
       star.style.left = `${Math.random() * 100}%`;
       star.style.top = `${Math.random() * 100}%`;
       star.style.animationDelay = `${Math.random() * 3}s`;
