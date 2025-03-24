@@ -14,7 +14,7 @@ const SettingsContext = createContext<SettingsContextType | null>(null);
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [starSize, setStarSize] = useState(1);
   const [colorScheme, setColorScheme] = useState<'highQuality' | 'lowQuality'>('highQuality');
-  const [colorMode, setColorMode] = useState<'monochrome' | 'multicolor'>('monochrome');
+  const [colorMode, setColorMode] = useState<'monochrome' | 'multicolor'>('multicolor');
 
   const toggleColorScheme = () => {
     setColorScheme(prev => prev === 'highQuality' ? 'lowQuality' : 'highQuality');

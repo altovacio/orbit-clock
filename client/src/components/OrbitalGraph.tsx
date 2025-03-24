@@ -1,22 +1,26 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { useTime } from '@/contexts/TimeContext';
+import { useSettings } from "@/contexts/SettingsContext";
 
 interface OrbitalGraphProps {
   period: number;
   numPeriods: number;
   isRunning?: boolean;
+  color?: string;
 }
 
 export default function OrbitalGraph({
   period,
   numPeriods,
   isRunning = true,
+  color = '#E0F7FA',
 }: OrbitalGraphProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const frameRef = useRef<number>();
   const startTimeRef = useRef<number>(0);
   const { elapsedTime, isRunning: globalIsRunning } = useTime();
+  const { colorMode } = useSettings();
 
   useEffect(() => {
     if (!svgRef.current || !isRunning) return;
@@ -74,6 +78,7 @@ export default function OrbitalGraph({
       .attr("d", "M 0,-5 L 10,0 L 0,5")
       .attr("fill", "rgba(255, 255, 255, 0.5)");
 
+    // SECTION 1: Ball gradient
     // Ball gradient
     const ballGradient = defs
       .append("radialGradient")
@@ -86,47 +91,22 @@ export default function OrbitalGraph({
     ballGradient
       .append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", "#ffffff");
-
-    ballGradient
-      .append("stop")
-      .attr("offset", "40%")
-      .attr("stop-color", "#ffffff");
+      .attr("stop-color", color)
+      .attr("stop-opacity", "1");
 
     ballGradient
       .append("stop")
       .attr("offset", "60%")
-      .attr("stop-color", "#ffd700");
-
-    ballGradient
-      .append("stop")
-      .attr("offset", "85%")
-      .attr("stop-color", "#ff8c00")
-      .attr("stop-opacity", "0.6");
+      .attr("stop-color", color)
+      .attr("stop-opacity", "0.9");
 
     ballGradient
       .append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", "#ff8c00")
-      .attr("stop-opacity", "0.1");
+      .attr("stop-color", color)
+      .attr("stop-opacity", "0.3");
 
-    // Glow filter
-    const glowFilter = defs
-      .append("filter")
-      .attr("id", `glow-${period}`)
-      .attr("x", "-50%")
-      .attr("y", "-50%")
-      .attr("width", "200%")
-      .attr("height", "200%");
-
-    glowFilter
-      .append("feGaussianBlur")
-      .attr("stdDeviation", "2")
-      .attr("result", "coloredBlur");
-
-    const feMerge = glowFilter.append("feMerge");
-    feMerge.append("feMergeNode").attr("in", "coloredBlur");
-    feMerge.append("feMergeNode").attr("in", "SourceGraphic");
+    // END SECTION 1
 
     // Create a small orbit visualization on the left
     const orbitRadius = 12;
@@ -173,15 +153,6 @@ export default function OrbitalGraph({
       .append("circle")
       .attr("r", 4)
       .attr("fill", `url(#ballGradient-${period})`)
-      .attr("filter", `url(#glow-${period})`);
-
-    // Add the highlight
-    orbitBall
-      .append("circle")
-      .attr("r", 2)
-      .attr("cx", -0.5)
-      .attr("cy", -0.5)
-      .attr("fill", "rgba(255, 255, 255, 0.9)");
 
     // Generate sine wave data
     const wavePoints: [number, number][] = Array.from({ length: 100 }, (_, i) => {
@@ -208,12 +179,14 @@ export default function OrbitalGraph({
     waveGradient
       .append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", "rgba(255, 255, 255, 0.4)");
+      .attr("stop-color", color)
+      .attr("stop-opacity", 0.4);
 
     waveGradient
       .append("stop")
       .attr("offset", "100%")
-      .attr("stop-color", "rgba(255, 255, 255, 0.1)");
+      .attr("stop-color", color)
+      .attr("stop-opacity", 0.1);
 
     // Draw the sine wave
     svg
@@ -267,15 +240,6 @@ export default function OrbitalGraph({
       .append("circle")
       .attr("r", 4)
       .attr("fill", `url(#ballGradient-${period})`)
-      .attr("filter", `url(#glow-${period})`);
-
-    // Add highlight (same as orbit ball)
-    waveBall
-      .append("circle")
-      .attr("r", 2)
-      .attr("cx", -0.5)
-      .attr("cy", -0.5)
-      .attr("fill", "rgba(255, 255, 255, 0.9)");
 
     // Animation function
     const x = (elapsedTime * (2 * Math.PI) / period) % (numPeriods * 2 * Math.PI);

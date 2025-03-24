@@ -7,6 +7,7 @@ import OrbitalGraph from './OrbitalGraph';
 import { useAudioContext } from '@/hooks/useAudioContext';
 import { useTime } from '@/contexts/TimeContext';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { BALL_COLORS } from "@/config/orbitConfig";
 
 interface ScrollSectionProps {
   id: string;
@@ -16,6 +17,24 @@ interface ScrollSectionProps {
   nextSectionId?: string;
   onVisibilityChange?: (isVisible: boolean, intersectionRatio: number) => void;
 }
+
+const FIXED_COLOR_SCHEME = {
+  'one-orbit': [BALL_COLORS('multicolor')[0].secondary], // Lavender
+  'two-orbits': [
+    BALL_COLORS('multicolor')[0].secondary, // Lavender
+    BALL_COLORS('multicolor')[1].secondary  // Aqua
+  ],
+  'three-orbits': [
+    BALL_COLORS('multicolor')[0].secondary, // Lavender
+    BALL_COLORS('multicolor')[1].secondary, // Aqua
+    BALL_COLORS('multicolor')[2].secondary  // Gold
+  ],
+  'three-body-explanation': [
+    BALL_COLORS('multicolor')[0].secondary, // Lavender
+    BALL_COLORS('multicolor')[1].secondary, // Aqua
+    BALL_COLORS('multicolor')[2].secondary  // Gold
+  ]
+};
 
 export default function ScrollSection({ id, title, content, type, nextSectionId, onVisibilityChange }: ScrollSectionProps) {
   const controls = useAnimation();
@@ -78,7 +97,7 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
               </div>
               <div className="border-t border-blue-500/30 pt-4">
                 <p className="text-sm text-gray-400 mb-2">Y-position over time (1 period)</p>
-                <OrbitalGraph period={1000} numPeriods={1} isRunning={isInView} />
+                <OrbitalGraph period={1000} numPeriods={1} isRunning={isInView} color={FIXED_COLOR_SCHEME['one-orbit'][0]} />
               </div>
             </div>
           </div>
@@ -93,11 +112,11 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
                   <p className="text-sm text-gray-400 mb-2">First orbit (1s period)</p>
-                  <OrbitalGraph period={1000} numPeriods={2} isRunning={isInView} />
+                  <OrbitalGraph period={1000} numPeriods={2} isRunning={isInView} color={FIXED_COLOR_SCHEME['two-orbits'][0]} />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Second orbit (2s period)</p>
-                  <OrbitalGraph period={2000} numPeriods={1} isRunning={isInView} />
+                  <OrbitalGraph period={2000} numPeriods={1} isRunning={isInView} color={FIXED_COLOR_SCHEME['two-orbits'][1]} />
                 </div>
               </div>
             </div>
@@ -113,15 +132,15 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
                   <p className="text-sm text-gray-400 mb-2">First orbit (1s period)</p>
-                  <OrbitalGraph period={1000} numPeriods={6} isRunning={isInView} />
+                  <OrbitalGraph period={1000} numPeriods={6} isRunning={isInView} color={FIXED_COLOR_SCHEME['three-orbits'][0]} />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Second orbit (2s period)</p>
-                  <OrbitalGraph period={2000} numPeriods={3} isRunning={isInView} />
+                  <OrbitalGraph period={2000} numPeriods={3} isRunning={isInView} color={FIXED_COLOR_SCHEME['three-orbits'][1]} />
                 </div>
                 <div>
                   <p className="text-sm text-gray-400 mb-2">Third orbit (3s period)</p>
-                  <OrbitalGraph period={3000} numPeriods={2} isRunning={isInView} />
+                  <OrbitalGraph period={3000} numPeriods={2} isRunning={isInView} color={FIXED_COLOR_SCHEME['three-orbits'][2]} />
                 </div>
               </div>
             </div>
@@ -132,11 +151,11 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
           <div className="mt-4">
             <div className="p-6 bg-blue-950/50 rounded-lg border border-blue-500/30">
               <p className="text-sm text-gray-400 mb-2">First orbit (6 periods)</p>
-              <OrbitalGraph period={1000} numPeriods={6} isRunning={isInView} />
+              <OrbitalGraph period={1000} numPeriods={6} isRunning={isInView} color={FIXED_COLOR_SCHEME['three-body-explanation'][0]} />
               <p className="text-sm text-gray-400 mb-2">Second orbit (3 periods)</p>
-              <OrbitalGraph period={2000} numPeriods={3} isRunning={isInView} />
+              <OrbitalGraph period={2000} numPeriods={3} isRunning={isInView} color={FIXED_COLOR_SCHEME['three-body-explanation'][1]} />
               <p className="text-sm text-gray-400 mb-2">Third orbit (2 periods)</p>
-              <OrbitalGraph period={3000} numPeriods={2} isRunning={isInView} />
+              <OrbitalGraph period={3000} numPeriods={2} isRunning={isInView} color={FIXED_COLOR_SCHEME['three-body-explanation'][2]} />
             </div>
           </div>
         );

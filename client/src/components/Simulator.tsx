@@ -347,7 +347,7 @@ export default function Simulator() {
                         cx="12"
                         cy="12"
                         r={6 * starSize}
-                        fill={colorMode === 'monochrome' ? STAR_COLOR.primary : BALL_COLORS(colorMode)[0].primary}
+                        fill={colorMode === 'monochrome' ? STAR_COLOR.primary : BALL_COLORS(colorMode)[0].secondary}
                         filter={colorScheme === 'highQuality' ? `url(#${BALL_FILTERS.glow.id(0, colorScheme)})` : undefined}
                       />
                     </svg>
@@ -378,7 +378,7 @@ export default function Simulator() {
                           cx="12"
                           cy="12"
                           r={6 * starSize}
-                          fill={colorMode === 'monochrome' ? STAR_COLOR.primary : BALL_COLORS(colorMode)[0].primary}
+                          fill={colorMode === 'monochrome' ? STAR_COLOR.primary : BALL_COLORS(colorMode)[0].secondary}
                           filter={colorScheme === 'highQuality' ? `url(#${BALL_FILTERS.glow.id(0, colorScheme)})` : undefined}
                         />
                       </svg>
