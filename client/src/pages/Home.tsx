@@ -21,7 +21,7 @@ const sections = [
   },
   {
     id: 'two-orbits',
-    title: 'When Two Orbits Meet',
+    title: 'When Two Orbits Coincide',
     content: 'If there are two orbits with different periods, we need to wait until their reset times align. In this example, one is moving twice as fast as the other, so we need to wait twice as long.',
     type: 'double',
     nextSectionId: 'three-orbits'

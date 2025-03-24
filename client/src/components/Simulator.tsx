@@ -228,7 +228,7 @@ export default function Simulator() {
               <AccordionItem value="presets" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:no-underline transition-colors">
                   <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    🌟 Harmonic Presets
+                    🌟 Favorite Presets
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2">
@@ -252,7 +252,7 @@ export default function Simulator() {
               <AccordionItem value="orbits" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:no-underline transition-colors">
                   <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    🪐 Orbital Dynamics
+                    🪐 Orbital Settings
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
@@ -303,7 +303,7 @@ export default function Simulator() {
               <AccordionItem value="sound" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
                 <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:no-underline transition-colors">
                   <span className="bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-                    🎵 Sonic Parameters
+                    🎵 Sound Settings
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
@@ -351,7 +351,7 @@ export default function Simulator() {
                         filter={colorScheme === 'highQuality' ? `url(#${BALL_FILTERS.glow.id(0, colorScheme)})` : undefined}
                       />
                     </svg>
-                    <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">Visual Presets</span>
+                    <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">Visual Settings</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
