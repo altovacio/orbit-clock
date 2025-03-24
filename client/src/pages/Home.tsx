@@ -14,15 +14,15 @@ const sections = [
   },
   {
     id: 'one-orbit',
-    title: 'What is an Orbital Period?',
-    content: 'In circular motion, the period \( T \) is defined as the time taken to complete one full revolution. In this example, \( T = 1s \).',
+    title: 'Understanding Orbit Reset',
+    content: 'The period \( T \) represents the duration required for a complete revolution. In this example, \T = 1s \.',
     type: 'single',
     nextSectionId: 'two-orbits'
   },
   {
     id: 'two-orbits',
     title: 'When Two Orbits Meet',
-    content: 'In this scenario, one body completes its orbit in 1 second, while the other takes 2 seconds. They will realign to their initial positions at the top after the smaller orbit has completed two full cycles, which occurs after 2 seconds.',
+    content: 'If there are two orbits with different periods, we need to wait until their reset times align. In this example, one is moving twice as fast as the other, so we need to wait twice as long.',
     type: 'double',
     nextSectionId: 'three-orbits'
   },
@@ -30,6 +30,13 @@ const sections = [
     id: 'three-orbits',
     title: 'Three-Body Dance',
     content: 'With three objects (periods of 1, 2, and 3 seconds), the pattern becomes a little more complex. When will they all align again at the top?',
+    type: 'multi',
+    nextSectionId: 'three-body-explanation'
+  },
+  {
+    id: 'three-body-explanation',
+    title: 'Least Common Multiple',
+    content: 'They align at the top when all the orbits have completed whole cycles, which occurs every 6 seconds in this example. This is because 6 is their least common multiple! 6 divided by each period is an integer!',
     type: 'multi',
     nextSectionId: 'simulator'
   }

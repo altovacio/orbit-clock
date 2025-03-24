@@ -127,6 +127,19 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
             </div>
           </div>
         );
+      case 'three-body-explanation':
+        return (
+          <div className="mt-4">
+            <div className="p-6 bg-blue-950/50 rounded-lg border border-blue-500/30">
+              <p className="text-sm text-gray-400 mb-2">First orbit (6 periods)</p>
+              <OrbitalGraph period={1000} numPeriods={6} isRunning={isInView} />
+              <p className="text-sm text-gray-400 mb-2">Second orbit (3 periods)</p>
+              <OrbitalGraph period={2000} numPeriods={3} isRunning={isInView} />
+              <p className="text-sm text-gray-400 mb-2">Third orbit (2 periods)</p>
+              <OrbitalGraph period={3000} numPeriods={2} isRunning={isInView} />
+            </div>
+          </div>
+        );
       default:
         return null;
     }
