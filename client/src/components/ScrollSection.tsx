@@ -88,15 +88,15 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
           <div className="mt-4">
             <div className="p-6 bg-blue-950/50 rounded-lg border border-blue-500/30">
               <div ref={mathRef} className="mb-6">
-                <div className="latex" data-formula="T_1 = 1s, T_2 = 2s" />
+                <div className="latex" data-formula="T_1 = 1\text{s},\; T_2 = 2\text{s}" />
               </div>
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
-                  <p className="text-sm text-gray-400 mb-2">First orbit (1 period)</p>
+                  <p className="text-sm text-gray-400 mb-2">First orbit (1s period)</p>
                   <OrbitalGraph period={1000} numPeriods={2} isRunning={isInView} />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400 mb-2">Second orbit (2 periods)</p>
+                  <p className="text-sm text-gray-400 mb-2">Second orbit (2s period)</p>
                   <OrbitalGraph period={2000} numPeriods={1} isRunning={isInView} />
                 </div>
               </div>
@@ -108,19 +108,19 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
           <div className="mt-4">
             <div className="p-6 bg-blue-950/50 rounded-lg border border-blue-500/30">
               <div ref={mathRef} className="mb-6">
-                <div className="latex" data-formula="T_1 = 1s, T_2 = 2s, T_3 = 3s" />
+                <div className="latex" data-formula="T_1 = 1\text{s},\; T_2 = 2\text{s},\; T_3 = 3\text{s}" />
               </div>
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
-                  <p className="text-sm text-gray-400 mb-2">First orbit (6 periods)</p>
+                  <p className="text-sm text-gray-400 mb-2">First orbit (1s period)</p>
                   <OrbitalGraph period={1000} numPeriods={6} isRunning={isInView} />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400 mb-2">Second orbit (3 periods)</p>
+                  <p className="text-sm text-gray-400 mb-2">Second orbit (2s period)</p>
                   <OrbitalGraph period={2000} numPeriods={3} isRunning={isInView} />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400 mb-2">Third orbit (2 periods)</p>
+                  <p className="text-sm text-gray-400 mb-2">Third orbit (3s period)</p>
                   <OrbitalGraph period={3000} numPeriods={2} isRunning={isInView} />
                 </div>
               </div>

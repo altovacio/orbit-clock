@@ -23,6 +23,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useSettings } from "@/contexts/SettingsContext";
+import { STAR_COLOR, BALL_COLORS, BALL_FILTERS } from '@/config/orbitConfig';
 
 // Preset configurations
 interface PresetConfig {
@@ -63,6 +64,7 @@ const PRESETS: PresetConfig[] = [
     numOrbits: 10,
   },
 ];
+
 
 // Linear interpolation helper function
 function interpolateValues(
@@ -224,7 +226,7 @@ export default function Simulator() {
             >
               {/* Presets Accordion Item */}
               <AccordionItem value="presets" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
+                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:no-underline transition-colors">
                   <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                     🌟 Harmonic Presets
                   </span>
@@ -248,7 +250,7 @@ export default function Simulator() {
 
               {/* Orbit Controls Accordion Item */}
               <AccordionItem value="orbits" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
+                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:no-underline transition-colors">
                   <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                     🪐 Orbital Dynamics
                   </span>
@@ -299,13 +301,14 @@ export default function Simulator() {
               
               {/* Sound Settings Accordion Item */}
               <AccordionItem value="sound" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
+                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:no-underline transition-colors">
                   <span className="bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
                     🎵 Sonic Parameters
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
                   <div className="space-y-4">
+                    <p className="text-sm text-gray-400">This section just for fun!</p>
                     <div className="space-y-2">
                       <Label htmlFor="scale-select">Musical Scale</Label>
                       <select
@@ -336,25 +339,50 @@ export default function Simulator() {
 
               {/* Visual Presets Accordion Item */}
               <AccordionItem value="visual-presets" className="rounded-lg bg-gray-900/50 backdrop-blur-sm">
-                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:bg-gray-800/30 transition-colors">
-                  <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                    🎨 Visual Presets
-                  </span>
+                <AccordionTrigger className="px-4 py-3 text-lg font-semibold hover:no-underline transition-colors">
+                  <div className="flex items-center ">
+                    {/* Live preview star */}
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r={6 * starSize}
+                        fill={colorMode === 'monochrome' ? STAR_COLOR.primary : BALL_COLORS(colorMode)[0].primary}
+                        filter={colorScheme === 'highQuality' ? `url(#${BALL_FILTERS.glow.id(0, colorScheme)})` : undefined}
+                      />
+                    </svg>
+                    <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">Visual Presets</span>
+                  </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Label htmlFor="star-size">Star Size</Label>
-                      <span className="text-sm text-muted-foreground">{starSize}x</span>
+                  <p className="text-sm text-muted-foreground -mt-2 mb-4">
+                    ✨ Live preview - changes affect all orbits
+                  </p>
+                  
+                  {/* Visual controls */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <Label>Star Size</Label>
+                      <Slider
+                        value={[starSize]}
+                        onValueChange={([value]) => setStarSize(value)}
+                        min={0.5}
+                        max={2}
+                        step={0.1}
+                      />
                     </div>
-                    <Slider
-                      id="star-size"
-                      value={[starSize]}
-                      onValueChange={([value]) => setStarSize(value)}
-                      min={0.5}
-                      max={2}
-                      step={0.1}
-                    />
+                    {/* Preview star */}
+                    <div className="relative w-12 h-12">
+                      <svg width="48" height="48" viewBox="0 0 24 24">
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r={6 * starSize}
+                          fill={colorMode === 'monochrome' ? STAR_COLOR.primary : BALL_COLORS(colorMode)[0].primary}
+                          filter={colorScheme === 'highQuality' ? `url(#${BALL_FILTERS.glow.id(0, colorScheme)})` : undefined}
+                        />
+                      </svg>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between space-x-4">

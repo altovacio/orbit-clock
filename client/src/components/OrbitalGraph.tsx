@@ -19,7 +19,7 @@ export default function OrbitalGraph({
   const { elapsedTime, isRunning: globalIsRunning } = useTime();
 
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || !isRunning) return;
 
     const width = 300; // Increased overall width to accommodate larger margin
     const height = 60;
@@ -235,6 +235,28 @@ export default function OrbitalGraph({
         .attr("y2", innerHeight / 4)
         .attr("stroke", "rgba(255, 255, 255, 0.2)")
         .attr("stroke-width", 1);
+      
+      // Add a line to indicate the period
+      if (i === 1) {
+        svg
+          .append("line")
+          .attr("x1", 0)
+          .attr("y1", -innerHeight / 4)
+          .attr("x2", x)
+          .attr("y2", -innerHeight / 4)
+          .attr("stroke", "rgba(255, 255, 255, 0.2)")
+          .attr("stroke-width", 1);
+
+        // Add a label for the period T
+        svg
+          .append("text")
+          .attr("x", x/2)
+          .attr("y", 2.0 ) // Adjust position above the line
+          .attr("fill", "rgba(255, 255, 255, 0.8)")
+          .attr("font-size", "12px")
+          .attr("text-anchor", "middle")
+          .text("T");
+      }
     }
 
     // Create the moving dot on the wave (matching orbit ball style)
