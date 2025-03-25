@@ -7,8 +7,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const sections = [
   {
     id: 'intro',
-    title: 'Celestial Harmony',
-    content: 'Explore the rhythmic dance of orbital bodies...',
+    title: 'Orbital Music',
+    content: 'The Rhythm of Common Multiples',
     type: 'intro',
     nextSectionId: 'one-orbit'
   },
