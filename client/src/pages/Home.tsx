@@ -36,7 +36,7 @@ const sections = [
   {
     id: 'three-body-explanation',
     title: 'Least Common Multiple',
-    content: 'They align at the top when all the orbits have completed whole cycles, which occurs every 6 seconds in this example. This is because 6 is their least common multiple! 6 divided by each period is an integer!',
+    content: 'They align at the top every 6 seconds in this example. This is because 6 divided by each period is an integer, so they all complete whole cycles! That is, 6 is their least common multiple!',
     type: 'multi',
     nextSectionId: 'simulator'
   }
