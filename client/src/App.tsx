@@ -11,12 +11,14 @@ import { TimeProvider } from '@/contexts/TimeContext';
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from 'react';
 import UIComponents from "@/pages/UIComponents";
+import CosmicConfigs from "@/pages/CosmicConfigs";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/ui-components" component={UIComponents} />
+      <Route path="/cosmic-configs" component={CosmicConfigs} />
       <Route component={NotFound} />
     </Switch>
   );

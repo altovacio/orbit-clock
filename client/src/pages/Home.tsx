@@ -8,21 +8,21 @@ const sections = [
   {
     id: 'intro',
     title: 'Orbital Music',
-    content: 'The Rhythm of Common Multiples',
+    content: 'Let\'s make some music while we learn about periodic motion',
     type: 'intro',
     nextSectionId: 'one-orbit'
   },
   {
     id: 'one-orbit',
     title: 'Understanding Orbit Reset',
-    content: 'The period \( T \) represents the duration required for a complete revolution. In this example, \T = 1s \.',
+    content: 'When we have periodic motion, we call the period \( T \) is the time it takes to go back to the starting point. Here, \( T = 1s \) for this orbit.',
     type: 'single',
     nextSectionId: 'two-orbits'
   },
   {
     id: 'two-orbits',
     title: 'When Two Orbits Coincide',
-    content: 'If there are two orbits with different periods, we need to wait until their reset times align. In this example, one is moving twice as fast as the other, so we need to wait twice as long.',
+    content: 'If there are two moving objects with different individual periods, we need to wait until their reset times align. In this example, one is moving twice as fast as the other, so we need to wait twice as long.',
     type: 'double',
     nextSectionId: 'three-orbits'
   },

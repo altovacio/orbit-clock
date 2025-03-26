@@ -18,8 +18,8 @@ export function useResetTimer(periods: number[], nextReset: number) {
   };
 }
 
-// Update the formatResetTime function
-function formatResetTime(durationMs: number) {
+// Add export keyword to the function
+export function formatResetTime(durationMs: number) {
   const MINUTE = 60 * 1000;
   const HOUR = 60 * MINUTE;
   const DAY = 24 * HOUR;
@@ -32,7 +32,7 @@ function formatResetTime(durationMs: number) {
   }
 
   if (durationMs > 1000 * YEAR) {
-    return '🚀 More than a millennium!';
+    return '🚀 Millenniums!';
   }
   if (durationMs > YEAR) {
     return '⏳ Over a year! ';

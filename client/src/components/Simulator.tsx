@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useSettings } from "@/contexts/SettingsContext";
 import { STAR_COLOR, BALL_COLORS, BALL_FILTERS } from '@/config/orbitConfig';
+import { cn } from "@/lib/utils";
 
 // Preset configurations
 interface PresetConfig {
@@ -58,7 +59,7 @@ const PRESETS: PresetConfig[] = [
   },
   {
     title: "10 Note Madness",
-    subtitle: "1.304e10y ⚠️(cosmic time)",
+    subtitle: "1.304e10y ⚠️",
     minPeriod: 1000,
     maxPeriod: 2100,
     numOrbits: 10,
@@ -237,11 +238,25 @@ export default function Simulator() {
                       <Button
                         key={index}
                         variant="outline"
-                        className="text-sm px-3 py-1 h-auto rounded-full border-blue-400/30 hover:border-blue-400/50 hover:bg-blue-400/10 transition-colors"
+                        className="text-sm px-3 py-1 h-auto rounded-lg border-blue-400/30 hover:border-blue-400/50 hover:bg-blue-400/10 transition-colors flex flex-col items-start"
                         onClick={() => applyPreset(index)}
                       >
-                        {preset.title}
-                        <span className="ml-1 text-blue-300/70 text-xs">{preset.subtitle}</span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-semibold">{preset.title}</span>
+                          <span className="text-sm text-muted-foreground">{preset.subtitle}</span>
+                        </div>
+                        <div className="flex gap-4 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <span className="font-mono">{preset.numOrbits}</span>
+                            <span>orbits</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span>Min period: </span>
+                            <span className="font-mono">{preset.minPeriod/1000}s</span>
+                            <span>Max period: </span>
+                            <span className="font-mono">{preset.maxPeriod/1000}s</span>
+                          </div>
+                        </div>
                       </Button>
                     ))}
                   </div>
@@ -256,43 +271,80 @@ export default function Simulator() {
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 space-y-4">
-                  <div className="space-y-4">
-                    <div className="flex gap-2">
-                      <Button onClick={addOrbit} variant="outline" size="sm" className="flex-1">
-                        Add Orbit
-                      </Button>
-                      <Button onClick={removeOrbit} variant="outline" size="sm" className="flex-1">
-                        Remove Orbit
-                      </Button>
-                    </div>
-                    
-                    {/* Min Period Slider */}
-                    <div className="space-y-2">
-                      <Label>Minimum Orbital Period</Label>
-                      <Slider
-                        value={[minPeriod / 1000]}
-                        onValueChange={([value]) => handleMinPeriodChange(Math.round(value * 1000))}
-                        min={0.5}
-                        max={5}
-                        step={0.1}
-                      />
-                      <div className="text-sm text-muted-foreground">
-                        {(minPeriod / 1000).toFixed(1)} seconds
-                      </div>
-                    </div>
+                  <div className="flex flex-col gap-4">
+                    <div className="space-y-4">
+                      {/* Orbit counter with buttons */}
+                      <div className="space-y-2">
+                        <Label htmlFor="orbit-count">Number of Orbits</Label>
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={removeOrbit}
+                                disabled={numOrbits <= 2}
+                                className="font-bold"
+                              >
+                                -
+                              </Button>
+                              
+                              <select
+                                value={numOrbits}
+                                onChange={(e) => setNumOrbits(Number(e.target.value))}
+                                className="bg-background border rounded-md px-4 py-2 text-center focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none font-bold"
+                              >
+                                {Array.from({ length: 49 }, (_, i) => i + 2).map((n) => (
+                                  <option key={n} value={n}>
+                                    {n}
+                                  </option>
+                                ))}
+                              </select>
 
-                    {/* Max Period Slider */}
-                    <div className="space-y-2">
-                      <Label>Maximum Orbital Period</Label>
-                      <Slider
-                        value={[maxPeriod / 1000]}
-                        onValueChange={([value]) => handleMaxPeriodChange(Math.round(value * 1000))}
-                        min={1}
-                        max={10}
-                        step={0.1}
-                      />
-                      <div className="text-sm text-muted-foreground">
-                        {(maxPeriod / 1000).toFixed(1)} seconds
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={addOrbit}
+                                disabled={numOrbits >= 50}
+                                className="font-bold"
+                              >
+                                +
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Period sliders moved below */}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="min-period">Minimum Period</Label>
+                          <Slider
+                            id="min-period"
+                            value={[minPeriod / 1000]}
+                            onValueChange={([value]) => handleMinPeriodChange(Math.round(value * 1000))}
+                            min={0.1}
+                            max={5}
+                            step={0.1}
+                          />
+                          <div className="text-xs text-muted-foreground">
+                            Current: {(minPeriod / 1000).toFixed(1)}s
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="max-period">Maximum Period</Label>
+                          <Slider
+                            id="max-period"
+                            value={[maxPeriod / 1000]}
+                            onValueChange={([value]) => handleMaxPeriodChange(Math.round(value * 1000))}
+                            min={0.5}
+                            max={10}
+                            step={0.1}
+                          />
+                          <div className="text-xs text-muted-foreground">
+                            Current: {(maxPeriod / 1000).toFixed(1)}s
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
