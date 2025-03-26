@@ -15,14 +15,14 @@ const sections = [
   {
     id: 'one-orbit',
     title: 'Understanding Orbit Reset',
-    content: 'When we have periodic motion, we call the period \( T \) is the time it takes to go back to the starting point. Here, \( T = 1s \) for this orbit.',
+    content: 'In periodic motion, the period \(T\) is the time taken to return to the starting point. Here, T = 1s for this orbit.',
     type: 'single',
     nextSectionId: 'two-orbits'
   },
   {
     id: 'two-orbits',
     title: 'When Two Orbits Coincide',
-    content: 'If there are two moving objects with different individual periods, we need to wait until their reset times align. In this example, one is moving twice as fast as the other, so we need to wait twice as long.',
+    content: 'If there are two moving objects with different individual periods, we need to wait until their reset times align. In this example, one is moving twice as fast as the other, and they align every 2 seconds.',
     type: 'double',
     nextSectionId: 'three-orbits'
   },

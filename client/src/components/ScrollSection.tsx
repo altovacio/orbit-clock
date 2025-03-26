@@ -107,7 +107,7 @@ export default function ScrollSection({ id, title, content, type, nextSectionId,
           <div className="mt-4">
             <div className="p-6 bg-blue-950/50 rounded-lg border border-blue-500/30">
               <div ref={mathRef} className="mb-6">
-                <div className="latex" data-formula="T_1 = 1\text{s},\; T_2 = 2\text{s}" />
+                <div className="latex" data-formula="T_1 = 1\text{s},\; T_2 = 2\text{s} \; ; \; T_{\text{Total}} = 2\text{s}" />
               </div>
               <div className="border-t border-blue-500/30 pt-4 space-y-4">
                 <div>
